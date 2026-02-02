@@ -1,0 +1,30 @@
+Thesis build and dependencies
+
+Dependencies (Ubuntu):
+
+Run the following to install the required TeX tools:
+
+```bash
+sudo apt update
+sudo apt install -y latexmk biber texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra
+```
+
+Build (recommended):
+
+- From the project root, run `make` to build the PDF using `latexmk`.
+- If your bibliography uses `biber` (e.g. you use `\addbibresource` or `backend=biber`), run `make biber` instead.
+
+Direct `latexmk` commands (equivalent):
+
+```bash
+latexmk -pdf -synctex=1 -interaction=nonstopmode Thesis.tex
+latexmk -pdf -use-biber -synctex=1 -interaction=nonstopmode Thesis.tex  # if using biber
+latexmk -c  # clean auxiliary files
+```
+
+VS Code notes:
+
+- Install the `LaTeX Workshop` extension for editing and live PDF preview.
+- The extension will normally detect `latexmk` automatically; the `Makefile` and commands above work with it.
+
+If you want me to configure a `.vscode/settings.json` to pin the recipe, tell me and I'll add it.

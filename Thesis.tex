@@ -1,0 +1,2517 @@
+\documentclass[a4paper, oneside]{discothesis}
+
+% ===================================================================
+% ENCODING AND FONT PACKAGES
+% ===================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% ===================================================================
+% YOUR EXISTING PACKAGES
+% ===================================================================
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\usepackage{minted}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{seqsplit}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\let\newtheorem\relax
+\let\theoremstyle\relax
+\usepackage{amsthm}
+
+\definecolor{bg}{rgb}{0.97,0.97,0.97}
+\definecolor{jsonstring}{rgb}{0.0, 0.5, 0.5}
+\definecolor{jsonkey}{rgb}{0.5, 0.0, 0.5}
+
+% 2. Setup JSON
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily\footnotesize,
+    numbers=left,
+    numberstyle=\scriptsize\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{bg},
+    stringstyle=\color{jsonstring},
+    keywordstyle=\color{jsonkey},
+    morekeywords={true,false}
+}
+
+% \mathindent not defined in this class; comment out to avoid error
+%\setlength{\mathindent}{0pt}
+
+% ===================================================================
+% THEOREM DEFINITIONS
+% ===================================================================
+\newcommand{\Ask}{\mathcal{A}}
+\newcommand{\Bid}{\mathcal{B}}
+\newcommand{\Tick}{\delta_{tick}}
+\newcommand{\Lot}{\delta_{lot}}
+
+% ===================================================================
+% HYPERREF (LOAD LAST FOR BEST COMPATIBILITY)
+% ===================================================================
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOCUMENT METADATA
+\thesistype{Bachelor's Thesis}
+\title{Polymarkets Hybrid Exchange System and Prediction Market Arbitrage}
+\author{Mario Cattaneo}
+\email{mcattane@ethz.ch}
+\institute{Distributed Computing Group \\[2pt] Computer Engineering and Networks Laboratory \\[2pt] ETH Zürich}
+\supervisors{Prof. Dr. Lucianna Kiffer, Oriol Saguillo\\[2pt] Prof.\ Dr.\ Roger Wattenhofer}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\cleardoublepage
+
+\begin{acknowledgements}
+	I want to thank Prof. Dr. Lucianna Kiffer and Oriol Saguillo from IMDEA Networks for giving me the opportunity to do my thesis under their supervision and taking the time to meet me almost every week and guiding me throughout the process, as well as providing me access to their server for running my data collection.
+\end{acknowledgements}
+
+\begin{abstract}
+todo
+\end{abstract}
+
+\tableofcontents
+
+\mainmatter
+
+\chapter{Introduction}
+\section{Speculation}
+Classifying and regulating speculation on uncertain events has historically been challenging. A common classification hinges on the purpose of the speculation: whether it serves to hedge risk and provide insurance, to enable price discovery for information aggregation and forecasting, or to function as entertainment akin to gambling. However, in section~\ref{sec:spec_cases} we present cases that challenge this classification and the associated regulatory approaches.
+
+\subsection{Case Studies}
+\label{sec:spec_cases}
+The doctrine of \textit{Insurable Interest}, originating in 18th-century England, initially treated wagers made without pre-existing risk exposure as falling within the scope of illegitimate gambling~\cite{STOUT_1999}. This legal concept arose from concerns about fraudulent activity, such as the intentional destruction of insured property, and was intended to distinguish insurance from gambling by requiring a policyholder to have a financial stake in the insured item or life.
+
+However, the ``Bucket Shops'' of the early 20th century in the United States, which allowed customers to wager on stock prices without ownership, prompted courts to adopt doctrines that treated such transactions as enforceable under certain conditions. These establishments operated as off-track betting parlors for stocks and commodities, enabling public participation in financial speculation without the transfer of underlying securities. In \textit{Board of Trade v. Christie Grain} (1905), the Supreme Court recognized that a market's continuous quotations and the contractual structure of exchange dealings could justify treating functionally similar transactions as part of a legitimate market; as the Court observed, "a collection of information, otherwise entitled to protection, does not cease to be so because it concerns illegal acts"~\cite{CHRISTIE_1905}.
+
+Conversely, the \textit{Onion Futures Act of 1958} prohibited trading in onion futures in the U.S. following a substantial price collapse attributed to speculative activity, illustrating that markets otherwise regarded as legitimate can be restricted if their harms are judged to outweigh their utility~\cite{LAMBERT_2010}. Congress enacted the Act after market manipulation attributed to traders Vincent Kosuga and Sam Siegel, who in 1955 acquired dominant positions in the onion market and contributed to sharp price declines that harmed producers. The episode suggested that certain market structures; for example, those for perishable agricultural products with limited storability and seasonal production may be particularly vulnerable to manipulation, which led Congress to impose a commodity specific restriction on onion futures trading~\cite{Onion_Futures_Act_1958}.
+
+\subsection{Market Integrity}
+This regulatory ambiguity can undermine market integrity through two primary risks: direct manipulation and exploitation.
+
+A moral hazard arises when market participants can directly influence an event's outcome. Match-fixing in sports provides an illustrative example: a boxer might have an economic incentive to lose deliberately if betting returns on their defeat exceed the prize for winning.
+
+A related issue is asymmetric information. Not all informational advantages are malicious; some are an unavoidable consequence of information diffusion. However, the asymmetry becomes exploitative, potentially amounting to insider trading, when it arises from privileged access that allows a few actors to profit from unfairly obtained information without altering the outcome.
+
+Both risks extend to more severe scenarios, from corporate managers taking positions that benefit from a project failure they can influence to insiders profiting from foreknowledge of military actions.
+
+\subsection{Modern Regulation}
+To mitigate these risks, regulators can prohibit speculation on events that present particularly high moral-hazard or exploitation risks. For example, the U.S. Commodity Futures Trading Commission (CFTC) implements 17 C.F.R. § 40.11, which provides that a registered entity "shall not list for trading or accept for clearing" contracts that, among other things, "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" and permits the Commission to identify similar activities it deems contrary to the public interest~\cite{CFTC_REG_40_11}. The rule has been central to oversight and review of event contracts: the CFTC has used §40.11 procedures in reviews of election- and political-event submissions, and in enforcement or review proceedings platforms such as Polymarket have restricted access for U.S. users to certain event contracts~\cite{CFTC_Polymarket_2022}. The rule has also been a focal point in litigation, including Kalshi's submissions and related judicial proceedings~\cite{Kalshi_v_CFTC_2024}.
+
+
+\section{Prediction Market Exchanges}
+Polymarket and Kalshi are two exchanges popularizing prediction markets and making them accessible globally. A prediction market is derived from the outcomes of a real-world event. On both exchanges, a prediction market is exclusively designed for binary events with YES and NO shares, which are quoted in USD, or on Polymarket, more specifically, USDC, a USD-backed ERC-20 token managed by Coinbase through a reserve such that its value is identical to USD. An example is the event ``Will the Republican Party win the House in 2026?'', which is hosted on both exchanges. A position in a prediction market refers to a specific quantity of YES or NO shares held. The process of deciding the outcome of the underlying event and assigning terminal values for a YES and NO share is called resolution, and once the values are determined, the market is deemed resolved.
+
+Kalshi specifies an explicit expiration date and central resolution source on its legally binding trading contracts for the YES and NO shares, such that a market is guaranteed to resolve to either YES or NO unambiguously upon expiration. If the market resolves to YES, then every YES share has a value of 1 USD, while every NO share has a value of 0 USD. Otherwise, the market resolves to NO and every NO share has the value of 1 USD, while every YES share has the value of 0 USD~\cite{Kalshi_Legal}.
+
+Polymarket, on the other hand, does not provide legally binding trading contracts, but uses the Gnosis Conditional Tokens contract (CFT) to define the YES and NO shares as ERC-1155 tokens and to enforce their combined value at 1 USDC, and it uses UMA's optimistic oracle framework for resolution~\ref{sec:uma}. In this system, a prediction can resolve to UNKNOWN, rendering the value of YES and NO shares 0.5 USDC each~\ref{sec:uca}.
+
+In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD at all times, as enforced by the trading contract on Kalshi and by the CFT smart contract on Polymarket~\ref{sec:cft}. This does not hold for the market price of the YES and NO shares on the exchange, which are determined by a Central Limit Order Book (CLOB) on both exchanges~\ref{sec:CLOB}. This is what makes arbitrage possible, as specified in~\ref{sec:arbitrage}.
+
+Events with more than two discrete outcomes can be constructed using multiple prediction markets. For example, the event ``Which party will win the House in 2026?'' is decomposed into the prediction markets for the questions ``Will the Democratic Party win the House in 2026?'' and ``Will the Republican Party win the House in 2026?''. This provides powerful information aggregation capabilities built on top of the information efficiency of markets. A common pattern on both exchanges is to define an event with more than two possible discrete outcomes exhaustively, using a prediction market for all mutually exclusive outcomes. The event ``Which party will win the House in 2026?'' is an example of this. Polymarket labels these as \textit{Negrisk} and provides a full suite of smart contracts dedicated to these events, including a distinct settlement smart contract deployment \textit{Negrisk CTFE} and an atomic swap operation for converting a set of mutually exclusive outcome positions to the complement position of the complement outcomes~\ref{sec:nr}.
+
+\subsection{Growth}
+Over 2025, Kalshi's trading volume grew on average 24\% weekly with a variance of 1.45~\cite{tokenterminalKalshi}, while Polymarket's grew on average 31\% weekly with a variance of 2.82~\cite{dunePolymarketQuery}.
+
+To put these figures into perspective, we can use the benchmarks for early-stage companies popularized by Paul Graham of Y Combinator. A weekly growth rate of 5--7\% is considered good, while 10\% is exceptional~\cite{graham2012growth}.
+
+They fundamentally operate differently: Kalshi is fully centralized and strictly adheres to CFTC regulations, whilst Polymarket operates on a decentralized model using smart contracts on the Polygon network.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/poly_quarterly_trading.png}
+    \caption{Quarterly trade volume on Polymarket. Source: Author's own compilation using Dune Analytics (\url{https://dune.com/queries/6298071}).}
+    \label{fig:POLY_QUARTERLY_TRADES}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/kalshi_quarterly_vol.png}
+    \caption{Quarterly trade volume on Kalshi. (\url{https://tokenterminal.com/explorer/projects/kalshi/metrics/trading-volume?interval=max&granularity=quarter}).}
+    \label{fig:KALSHI_QUARTERLY_TRADES}
+\end{figure}
+
+The figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} illustrate the quarterly USD trading volume. For Polymarket we additionally can distinguish between the trading volume on the Negrisk CTFE and Basic CTFE~\ref{sec:ctfe}. 
+
+\subsection{US Market}
+The immediate flat line in Polymarket's trading volume begins immediately after the CFTC action in January 2022. Kalshi operated exclusively within the U.S. until October 2025. This includes the first three quarters of 2025 and the last quarter of 2024 in figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
+
+The 47th U.S. presidential election was a major event on both exchanges. There have been various studies comparing the forecasting ability and information efficiency of the prediction markets on Kalshi and Polymarket for this event, specifically compared to other forecasting methods like New York Times polls~\cite{clinton2025prediction,wolfers2024prediction}. Besides that, you can clearly see the spike in trading volume in the fourth quarter of 2024. On Kalshi, markets related to politics and election accounted for roughly 1 billion USD volume in November alone~\cite{morningstar2024kalshi}, while on Polymarket, the main market for the presidential election accumulated a total volume of 3.5 billion USDC~\cite{coindesk2024polymarket}.
+
+However, a recent study using two unsupervised network models suggests that around 18\% or less of the volume traded on Polymarket is "washed" (i.e., likely orchestrated to inflate activity). One method reported that around 60\% of December 2024 volume was washed~\cite{WashTrading}, which was the month after the U.S. election markets concluded and which showed an immediate decline of over 50\% in total trading volume~\cite{duneNovDec}.
+
+\subsection{Accessibility}
+Kalshi has officially expanded to over 140 countries in October 2025~\cite{kalshi2025expansion} and Polymarket has expressed intentions to reenter the U.S. On July 21, 2025, Polymarket acquired QCX LLC, a company that had registered as a Designated Contract Market (DCM) with the CFTC earlier that month~\cite{GCX_ACQUIRY}. This entity was subsequently rebranded as ``Polymarket US''~\cite{GCX_CFTC_REGISTRY}. As of December 4, 2025, Polymarket is not yet available in the U.S. Both exchanges face regulatory headwinds in many jurisdictions. In many countries they are banned for usage by gambling authorities. This includes Switzerland, where the Swiss Gambling Supervisory Authority (GESPA) has blacklisted their DNS domains, making them irresolvable through Swiss ISPs~\cite{GESPA_BLACKLIST}.
+
+Even with CFTC approval, Kalshi faces regulatory issues on a regional level in the U.S. An example is the Illinois Department of Financial and Professional Regulation (IDFPR) issuing a cease-and-desist order preventing Kalshi from operating in Illinois for allegedly defying state gambling regulation. Kalshi argues that national oversight by the CFTC preempts these claims. This ongoing case demonstrates that the regulatory landscape surrounding speculation remains conflicted~\cite{kalshi2025illinois}.
+
+By design, Polymarket remains widely accessible even if banned, since it does not enforce identification on its main trading platform (Know-Your-Customer, KYC). Even if KYC were enforced, Polymarket's traded base assets—the ERC-1155 tokens for YES or NO shares defined through the Gnosis Conditional Tokens contract—can also be obtained using \textit{splitPosition}, swapped for USDC using \textit{mergePosition}, and, after resolution, redeemed using \textit{redeemPosition} for the value reported by Polymarket.
+
+\chapter{Objective and Methodology}
+Polymarket is a hybrid exchange in which a proprietary off‑chain CLOB serves as the market mechanism. Settlement of matched orders, enforcement of the non‑legally binding trading contracts and resolution are implemented using smart contracts. For the off‑chain CLOB, Polymarket also provides a separate market object with various attributes and categories that captures the off‑chain lifecycle. The system's exact specification and coordination are poorly documented. Information is fragmented and often implicit, ambiguous, or even provably incorrect.
+
+Endpoints to interact with Polymarket's off‑chain state are hosted under subdomains of \textit{polymarket.com}. However, throughout this thesis these endpoints have continuously changed and state inconsistencies were discovered.
+
+Some events are available on both Polymarket and Kalshi. These include the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''.
+
+\section{Three Objectives}
+The first objective was to implement reliable data‑collection clients for Polymarket's and Kalshi's endpoints to collect data for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''. Due to poor documentation and discovered state inconsistencies, this also involved analyzing the data and state presented by the endpoints.
+
+The second objective was to analyze how a prediction‑market life cycle is coordinated on Polymarket's hybrid exchange system, as this is also not specified in the documentation. 
+
+The third objective was to formalize the prediction‑market orderbook and use collected data to measure price slippage and arbitrage for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''.
+
+\section{Methodology}
+Both Polymarket and Kalshi provide WebSocket endpoints to subscribe to orderbook state changes and trades, and HTTP endpoints to request the current orderbook state. To use these endpoints, the orderbooks of interest must be identified first. For this, both exchanges define market objects and provide HTTP endpoints to query historical market objects, as well as WebSocket endpoints to subscribe to market lifecycle events. Both exchanges use JSON for endpoint communication and define rate limits for request throughput. Due to Polymarket's poor documentation, a lot of important information had to be discovered through testing and response analysis. These findings, along with continuous endpoint changes and discovered state inconsistencies, resulted in multiple client iterations. 
+The final clients are tailored for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?'', and includes strict state and response monitoring and handling. This is covered in chapter~\ref{chap:endpoints}.
+
+To analyze the market lifecycle, first the statically available information of on‑chain smart contracts is analyzed in chapter ~\ref{chap:smart_contracts}. This consists of essential smart contract control flow, events emitted, and immutable contract storage, which allows important links to be made between contracts and their intended use, as well as also help identify information that can only be deduced or inferred from the emitted events. 
+For this purpose a client for the Infura `eth\_getLogs` endpoint was implemented. These events and the historical market objects, which are fetchable through Polymarket's endpoints, are then used to analyze how a market lifecycle is coordinated in chapter ~\ref{chap:market_lifecycle}.
+
+In chapter ~\ref{chap:orderbook_trading} the orderbook for prediction markets is formalized to define how slippage and arbitrage for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?'' are measured. Then the data collected from the Polymarkets and Kalshis endpoints, and emitted events are used to analyze slippage and arbitrage by these measures.
+
+Finally, chapter ~\ref{chap:discussion} discusses and interprets the findings of this thesis.
+
+\chapter{Endpoints and Clients}
+\label{chap:endpoints}
+Polymarket and Kalshi provide endpoints on subdomains of \textit{polymarket.com}. For the purpose of our data exploration we're interested in the endpoints which allow us to later analyze the market lifecycle, order book state and trades.
+
+\section{Polymarket Event and Market Endpoints}
+\label{sec:clob_json}
+Polymarket has a market object for every prediction market, with a unique market id. Additionally, every market is also part of an \textit{event}, and every event can be associated with multiple \textit{tags}. The \textit{gamma-api.polymarket.com} domain hosts a handful of HTTP endpoints to query market objects, event objects or tag objects in pages. The documentation only provides an example use case a long with list of the query parameters for the request and attributes in the response with a sample request and response. The most essential query parameters are \textit{offset} and \textit{limit} which enable accessing objects in batches, where the limit specifies how many objects are in a requested batch and the offset specifies the starting object for that batch. This implicitly assumes that the objects are somehow ordered, with the first object starting at offset zero. Additionally, an order parameter exists, without further specification. Testing has shown that using it for almost all attributes either does not order the attribute(s) to be ordered, misses some markets or returns duplicate markets at separate offsets. Querying the event objects ordered by event id seems to work without any of the anomalies mentioned above, and has recently been added as an example use in their documentation. However, ordering the market objects by id is not possible. Additionally, unspecified and found through testing; the limit parameter can at most be 500, any value greater will simply always return 500 objects starting at the specified offset. Before December 2025, it was also not specified what the response would be if an offset was requested beyond the amount of available offsets. This was found, and recently clarified in the example use case, to be an empty JSON array.
+
+\subsection{Event and Market Objects}
+The market object is listed with over 100 attributes in the documentation. Initial testing has shown that there is a mismatch between attributes that appear in responses and those listed in the documentation, and also differs by response. For this reason all event objects, which also contain associated market and tag objects, obtainable by querying the \textit{events} endpoint are analyzed. Since JSON is specified by a deterministic context free language, we can parse it unambiguously into a tree of nodes, where every node has a type. Now for every event object we construct this tree, where every node, except for the root, either is the child of node of type object or array. In the case that it is the child of an object, it must have a string key associated. A node is a leaf if it is an empty array or object, or of type scalar; number, string, boolean or null. For a more representive type analysis the numbers are further broken down into IEEE 754 floating point and integers, whilst the strings are divided into empty strings, only spaces, JSON encoded, standardized timestamp formats, numbers, hexadecimal, case insensitive ``null'', ``none'', ``nan'', ``true'', ``false'', or a \textit{general} string otherwise. The resulting table with the type makeup and appearance percentage for every tree path can be found in the Appendix ~\ref{tab:json_tree_analysis_multiline} and will be referenced throughout the analytics.
+
+\section{Polymarket Orderbook and Trade Endpoints}
+Polymarket provides a \textit{book} HTTP endpoint, to request the current orderbook state, under the \textit{clob.polymarket.com} domain and a \textit{market} Websocket endpoint, to receive events for state changes, under the \textit{\seqsplit{ws-subscriptions-clob.polymarket.com}} domain, which is referred to as the \textit{market feed}. Every prediction market is associated with two orderbooks, one for the YES outcome and one for the NO outcome. An orderbook has a side for the prices of buying the underlying outcome token, also known as \textit{bids}, and a side for the prices of selling the underlying outcome token, also known as \textit{asks}. The orderbooks underlying outcome \textit{token id} or  also referred to as \textit{asset id}, uniquely identifies it and every market object contains two asset ids inside of a JSON array encoded string, under the key ``clobTokenIds'' ~\ref{tab:json_tree_analysis_multiline}.
+\subsection{Book Endpoint}
+\label{sec:missing}
+The specification for the book endpoint only consists of list of the request and response JSON attributes with sample for both. This endpoint returns the orderbook state objects for the requested asset ids. The documentation does not specify the amount of asset ids that can be requested or orderbooks that can be returned, nor what happens if the orderbook of an already resolved market is requested. Testing shows that the orderbooks states for requested asset ids are returned in the order they were requested, any orderbook state object requested for an asset id, whos market is already resolved will not be in the response, and the response consists of at most 500 orderbook state objects. 
+
+The orderbook state object in the appendix ~\ref{lst:orderbook_state} is from the sample Polymarket provides in its documentation. Importantly, the timestamp attribute in the response is listed as a string, but is actually a string of an integer unix millisecond timestamp in the responses.
+
+\subsection{Falsely Missing Orderbook State Objects}
+An initial client which made concurrent requests to the book endpoint, revealed an anomaly in the state provided from the endpoint, in which for some asset ids the endpoint would not return the order book state objects for one or multiple requests and then in later request include it again in the response. Essentially making order book state unavailable or seem as if its market has been resolved. Importantly, this could not have been a result from infringing the rate limit, as the endpoint would send regular bad response statuses, which was not the case here. The same set up was run for a couple of hours, but now making strictly serialized requests, and this anomaly was not detected. To investigate this further, every asset id was mapped to a \textit{false miss} counter, which was incremented whenever the orderbook state object for requested asset id was not in the response, and if it was in the response, then the order book state object and counter are stored and this counter was set to 0.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/misses.png}
+    \caption{Cumulative count of falsely missed asset ids}
+    \label{fig:misses}
+\end{figure}
+
+In ~\ref{fig:misses} we can see that initially there is a burst of false miss reports. 
+\todo{illustrate that initially false miss count is in rang 0-15 then it there are fewer but much larger culprits}
+
+\subsection{Market Feed}
+The market feed sends out different event messages for subscribed markets.
+Before December 17 2025 this endpoint only allowed for subscription once on an established Websocket connection. 
+This means that if any markets were resolved or created, a new Websocket connection had to be established to adapt for this change. 
+This was not documented, and testing simply revealed that attempting to send more than one subscription message would stop any events from arriving. 
+Even with a timeout of 30 seconds the server was still keeping the underlying persistant TCP and Websocket connection alive and no other messages were sent, 
+essentially turning it into a zombie. 
+
+On December 17th dynamic subscriptions and unsubscription messages were announced through their discord server, confirming that this in fact was not possible beforehand. 
+This was a game changer, as the prior client had to create a new Websocket connection whenever new markets were created. Another significant improvement was introduced around January 5th 2026, 
+where life cycle updates were added to the market feed. Before this the market or events endpoint had to be scraped continuously, to check if a new market was created or an existing market was resolved. 
+This introduced unnecessary latency and complexity. 
+Comparing the market objects found on the long lived connection, which was continuously scraped for market life cycle changes, 
+to a separate one time exhaustive scrape on a different connection revealed that some market objects were never returned at any offset on the market endpoint for the long lived connection. 
+This anomaly was only measurable after 3 days.
+
+Unlike for the book, market and event endpoint, the documented response attributes appear in every response and are of the correct type. 
+The documented sample message can be found in the appendix ~\ref{lst:price_change_event} for the price change event, ~\ref{lst:book_event} for the book event, ~\ref{lst:trade_event} for the trade event, ~\ref{lst:new_market} for the new market event and ~\ref{lst:market_res} for the market resolved event. However, for the last trade price event, there is a missing attribute \textit{tx\_hash} of type string, which always is hexadecimal and has the length of an ethereum transaction hash. The timestamp of the market feed events are a string of an integer unix millisecond timestamp, just like the one found in the actual responses of the order book state object requests. However the fact the timestamps are only in millisecond resolution and there are no other attributes to order the events by, would render state ambiguous after a millisecond with multiple conflicting events.
+
+\subsection{Ambiguous Event Ordering}
+The most obvious conflict, is between events of the same type at the same millisecond with different resulting state. For price change events, this is the case when two or more price change events have the same timestamp, side, price and asset id, but different sizes, as then it is unclear exactly what the size is at the given price, side and asset id after or at the timestamp. Book events are conflicting if they share the same timestamp and asset id, but not the same bids and asks, and last trade events are conflicting when they share the same timestamp, asset id, side and price, as we can then no longer differentiate between which trade got filled using which size and price. Table ~\ref{tab:market_analysis} illustrates that this is not just theoretically possible, but actually also happens.
+\begin{table}[H]
+\centering
+\caption{Bitcoin Up or Down --- January 7, 11:00AM-11:15AM ET}
+\label{tab:market_analysis}
+\begin{tabular}{|l|l|c|c|}
+\hline
+\textbf{Message Type} & \textbf{Total} & \textbf{Ambiguous (\%)} & \textbf{Duplicate (\%)} \\
+\hline
+\multicolumn{4}{|l|}{\textbf{Asset ID:} 113615...8317859} \\
+\hline
+Last Trade Prices & 3,562 & 24 (0.67\%) & 0 (0.0\%) \\
+\hline
+Price Changes & 158,662 & 3'228 (2.04\%) & 1'336 (0.84\%) \\
+\hline
+Books & 6,074 & 0 (0.0\%) & 0 (0.0\%) \\
+\hline
+\end{tabular}
+\end{table}
+
+If we additionally consider the ambiguity that arises when a price change message and book summary message share the same timestamp, i.e unclear whether the price change applied before or after the book sate summary, we find that 7'160 price changes are ambiguous.
+
+\section{Final Polymarket Client}
+The initial client was intended to subsribe to the market feed and make order book state requests for all existing unresolved markets. This involved over 30 thousand orderbooks. Since only 500 orderbooks can be requested at once, there is a clear trade off between how many orderbooks are used for requests and how frequently we can request an orderbook. Additionally, the fact that the market feed events can not unambiguously be ordered, makes requesting the actual orderbook state frequently even more valuable. For these reasons the final client was designed to use less than 500 orderbook, and request their state strictly serially, with at least 500ms between requests. The documentation specifies a rate limit of 500 requests/s, so this setup is very conservative. For the event ``Which party will win the house in 2026?'' there are 4 order books and for the cyclical 15 minutes ``Bitcoin up or down?'' there seem to be less than 100 active order books.
+
+The final client initially scrapes the events endpoint for all currently available 15 min cyclical ``Bitcoin up or down?'' markets. Then subscribe to the to the market feed using these and the 4 known orderbooks from the `Which party will win the house in 2026?'' to subscribe to the market feed, and listen for newly created or resolved ``Bitcoin up or down?'' markets, to then subscribe or unsubscribe to. We also start making the orderbook state requests as specified above, and obviously store the price change, book, last trade price events, and orderbook state objects persistently in a database table.
+
+\section{Kalshi Endpoints}
+\label{sec:kalshi_endpoints}
+Kalshi provides endpoints similar to those on Polymarket. Namely the \textit{events} endpoint for scraping any market ever created and a websocket endpoint with different channels, like \textit{trades}, \textit{orderbook updates} and \textit{market lifecycle}. Markets are uniquely identified through their market\_ticker. Dynamic subscription and unsubscription for the channels of interest, on the websocket endpoint, can be done using these market\_tickers.
+
+However unlike Polymarket, the events are not in the same format as on Polymarket, more importantly, Kalshi provides a single orderbook for both outcomes of a prediction market, where one side is for the YES prices and the other is for the NO prices ~\cite{}. The currently documented JSON format of the events collected is specifed in the appendix ~\ref{}
+
+The JSON objects inside of the messages sent by the orderbook update and trade channel contain a unique integer sequence identifier, which can be used unambiguously order the events for a given channel and spot any missing events, since the first event after subscription has sequence identifier zero, and for all other events the sequence identifier is the sequence identifier of the event happening right before it, incremented by one. However, this does not make ordering the trade events among the orderbook events unambiguously possible, as for this we would have to rely on the timestamps alone, for which the trades only specified in seconds.
+\section{Kalshi Client}
+Because of the sequence identifieres provided by kalshi, there is no need to additionally request the orderbook state, as it can be used to unambiguously maintain the state of the orderbook. The Kalshi client therefor simply subsribes t
+
+\chapter{Smart Contracts}
+\label{chap:smart_contracts}
+Polymarket has a dedicated github account with over 90 repositories. There are many individual repositories containing the solidity source for smart contracts and their deployment status. They also have a dedicated repository which lists any deployment address that seemingly can be found elsewhere, the associated contract and a security audit, if present~\cite{polyDepList}. It is not explicitly mentioned if it is an exhaustive list, but at least looking through the entire documentation on the website and all repositories on github, does not reveal any undeclared deployment, since there is no other authorative source overriding this, it will be used as the reference of the disclosed deployments.
+
+\section{Conditional Tokens}
+\label{sec:cft}
+The Gnosis Conditional Tokens contract (CTF) extends the ERC-1155 standard, utilizing it to construct tokens representing the outcomes of an event or condition. This enables transferring, minting, and burning multiple outcome tokens within a single transaction.
+
+The contract defines the relationship between the value of the n outcome tokens $(O_1, \dots, O_n)$ for an event and the ERC-20 collateral token $Q$ as:
+\begin{align}
+\label{eq:rule1}
+    Q = \sum_{i=1}^{n} O_i
+\end{align}
+
+\noindent The \textit{splitPositions} method atomically swaps an amount $n$ of collateral $Q$ for $n$ units of each outcome token and emits the \textit{PositionSplit} event. The \textit{mergePositions} method performs the reverse atomic swap and emits the \textit{PositionsMerge} event.
+
+Before these methods can be utilized, the condition must be prepared using the \textit{prepareConditions} method with an oracle address, a question ID, and an outcome count. This emits the \textit{ConditionPreparation} event. Every condition is assigned a unique identifier defined as:
+\begin{align}
+\label{eq:cond_id}
+    condition_{id} := keccak(oracle \parallel question_{id} \parallel \text{outcome count})
+\end{align}
+
+\noindent Subsequently, only the oracle can report the payouts using the \textit{reportPayouts} method by passing an array of unsigned integers $payouts = (p_1, ..., p_n)$ for the $n$ outcome tokens respectively. This emits the \textit{ConditionResolution} event and assigns each outcome token $O_i$ a value new value:
+\begin{align}
+\label{eq:rule2}
+    O_i := Q \cdot \frac{p_i}{\sum_{k=1}^{n} p_k}
+\end{align}
+After this assigment we still have that \eqref{eq:rule1} holds. 
+
+Finally, after the payout is reported, anyone can redeem the outcome tokens they own for the value assigned to them in \eqref{eq:rule2} using the \textit{redeemPositions} method, which emits the \textit{PayoutRedemption} event.
+
+\section{UMA framework}
+\label{sec:uma}
+UMA designs protocols for oracles based on gametheory and deploys ethereum based contracts on various block chains like polygon. These deployments are connected to UMAs dedicated web application, which is allows users actively to participate in solving price requests.
+
+Polymarket exclusively used UMAs OptimisticOracleV2 (OOV2) deployment up until August 2025, where the UMIP-189 governance proposal passed and UMA deployed a ManagedOptimisticOracleV2 (MOOV2) dedicated only for Polymarket usage. The ManagedOptimisticOracleV2 is based on the same protocol, but with additional access control configurations~\cite{UMIP189}.
+
+The protocol implemented in OOV2 differs based on wether the price request is set to be event based or non event based. Polymarket atomically sets the requested prices to be event based in its UmaCtfAdapter contract. Which starts with a price request specifying an identifier, timestamp, ancillary data, ERC-20 currency and proposal reward. UMA manages an AddressWhitelist for requesters which can make price requests. This emits the \textit{RequestPrice} event. After the price was requested there are configurations that can be set this includes whether it is event based or not as well as a the proposal bond, liveness window for disputing proposals, or setting a callback for price proposals, proposal disputes and settlement. These can only be configured by the requester who made the request price. For a price request to be settled, the effective price must first be determined, this requires an initial price proposal to be made, by suggesting a price for the request identified by the requester, id, timestamp and ancillaryData. This emits the \textit{ProposePrice} event. After a price proposal is made, the price can be disputed within the liveness period which by default is two hours again with the same identifiers for the request. If the proposal remains undisputed during this period, then it becomes the effective price for the request and the request can be settled.
+Both the proposals and disputes have no access control in OOV2.
+If the proposal is disputed the \textit{DisputePrice} event is emitted and then a stake based voting process starts. The contract for this is deployed on the Ethereum network and therefore involves an off chain coordinated message relayer.
+After the price is determined the request can be settled, to reward or slash the proposer, and disputer if existent, depending on the correctness of their proposals compared to the final outcome. This emits the \textit{Settle} event.
+
+The OOV2 does not specify what the prices exactly mean, so in the context of Polymarket the ancillary data has to formally specify a semantic meaning of the integer price values. Polymarket does not explicitly state this, but implicitly seems to adhere to the UMIP-107 standard, in which the requested price identifier is \textit{YES\_OR\_NO\_QUERY} and the ancillary data is a utf-8 encoded dictionary, which specifies the question using the \textit{q:} key and the 4 possible prices through the \textit{p1:}, \textit{p2:}, \textit{p3:} and \textit{p4:} keys. Which specify which price is mapped to the outcomes \textit{YES}, \textit{NO}, \textit{UNKNOWN} and \textit{EARLY PROPOSAL} ~\cite{UMIP107}.
+
+\section{UmaCtfAdapter}
+\label{sec:uca}
+This is polymarkets custom contract, built on top of the CFT and OOV2, which it stores as immutable references by address. It provides an \textit{initialize} method which takes ancillary data and other UMA parameters. It initializes a market by preparing the condition in a CFT instance using itself as an oracle, $question_{id} := keccak(\text{ancillary data})$, and a hard coded outcome slot count of two. It also makes a price request with the hard coded \textit{YES\_OR\_NO\_QUERY} identifier, current block timestamp, ancillary data and the other parameters, and also in the same transaction sets the price request to be event based and only sets a callback for disputes.
+
+The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. In fact, any one can use it to make a price request through the contracts deployed address as requester, even though the OOV2 has a curated requester whitelist. The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome, then uses this price to report the payouts in the CTF. The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 ether is considered as \textit{UNKNOWN}, any other price by contract logic is considered \textit{YES}. This means that even if the returned price by OOV2 is not the one specified as \textit{YES} in the ancillary data, the outcome could be considered \textit{YES} by contract logic.
+If the outcome is \textit{NO} then the payout array passed to the CFT is [0,1], if the outcome is \textit{UNKNOWN} then the it is [1,1] and otherwise it is [1,0] for the outcome \textit{YES}.
+
+
+The rest of the public methods in this contract all have access of either \textit{onlyAdmin} or \textit{onlyOracle}, such as the \textit{pause} method mentioned before, which prevents the resolve method from being invoked, but there others like \textit{resolveManually} which directly reports the payouts array passed without resolution from the OOV2. Essentially providing centralized control on the market lifecycle.
+All of them emit events and are part of the exhaustive list in the appendix 
+
+\section{CTFExchange}
+\label{sec:ctfe}
+The CTFExchange is another custom contract by Polymarket it provides the \textit{matchOrders} method for which is used for settling a taker order and the matched $n$ maker orders and emits one \textit{OrdersMatched} event and $n + 1$ \textit{OrderFilled} events. Since $n \ge 1$ we always have atleast 2 \textit{Orderfilled} events for every \textit{OrdersMatched} event. For split matches the tokens are created using \textit{splitPosition} in the CFT. Whilst for marge matched order the outcome tokens are swapped for the collateral using \textit{mergePositions} from the CFT. This and the other public methods in this contract all have restricted access.
+
+A related module built on top of the CTFExchange is the FeeModule
+which is a proxy for the CTFExchanges \textit{matchOrders} method. It is also used to manage trading fees. Emitting the \textit{FeeWithdrawn} and \textit{FeeRefunded} event. 
+
+\subsection{Blockchain Slippage}
+\label{sec:bs}
+There are plenty of case studies conducted on this matter, but the general conclusion is that market participants in decentralized market mechanisms face a trade-off between lowering their slippage tolerance, risking the trade being aborted, or simply paying an additional trading fee for the price slippage~\cite{DAIAN2019}.
+
+Emerging blockchains, like Solana, implement various measures to mitigate this, such as increasing state synchronization frequency to reduce execution uncertainty, and minimizing gas fees. Lower fees make aborted transactions less expensive, allowing users to set lower slippage tolerances without financial penalty~\cite{HEIMBACH2022}. Some blockchains even centralize node management to prevent predatory transaction reordering; Polygon, for example, curates its validator set through a centralized application process and limits it to a fixed size.
+
+However, since Polymarket orders are placed on centralized orderbook (CLOB) over HTTPS and order flow data is not publicly available through the CLOB this vector, there cannot be any maliciously induced price slippage, unless Polymarket itself manipulates the market or on chain settlements somehow leak enough information in a timely manner. Price slippage still is possible and measurable on polymarket as illustrated in ~\ref{}.
+
+
+
+\section{Negrisk}
+\label{sec:nr}
+The Negrisk framework builds on top of the UmaCtfAdpater to create multiple markets with mutually exclusive outcomes and thereby provide the \textit{convertPositions} method, which enables atomically swapping a set YES shares to the complementary set of NO shares or vice versa. This is implemented in the Negrisk Adapter, but the framework also entails a Negrisk Operator, which is used by the Negrisk UmaCtfAdapter as immutable reference for the conditional tokens contract interface, but the Negrisk Operators conditions prepared method does literally nothing and its reportPayouts method does not call any other contract, but it has other public methods which relay to the adapter, which actually references the CFT. Additionally a dedicated Nergisk CTFExchange deployment exists, which is simply another instance of the CTFExchange contract.
+
+\todo{figure for immutable deployment references}
+
+\section{Polygon Collection}
+The polygon collection is tailored for the Infura eth\_getLogs endpoint. Infura has a rate limit of 500 credits/s, with a request to the eth\_getLogs requiring 255 credits according the documentation. However, testing showed that the actual rate limit between requests without getting rate limited is more around 1s. The rtt for a single eth\_getLogs request can be over 30s long, which is why its suited for concurrent requests. Besides the request frequency, there also is limit of 10'000 events that can requested. But the request is specified using a block range. For this purpose we can use alpha estimation with a margin 500 to converge to the block density for requesting the block expected to return 9'500 events. This seems to be effective as for most events the block density does not seem to have strong variance. But the margin can be increased if some events have a greater block density variance. As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range. The full list of collectected events can be found int the appendix ~\ref{tab:contract_events_vertical}
+
+
+\chapter{Market Lifecycle}
+\label{chap:market_lifecycle}
+The Infura client specified in section ~\ref{sec:} collected the events from appendix ~\ref{} from the Polygon block number x, with timestamp xx, up until block number y, with timestamp yy. 
+For the off chain market life cycle we can scrape the events endpoint, with historical event and market objects, as described in section ~\ref{}.
+\section{Market Object Timing}
+The seven timestamp attributes which appear consistently (over 90\%) of the market objects are \textit{createdAt}, \textit{updatedAt}, \textit{endDate}, \textit{startDate}, \textit{acceptingOrdersTimestamp}, \textit{umaEndDate}, \textit{closedTime}, as can be seen in appendix ~\ref{}. While their names are indicative of their meaning, no ordering or timing is specified in relationship to each other as well the on chain events. If for all ordered pairs of timestamps $(T_1, T_2)$ we compute $P(T_1 \le T_2)$ we see that for many pairs we have a fully consistent order where $P(T_1 \le T_2) = 1$ or $P(T_1 \le T_2) = 0$ in some cases there seem to be outliers such $P(T_1 \le T_2)$ is close to 0 or 1.
+
+In any case to obtain a well ordered subset of the timestamps above where all of the timestamps can be compared to each other by the happens after or at $\le_\tau$ relationship, where we can set a threshold $\tau \in [0,1]$ such that $T_1 \le_{\tau} T_2 \iff P(T_1 \le T_2) \ge 1-\tau$. If we set $\tau = 0$ the largest well ordered subset we get is of size 2.
+If we set $\tau = 0.07$ we get that the largest well ordered subset is of uniquely $\{acceptingOrdersTimestamp, closedTime, createdAt, startDate, umaEndDate, \\ updatedAt\}$ with order:
+
+\begin{align}
+\label{eq:clob_order}
+    \nonumber
+    createdAt \le_0 acceptingOrdersTimestamp \le_{0.031} startDate \\  \le_{0.0002} closedTime \le_{0.0087} umaEndDate \le_{0.0009} updatedAt
+\end{align}
+
+\noindent Where the tolerance in the ordering is set to the respective minimal value such that the order holds. 
+Importantly the minimal tolerance is not transitive, since not every market has all timestamps and therefor comparisons vary. 
+For example for the order above, the actual minimal tolerance $\tau$ required is 0.0598 for $createdAt \le_{0.0598} startDate$, which is significantly larger then the transitive closure of $createdAt \le_0 acceptingOrdersTimestamp \le_{0.031} startDate$ would suggest. This is because all of the markets have a \textit{startDate} and \textit{createdAt} timestamp, but only 90.4\% of markets have an \textit{acceptingOrdersTimestamp}, as can be seen in the table ~\ref{tab:json_tree_analysis_multiline}.
+
+\section{Unkown Reporting Oracles}
+In section ~\ref{sec:cft} we saw that the oracle redefined for every condition preparation on the CFT, and is the only address which can report payouts for the final YES and NO share value after resolution. Which is why it is essential to analyze which oracles are being used and how they operate.
+
+Matching conditions ids found in the market objects with the condition ids from ConditionPreparation events reveals 2 non disclosed deployment addresses with the alias \textit{MOOV2 Adapter} and \textit{Centralized Adapter} in ~\ref{tab:contracts_deployment}. 
+\begin{table}[H]
+    \centering
+    \caption{Oracle Makeup from 123,319 Conditions Prepared}
+    \label{tab:oracle_makeup}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Alias} & \textbf{All Events (\%)} & \textbf{Matched Events (\%)} \\\cite{}
+        \hline
+        MOO2 Adapter & 55,176 (44.68\%) & 55,052 (99.78\%) \\
+        \hline
+        Centralized Adapter & 42,181 (34.16\%) & 39,456 (93.53\%) \\
+        \hline
+        Negrisk Adapter & 25,962 (21.02\%) & 25,438(97.98\%)\\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+
+
+
+The MOOV2 Adapter is an UmaCtfAdapter instance described in section ~\ref{sec:uca}. The MOOV2 Adapter uses the MOOV2 instead of the OOV2 deployment, which UMA specifically deployed for Polymarket as explained in ~\ref{sec:uma}. On the other hand Negrisk Adapter and Basic Adapter use the OOV2. However, no condition was prepared from the Base Adapter, which was has its own deployment repository and is also on in the dedicated deployment list as explained in ~\ref{sec:polydocs}. 
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/clob_cft_cdf.png}
+    \caption{Market \textit{createdAt} and Condition Preparation timing}
+    \label{fig:clob_cft_cdf}
+\end{figure}
+
+The figure ~\ref{fig:clob_cft_cdf} shows how the market object timestamps compare to the conditions preparared using the matched oracles. The dashed red line is an interesting point, because the accepting orders time starts to diverge from the createdAt and startDate times. This also introduced a constant gap between the conditions prepared in the CFT and the markets created. At the same time the Centralized Adapter had a sudden change in the amount of conditions being prepared.
+
+\section{Reporting Oracles and Resolution Source}
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/reg_cft.png}
+    \caption{UMA Price Requests and Condition Preparation timing}
+    \label{fig:reg_cft}
+\end{figure}
+
+
+Figure ~\ref{fig:reg_cft} is a strong indicator for the fact that the known deployments OOV2 and MOOV2 of the UMA protocol, are almost if not completely exlcusively used by the Negrisk Adapter and MOOV2 adapter respectively. However, we can do better.
+In section ~\ref{sec:uma} it was stated that Polymarket seems to adhere to the UMIP-107 standard for making price requests. This would imply that every identifier should be \textit{YES\_OR\_NO\_QUERY} and every ancillary data should be utf-8 encoded dictionary. Doing a similar analysis as in ~\ref{sec:clob_json} we find that virtually all of the 225814 events emitted in the time range 2025-11-18 07:00:17 to 2026-01-03 19:48:45 from the OOV2 and MOOV2 do in fact adhere to this standard and even extend with the keys: \textit{initializer}, \textit{q}, \textit{title}, \textit{description}, \textit{market\_id}.
+We can now use the market objects to match with RequestPrice events by market id and then use the condition id to matche these pairs with the ConditionPreparation events.
+
+\begin{table}[H]
+    \centering
+    \caption{UMA 81,849 RequestPrice matching with CLOB market objects}
+    \label{tab:oracle_makeup1}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Alias} & \textbf{All Events (\%)} & \textbf{Matched Events (\%)} \\
+        \hline
+        MOO2 & 55,325 (67.59\%) & 55,201 (99.78\%) \\
+        \hline
+        OOV2 & 26,524 (32.41\%) & 25,693 (96.87\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{UMA 81,849 RequestPrice matching with 123,319 Conditions Prepared}
+    \label{tab:oracle_makeup2}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{UMA} & \textbf{Matched Events} & \textbf{Oracle}\\
+        \hline
+        MOOV2 & 55'172 & MOOV2 Adapter \\
+        \hline
+        OOV2 & 70 & MOOV2 Adapter \\
+        \hline
+        OOV2 & 25'562 & Negrisk Adapter \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Out of the 55'172 matches between conditions prepared using the MOOV2 Adapter and price requests made to the MOOV2, 55'052 share the same block timestamp. This leaves 120 matched condition preparations and price requests which could not have been executed in the same transaction atomically, and therefor are coordinated through multiple separate transaction. Out of these, 70 price requests are made to the OOV2. Which by the immutable reference to the MOOV2 in the MOOV2 Adapter contract, could not have been achieved through the \textit{initialize} method inside of the MOOV2 Adapter.
+
+On the other hand the Conditions Prepared with the Negrisk Adapter, as Oracle, matched exclusively with Price Requests made to the OOV2, which is the oracle it immutably references for price requests. However, for it only 19,832 out of the 25'562 matched had zero time difference and a matching transaction hash, indicating that for 22.4 percent of the conditions prepared, are not atomically executed in the same transaction with the price request.
+
+\section{Centralized Adapter}
+The bytecode for the Centralized Adapter is not recognized by prominent bytecode to source indexers like Polygonscan or Etherscan. 
+Decompiling it with heimdall rs without symbol inference and then using an LLM for symbol inference we get the solidity source in ~\ref{} and see a similar pattern as in the other adapter but fully centralized with access control and no UMA resolution.
+\todo{How valid is the statement/method above?}
+
+\begin{table}[H]
+    \centering
+    \caption{Centralized Adapter Events}
+    \label{tab:centralized_adapter_events}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Up or Down & 39,197 (92.9\%) \\
+        \hline
+        Crypto Prices & 39,197 (92.9\%) \\
+        \hline
+        Hide From New & 39,197 (92.9\%) \\
+        \hline
+        Recurring & 39,197 (92.9\%) \\
+        \hline
+        Crypto & 39,197 (92.9\%) \\
+        \hline
+        5M & 20,278 (48.1\%) \\
+        \hline
+        15M & 17,824 (42.2\%) \\
+        \hline
+        Solana & 9,806 (23.2\%) \\
+        \hline
+        XRP & 9,801 (23.2\%) \\
+        \hline
+        Ripple & 9,801 (23.2\%) \\
+        \hline
+        Ethereum & 9,800 (23.2\%) \\
+        \hline
+        Bitcoin & 9,790 (23.2\%) \\
+        \hline
+        4H & 1,095 (2.6\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Every market object has a set of labels assigned by polymarket to categorize the event. Table ~\ref{tab:centralized_adapter_events} shows the exhaustive distribution of these labels in the markets objects matched with the conditions prepared with the Centralized Adapter as oracle. Clearly being tied to crypto related events. If we look up individual matched markets on polymarkets web application, none of them have the a link to the UMA resolution status, for the UMA webapplication, which for other markets exists.
+
+
+\section{Exchange Registration}
+\label{sec:ctfe_c}
+For matched orders on the CTFExchange to be settled, first the token id of the associated CLOB must be registered as explained in x. This emits the TokenRegistered event twice for the same condition but simply with the order of token id arguments flipped. This also means that while every condition id has two orderbooks they can only either both be registered or neither be registered on the CTFExchange.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/reg_clob.png}
+    \caption{CLOB markets and registered tokens unique condito}
+    \label{fig:reg_clob}
+\end{figure}
+
+In figure ~\ref{fig:reg_clob} we can see that the market object creations start to diverge from the comined ctfe registritation around the same time that the divergence in ~\ref{fig:clob_cft_cdf} starts.
+
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/reg_unmatched_cdf.png}
+    \caption{CLOB market createAt time and unmatched cdf}
+    \label{fig:reg_unmatched_cdf}
+\end{figure}
+
+In figure ~\ref{fig:reg_unmatched_cdf} we can see the actual relationship between the createdAt timestamp and how many unmatched or matched markets exist up until that time.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/spread_clob.png}
+    \caption{CLOB market spread and unmatched cdf}
+    \label{fig:spread_clob}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/last_trade.png}
+    \caption{CLOB market last trade price and unmatched pmf}
+    \label{fig:last_trade}
+\end{figure}
+
+In figure ~\ref{fig:reg_unmatched_cdf} we clearly see that unmatched markets objects only really start to appear after a specific threshold. The most sensible reason for this would be that the markets have no matched orders yet and therefore don't need to be registerd on the CTFExchange yet. 
+If plot we look at pmf of the three discrete cases for the lastTradePrice attribute from the market object in figure ~\ref{fig:last_trade} after the threshold time, we can clearly see that a missing last trade price or last trade price > 0 implies that the market is matched, whilst for the last trast trades at or below zero we have can only infer an unmatched market with a small probability of false positives. 
+A similar inference with small false positive rate can be done using spread = 1, as visible in ~\ref{fig:spread_clob}.
+
+
+\subsection{Unregistered Traded Outcomes}
+Using the market objects we can match the conditions prepared to the tokens registered events. In table ~\ref{tab:oracle_regs} we can see that virtually all unregistered markets were prepared using the Centralized Adapter, for which less than half of the conditions are registered. Looking back at table ~\ref{tab:centralized_adapter_events} we can see many of them are labelled as ``Hide From New''. 
+
+\begin{table}[H]
+    \centering
+    \caption{Matched conditions of 134,424 Conditions Prepared and 215,152 TokensRegistered over Nov 18 - Jan 08}
+    \label{tab:oracle_regs}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Oracle (Conditions)} & \textbf{Matches} & \textbf{Exchange (Conditions)}\\
+        \hline
+        Centralized Adapter (48'896) & 20'425 & CTFE (83'262) \\
+        \hline
+        MOOV2 Adapter (62'857) & 61'439 & CTFE (83'262) \\
+        \hline
+        Negrisk Adapter (27'728) & 23'545 & Negrisk CTFE (24'209)\\
+        \hline
+    \end{tabular}
+\end{table}
+
+However there provably are markets, which are both on the web application and listed as active markets in the CLOB API, with trade and order book state change messages being emitted over the websocket market channel. 
+An example for this, are some of the 15 minute cyclical bitcoin up or down markets, which do not have any registered tokens events nor orders matched or order filled events emitted from neither the CTFE nor Negrisk CTFE. 
+
+\section{Resolution}
+\subsection{Disputes}
+As described in section ~\ref{sec:uma} the UMA OOV2 and MOOV2 protocol allows for price proposals to be disputed within a liveness period. 
+If a proposal is disputed a stake based voting process starts, which is off chain coordinated through a message relayer.
+\begin{table}[H]
+    \centering
+    \caption{Ten Most Frequent Tags in 462 Matched Disputes}
+    \label{tab:top10_disputes}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Sports & 136 (29.44\%) \\
+        \hline
+        Politics & 130 (28.14\%) \\
+        \hline
+        Games & 130 (28.14\%) \\
+        \hline
+        Culture & 123 (26.62\%) \\
+        \hline
+        Hide From New & 72 (15.58\%) \\
+        \hline
+        Recurring & 67 (14.50\%) \\
+        \hline
+        Weather & 61 (13.20\%) \\
+        \hline
+        Trump & 52 (11.26\%) \\
+        \hline
+        Geopolitics & 52 (11.26\%) \\
+        \hline
+        Best of 2025 & 41 (8.87\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+There are a total of 462 matched disputes and 113,591 matched propsals. 
+Table ~\ref{tab:top10_disputes} shows the ten most frequent labels assigned to the markets objects matched with the disputes.
+Out of the 462 matched disputes, 197 are from the OOV2 and 265 from the MOOV2.
+
+\subsection{Reported Unkown Outcome}
+We already saw that there are three oracles polymarket uses to report the payouts to enforce a terminal value for the YES and NO shares after resolution.
+The terminal value is then determined by the payout array passed to the CFT.
+In the contracts this is hardcoded you either be [1,0] for YES, [0,1] for NO, or [1,1] for UNKNOWN.
+
+\begin{table}[H]
+    \centering
+    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN outcome (n=1,011)}
+    \label{tab:top10_tags_1_1}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Games & 999 (98.81\%) \\
+        \hline
+        Sports & 986 (97.53\%) \\
+        \hline
+        Tennis & 435 (43.03\%) \\
+        \hline
+        Esports & 403 (39.86\%) \\
+        \hline
+        counter strike 2 & 246 (24.33\%) \\
+        \hline
+        Dota 2 & 62 (6.13\%) \\
+        \hline
+        Basketball & 57 (5.64\%) \\
+        \hline
+        UFC & 43 (4.25\%) \\
+        \hline
+        NCAA & 43 (4.25\%) \\
+        \hline
+        NCAA Basketball & 31 (3.07\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Out of 202'514 matched Condition Resolution events only 1'011 had the UNKNOWN outcome [1,1] reported as payout array. 
+These 1'011 UNKNOWN outcomes were all reported by the MOOV2 Adapter.
+Table ~\ref{tab:top10_tags_1_1} shows the ten most event categories associated with the the markets that were reported to have an UNKNOWN outcome.
+
+\subsection{Manual Resolutions}
+In sections ~\ref{sec:manual_resolutions} it was mentioned taht the UmaCtfAdapter and Negrisk Operator have administrative methods, which can be used to manually resolve markets without UMA price requests being settled.
+All of the relevant methods emit events, including the \textit{resolveMarketManually} method in the UmaCtfAdapter and the \textit{emergencyResolveQuestion} method in the Negrisk Operator. 
+However, there are no events for either of these methods was emitted in any of the UmaCtfAdapter instances or the single Negrisk Operator instance.
+
+\chapter{Orderbook and Trading}
+\label{chap:orderbook_trading}
+Both Polymarket and Kalshi utilize a Central Limit Order Book (CLOB) as their primary market mechanism to match buyers and sellers. Market participants can place orders through the \textit{order} or \textit{orders} endpoint on both Polymarket and Kalshi. An order on both exchanges is specified through a JSON object. The attributes vary by exchange but fundamentally there are two order types:
+\begin{itemize}
+    \item \textbf{Market orders} guarantee timely execution by attempting to match the quantity specified against existing resting limit orders by \textbf{price-time priority}. However, the price for the base assets is not guaranteed.
+    \item \textbf{Limit orders} guarantee price for the quantity specified, but not timely execution. As they only get matched if a market order is placed and they have the greatest \textbf{price-time priority}.
+\end{itemize}
+
+
+Every executed order, also simply called trade, consists of a taker, who's order was marketable, matched with at least one maker, who had a resting limit order.
+
+\section{State, Ordering and Matching}
+\label{sec:CLOB_state}
+Both Kalshi and Polymarket use \textbf{Price-Time Priority} for matching market orders with resting limit orders~\cite{}. This means that limit orders at better prices which arrived at the CLOB the soonest, are chosen first to execute against market orders. 
+
+On Polymarket there are three ways a maker and taker can get matched as was described in section ~\ref{}. The documentation on Polymarket presents a separate orderbook for the YES and NO shares of a prediction market with buy and sell sides.
+The data collected from the endpoints reveals that there actually only is one orderbook for a prediction market, where for every price $p$ there exists a price $1-p$ on the complementary outcomes complementary side with the exact same amount of shares available at all times.
+So for example, if there are 50 YES share bids at 0.7 USDC, then there also are 50 NO share asks at 0.3 USDC. For this reason it can be treated as a single orderbook with YES and NO sides, just like Kalshi presents it.
+
+The state of the CLOB can be defined through the current existing resting limit. 
+A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price for an outcome share, $v \in \mathbb{R}^+$ is the quantity of the shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome and $i \in \mathbb{N}$ is the priority it has to be selected for matching with market orders at price $p$ and side $s$, a lower $i$ has a higher priority. 
+This guarantees a unique ordering for both buy and sell limit orders which is used for matching. 
+Formally, for limit orders we have that:
+
+\begin{align}
+\label{eq:sales_ordering}
+    & ((p_1, v_1, s_1, i_1) > (p_2, v_1, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
+\end{align}
+
+\noindent Where the best buy price for the taker is the lowest:
+\begin{align}
+\label{eq:best_buy}
+    & p_{market} = max \{p | (p, v, s, i)\}
+\end{align}
+
+
+\noindent The market price $p_{market}$ generically refers to the best price for the taker, regardless of whether its on the YES or NO side. 
+If the quantity for a marketable order can not be fully filled at market price, then the taker would suffer from \textbf{price slippage}, if the order is executed. 
+If the marketable order can't be filled with limit orders at any price, then the taker order remains partially or fully unfilled. 
+Depending on the market order specification, a partially unfilled market order is either  executed or canceled.
+
+\section{Slippage}
+\label{sec:CLOB_slip}
+In general, Slippage occurs when the trade is executed at a different price than what the market suggested at the time where the intent to trade was submitted. 
+This was already covered for fully Automated Market Makers in section ~\ref{sec:bs}.
+
+Slippage in a CLOB can also occur when a taker order for quantity $x$ is not filled entirely at the market price when the order was submitted, resulting in a less favorable execution cost for the taker. 
+The CLOB is designed to allow this, with the core principle being the taker is guaranteed timely order execution but not price, whilst the maker is guaranteed order price but not timely execution. 
+We can define the slippage for a taker buying or selling $x$ base assets and getting matched with maker orders M, we have:
+\begin{align}
+\label{eq:slip}
+    Slippage(x,M) = |\sum_{(p, v, s, i) \in M} p*v - p_{market} \cdot x|
+\end{align}
+
+\noindent The least limit order $(p, v, s, i) = min\{M\}$ might only be part of a limit order such that another limit order $(p, v',s, i)$ now exists where the previous limit order was $(p, v'',s, i)$ for $v'' = v' + v$ and:
+\begin{align}
+\label{eq:exec_cost}
+    & x = \sum_{(p, v,s, i) \in M} v
+\end{align}
+
+
+\subsection{Which party will win the house 2026?}
+To compute the slippage for a taker in a trade, we can use the OrderFilled events. 
+These are emitted whenever a trade is settled for every maker order filled by the taker and once for the exchange filling the taker, as explained in section ~\ref{sec:ctfe}.
+However in section ~\ref{sec:ctfe_c} we also mentioned that not all trades are settled on chain, this also includes some if not all of the 15 minute cyclical bitcoin up or down markets.
+Since we can not reliably compute slippage from the data available from the endpoints, 
+we can only measure slippage for the ``Which party will win the house 2026?'' market on Polymarket, which has all of its trades settled on chain.
+
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/house_trades.png}
+    \caption{Cumulative count of trades for the event "Who will win the house 2026?"}
+    \label{fig:house_trades}
+\end{figure}
+
+In figure ~\ref{fig:house_trades} we can see that at least for this specific event the settlements reported on chain seem timely with the server timestamp from last trades reported through the CLOB market channel websocket endpoint. Further analysis shows that 
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/vol_no_dem.png}
+    \caption{Cumulative volume democrats no}
+    \label{fig:vol_no_dem}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/vol_yes_dem.png}
+    \caption{Cumulative volume democrats yes}
+    \label{fig:vol_yes_dem}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/vol_no_rep.png}
+    \caption{Cumulative volume republicans no}
+    \label{fig:vol_no_rep}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/vol_yes_rep.png}
+    \caption{Cumulative volume republicans yes}
+    \label{fig:vol_yes_rep}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/slip.png}
+    \caption{Cumulative slippage}
+    \label{fig:slip}
+\end{figure}
+
+In figure ~\ref{fig:slip} we can see the cumulative slippage for all trades executed on the ``Which party will control the House after the 2026 Midterm elections?'' market on Polymarket.
+This includes both markets for Democrats and Republicans winning the house, and is measured as defined in the relationship ~\ref{eq:slip}, using the OrderFilled events emitted from the CTFE contract as explained before.
+
+\section{Arbitrage}
+\label{sec:arbitrage}
+The nature of prediction markets nturally induces multiple sources for arbitrage.
+These all arise from price discrepancies between price pairs $p_1, p_2$ which depend on each other.
+
+\subsection{Which party will win the house 2026?}
+For the event ``Which party will control the House after the 2026 Midterm elections?'' there are two markets, one for Democrats winning the house and one for Republicans winning the house.
+For which there are 8 prices in total, 4 on polymarket and 4 on kalshi. This leaves us with 28 combinations of price pairs for arbitrage.
+For analytic purposes we will restrict ourselves to 6 prices, the YES and NO prices for both the republican and democratic party on Polymarket, and the YES and NO price for the democratic party on Kalshi.
+We can now measure 3 sources of arbitrage specifically: market internal, complementary market, and mirror market arbitrage.
+\todo{Define each of these formally and illustrate transitive closure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/poly_dem_int.png}
+    \caption{Poly Dem Internal}
+    \label{fig:poly_dem_int}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/poly_rep_int.png}
+    \caption{Poly Rep Internal}
+    \label{fig:poly_rep_int}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/kalshi_dem_int.png}
+    \caption{Kalshi Dem Internal}
+    \label{fig:kalshi_dem_int}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/poly_dem_com.png}
+    \caption{Poly Rep Yes and Dem No Complementary}
+    \label{fig:poly_dem_com}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/poly_rep_com.png}
+    \caption{Poly Rep No and Dem Yes Complementary}
+    \label{fig:poly_rep_com}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/dem_yes_mir.png}
+    \caption{Dem Yes Mirror}
+    \label{fig:dem_yes_mir}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/dem_no_mir.png}
+    \caption{Dem No Mirror}
+    \label{fig:dem_no_mir}
+\end{figure}
+
+\todo{Add numerical value the E(price diff), std(price diff) or P(price Difference <= tau) for each arbitrage type for some interesting tau}
+
+
+
+\subsection{Bitcoin up or down?}
+In the prior section we saw that the event ``Which party will win the house 2026?'' had low expected price discrepancies.
+However, it is important to also consider that the price for the event itself did not move much, and also was not close to being resolved yet.
+With the cyclical 15 minute ``Bitcoin up or down?'' event, we can also see how price discrepancies relate to the timeline in the market life cycle.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/poly_int.png}
+    \caption{Poly Internal}
+    \label{fig:poly_int}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/kalshi_int.png}
+    \caption{Kalshi Internal}
+    \label{fig:kalshi_int}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/yes_mir.png}
+    \caption{Yes Mirror}
+    \label{fig:yes_mir}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/no_mir.png}
+    \caption{No Mirror}
+    \label{fig:no_mir}
+\end{figure}
+
+The tables above create a heat map using the 15 minute cyclical ``Bitcoin up or down?'' events, 
+to visualize the distribution of price discrepancies at a given time in the life cycle of the market.
+
+\todo{better illustrate how cross exchange (mirror arb) are more variant with higher expected value. Also how in general variance decreases at start and increases at the end of the market life cycle.}
+
+
+
+
+\chapter{Discussion}
+\label{chap:discussion}
+Love
+% This displays the bibliography for all cited external documents. All references have to be defined in the file references.bib and can then be cited from within this document.
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% This creates an appendix chapter, comment if not needed.
+\appendix
+\chapter{Endpoint Documented JSON responses}
+\begin{lstlisting}[
+    language=json, 
+    caption={Polymarkets Documented Orderbook State Object Sample}, 
+    label={lst:orderbook_state}
+    captionpos=t
+]
+{
+  "market": "0x1b6f76e5b8587ee896c35847e12d
+  11e75290a8c3934c5952e8a9d6e4c6f03cfa",
+  "asset_id": "1234567890",
+  "timestamp": "2023-10-01T12:00:00Z",
+  "hash": "0xabc123def456...",
+  "bids": [
+    {
+      "price": "1800.50",
+      "size": "10.5"
+    }
+  ],
+  "asks": [
+    {
+      "price": "1800.50",
+      "size": "10.5"
+    }
+  ],
+  "min_order_size": "0.001",
+  "tick_size": "0.01",
+  "neg_risk": false
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Polymarkets Documented Book Event}, 
+    label={lst:book_event}
+    captionpos=t
+]
+{
+  "event_type": "book",
+  "asset_id": "65818619657568813474341868652308942079804919
+  287380422192892211131408793125422",
+  "market": "0xbd31dc8a20211944f6b70f31557f1001557
+  b59905b7738480ca09bd4532f84af",
+  "bids": [
+    { "price": ".48", "size": "30" },
+    { "price": ".49", "size": "20" },
+    { "price": ".50", "size": "15" }
+  ],
+  "asks": [
+    { "price": ".52", "size": "25" },
+    { "price": ".53", "size": "60" },
+    { "price": ".54", "size": "10" }
+  ],
+  "timestamp": "123456789000",
+  "hash": "0x0...."
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Polymarkets Documented Price Change Event}, 
+    label={lst:price_change_event}
+    captionpos=t
+]
+{
+    "market": "0x5f65177b394277fd294cd75650044e32
+    ba009a95022d88a0c1d565897d72f8f1",
+    "price_changes": [
+        {
+            "asset_id": "71321045679252212594626385532706912
+            750332728571942532289631379312455583992563",
+            "price": "0.5",
+            "size": "200",
+            "side": "BUY",
+            "hash": "56621a121a47ed9333273e21c83b660cff37ae50",
+            "best_bid": "0.5",
+            "best_ask": "1"
+        },
+        {
+            "asset_id": "521143195012459155160551060468842
+            09969926127482827954674443846427813813222426",
+            "price": "0.5",
+            "size": "200",
+            "side": "SELL",
+            "hash": "1895759e4df7a796bf4f1c5a5950b748306923e2",
+            "best_bid": "0",
+            "best_ask": "0.5"
+        }
+    ],
+    "timestamp": "1757908892351",
+    "event_type": "price_change"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Polymarkets Documented Last Trade Price Event}, 
+    label={lst:trade_event}
+    captionpos=t
+]
+{
+"asset_id":"114122071509644379678018727908709560
+226618148003371446110114509806601493071694",
+"event_type":"last_trade_price",
+"fee_rate_bps":"0",
+"market":"0x6a67b9d828d53862160e470329ffea5246f3
+38ecfffdf2cab45211ec578b0347",
+"price":"0.456",
+"side":"BUY",
+"size":"219.217767",
+"timestamp":"1750428146322"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Polymarkets Documented New Market Event}, 
+    label={lst:new_market}
+    captionpos=t
+]
+{
+    "id": "1031769",
+    "question": "Will NVIDIA (NVDA) close above 
+    $240 end of January?",
+    "market": "0x311d0c4b6671ab54af4970c06fcf
+    58662516f5168997bdda209ec3db5aa6b0c1",
+    "slug": "nvda-above-240-on-january-30-2026",
+    "description": "This market will resolve to \"Yes\" if the official closing price for NVIDIA (NVDA) on the final trading day of January 2026 is higher than the listed price. Otherwise, this market will resolve to \"No\".\n\nIf the final trading day of the month is shortened (for example, due to a market-holiday schedule), the official closing price published for that shortened session will still be used for resolution.\n\nIf no official closing price is published for that session (for example, due to a trading halt into the close, system issue, or other disruption), the market will use the last valid on-exchange trade price of the regular session as the effective closing price.\n\nThe resolution source for this market is Yahoo Finance  specifically, the NVIDIA (NVDA) \"Close\" prices available at https://finance.yahoo.com/quote/NVDA/history, published under \"Historical Prices.\"\n\nIn the event of a stock split, reverse stock split, or similar corporate action affecting the listed company during the listed time frame, this market will resolve based on split-adjusted prices as displayed on Yahoo Finance.",
+    "assets_ids": [
+        "76043073756653678226373981964075571318
+        267289248134717369284518995922789326425",
+        "316909342633857276642020992785456880077
+        99199447969475608906331829650099442770"
+    ],
+    "outcomes": [
+        "Yes",
+        "No"
+    ],
+    "event_message": {
+        "id": "125819",
+        "ticker": "nvda-above-in-january-2026",
+        "slug": "nvda-above-in-january-2026",
+        "title": "Will NVIDIA (NVDA) close above ___ end of January?",
+        "description": "This market will resolve to \"Yes\" if the official closing price for NVIDIA (NVDA) on the final trading day of January 2026 is higher than the listed price. Otherwise, this market will resolve to \"No\".\n\nIf the final trading day of the month is shortened (for example, due to a market-holiday schedule), the official closing price published for that shortened session will still be used for resolution.\n\nIf no official closing price is published for that session (for example, due to a trading halt into the close, system issue, or other disruption), the market will use the last valid on-exchange trade price of the regular session as the effective closing price.\n\nThe resolution source for this market is Yahoo Finance  specifically, the NVIDIA (NVDA) \"Close\" prices available at https://finance.yahoo.com/quote/NVDA/history, published under \"Historical Prices.\"\n\nIn the event of a stock split, reverse stock split, or similar corporate action affecting the listed company during the listed time frame, this market will resolve based on split-adjusted prices as displayed on Yahoo Finance."
+    },
+    "timestamp": "1766790415550",
+    "event_type": "new_market"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Polymarkets Documented Market Resolved Event}, 
+    label={lst:market_res}
+    captionpos=t
+]
+{
+    "id": "1031769",
+    "question": "Will NVIDIA (NVDA) close above $240 
+    end of January?",
+    "market": "0x311d0c4b6671ab54af4970c06fc
+    f58662516f5168997bdda209ec3db5aa6b0c1",
+    "slug": "nvda-above-240-on-january-30-2026",
+    "description": "This market will resolve to \"Yes\" if the official closing price for NVIDIA (NVDA) on the final trading day of January 2026 is higher than the listed price. Otherwise, this market will resolve to \"No\".\n\nIf the final trading day of the month is shortened (for example, due to a market-holiday schedule), the official closing price published for that shortened session will still be used for resolution.\n\nIf no official closing price is published for that session (for example, due to a trading halt into the close, system issue, or other disruption), the market will use the last valid on-exchange trade price of the regular session as the effective closing price.\n\nThe resolution source for this market is Yahoo Finance  specifically, the NVIDIA (NVDA) \"Close\" prices available at https://finance.yahoo.com/quote/NVDA/history, published under \"Historical Prices.\"\n\nIn the event of a stock split, reverse stock split, or similar corporate action affecting the listed company during the listed time frame, this market will resolve based on split-adjusted prices as displayed on Yahoo Finance.",
+    "assets_ids": [
+        "760430737566536782263739819640755713182
+        67289248134717369284518995922789326425",
+        "316909342633857276642020992785456880077
+        99199447969475608906331829650099442770"
+    ],
+    "winning_asset_id": "7604307375665367822637398196407
+    5571318267289248134717369284518995922789326425",
+    "winning_outcome": "Yes",
+    "event_message": {
+        "id": "125819",
+        "ticker": "nvda-above-in-january-2026",
+        "slug": "nvda-above-in-january-2026",
+        "title": "Will NVIDIA (NVDA) close above ___ end of January?",
+        "description": "This market will resolve to \"Yes\" if the official closing price for NVIDIA (NVDA) on the final trading day of January 2026 is higher than the listed price. Otherwise, this market will resolve to \"No\".\n\nIf the final trading day of the month is shortened (for example, due to a market-holiday schedule), the official closing price published for that shortened session will still be used for resolution.\n\nIf no official closing price is published for that session (for example, due to a trading halt into the close, system issue, or other disruption), the market will use the last valid on-exchange trade price of the regular session as the effective closing price.\n\nThe resolution source for this market is Yahoo Finance  specifically, the NVIDIA (NVDA) \"Close\" prices available at https://finance.yahoo.com/quote/NVDA/history, published under \"Historical Prices.\"\n\nIn the event of a stock split, reverse stock split, or similar corporate action affecting the listed company during the listed time frame, this market will resolve based on split-adjusted prices as displayed on Yahoo Finance."
+    },
+    "timestamp": "1766790415550",
+    "event_type": "new_market"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Kalshi Documented Orderbook Delta}, 
+    label={lst:order_delta}
+    captionpos=t
+]
+
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Kalshi Documented Orderbook Snapshot}, 
+    label={lst:order_snapshot}
+    captionpos=t
+]
+{
+  "type": "orderbook_delta",
+  "sid": 2,
+  "seq": 3,
+  "msg": {
+    "market_ticker": "FED-23DEC-T3.00",
+    "market_id": "9b0f6b43-5b68-4f9f-9f02-9a2d1b8ac1a1",
+    "price": 96,
+    "price_dollars": "0.960",
+    "delta": -54,
+    "delta_fp": "-54.00",
+    "side": "yes",
+    "ts": "2022-11-22T20:44:01Z"
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Kalshi Documented Orderbook Snapshot}, 
+    label={lst:order_snapshot}
+    captionpos=t
+]
+{
+  "type": "orderbook_snapshot",
+  "sid": 2,
+  "seq": 2,
+  "msg": {
+    "market_ticker": "FED-23DEC-T3.00",
+    "market_id": "9b0f6b43-5b68-4f9f-9f02-9a2d1b8ac1a1",
+    "yes": [
+      [
+        8,
+        300
+      ],
+      [
+        22,
+        333
+      ]
+    ],
+    "yes_dollars": [
+      [
+        "0.080",
+        300
+      ],
+      [
+        "0.220",
+        333
+      ]
+    ],
+    "yes_dollars_fp": [
+      [
+        "0.0800",
+        "300.00"
+      ],
+      [
+        "0.2200",
+        "333.00"
+      ]
+    ],
+    "no": [
+      [
+        54,
+        20
+      ],
+      [
+        56,
+        146
+      ]
+    ],
+    "no_dollars": [
+      [
+        "0.540",
+        20
+      ],
+      [
+        "0.560",
+        146
+      ]
+    ],
+    "no_dollars_fp": [
+      [
+        "0.5400",
+        "20.00"
+      ],
+      [
+        "0.5600",
+        "146.00"
+      ]
+    ]
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Kalshi Documented Trade Update}, 
+    label={lst:trade_update}
+    captionpos=t
+]
+{
+  "type": "trade",
+  "sid": 11,
+  "msg": {
+    "trade_id": "d91bc706-ee49-470d-82d8-11418bda6fed",
+    "market_ticker": "HIGHNY-22DEC23-B53.5",
+    "yes_price": 36,
+    "yes_price_dollars": "0.360",
+    "no_price": 64,
+    "no_price_dollars": "0.640",
+    "count": 136,
+    "count_fp": "136.00",
+    "taker_side": "no",
+    "ts": 1669149841
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Kalshi Documented Market Lifecycle V2}, 
+    label={lst:market_lifecycle_v2}
+    captionpos=t
+]
+{
+  "type": "market_lifecycle_v2",
+  "sid": 13,
+  "msg": {
+    "market_ticker": "INXD-23SEP14-B4487",
+    "event_type": "created",
+    "open_ts": 1694635200,
+    "close_ts": 1694721600,
+    "additional_metadata": {
+      "name": "S&P 500 daily return on Sep 14",
+      "title": "S&P 500 closes up by 0.02% or more",
+      "yes_sub_title": "S&P 500 closes up 0.02%+",
+      "no_sub_title": "S&P 500 closes up <0.02%",
+      "rules_primary": "The S&P 500 index level at 4:00 PM ET...",
+      "rules_secondary": "",
+      "can_close_early": true,
+      "event_ticker": "INXD-23SEP14",
+      "expected_expiration_ts": 1694721600,
+      "strike_type": "greater",
+      "floor_strike": 4487
+    }
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=json, 
+    caption={Kalshi Documented Event Object}, 
+    label={lst:event_object}
+    captionpos=t
+]
+{
+  "event": {
+    "event_ticker": "<string>",
+    "series_ticker": "<string>",
+    "sub_title": "<string>",
+    "title": "<string>",
+    "collateral_return_type": "<string>",
+    "mutually_exclusive": true,
+    "category": "<string>",
+    "available_on_brokers": true,
+    "product_metadata": {},
+    "strike_date": "2023-11-07T05:31:56Z",
+    "strike_period": "<string>",
+    "markets": [
+      {
+        "ticker": "<string>",
+        "event_ticker": "<string>",
+        "market_type": "binary",
+        "title": "<string>",
+        "subtitle": "<string>",
+        "yes_sub_title": "<string>",
+        "no_sub_title": "<string>",
+        "created_time": "2023-11-07T05:31:56Z",
+        "updated_time": "2023-11-07T05:31:56Z",
+        "open_time": "2023-11-07T05:31:56Z",
+        "close_time": "2023-11-07T05:31:56Z",
+        "expiration_time": "2023-11-07T05:31:56Z",
+        "latest_expiration_time": "2023-11-07T05:31:56Z",
+        "settlement_timer_seconds": 123,
+        "status": "initialized",
+        "response_price_units": "usd_cent",
+        "yes_bid": 123,
+        "yes_bid_dollars": "0.5600",
+        "yes_ask": 123,
+        "yes_ask_dollars": "0.5600",
+        "no_bid": 123,
+        "no_bid_dollars": "0.5600",
+        "no_ask": 123,
+        "no_ask_dollars": "0.5600",
+        "last_price": 123,
+        "last_price_dollars": "0.5600",
+        "volume": 123,
+        "volume_fp": "10.00",
+        "volume_24h": 123,
+        "volume_24h_fp": "10.00",
+        "result": "yes",
+        "can_close_early": true,
+        "open_interest": 123,
+        "open_interest_fp": "10.00",
+        "notional_value": 123,
+        "notional_value_dollars": "0.5600",
+        "previous_yes_bid": 123,
+        "previous_yes_bid_dollars": "0.5600",
+        "previous_yes_ask": 123,
+        "previous_yes_ask_dollars": "0.5600",
+        "previous_price": 123,
+        "previous_price_dollars": "0.5600",
+        "liquidity": 123,
+        "liquidity_dollars": "0.5600",
+        "expiration_value": "<string>",
+        "tick_size": 123,
+        "rules_primary": "<string>",
+        "rules_secondary": "<string>",
+        "price_level_structure": "<string>",
+        "price_ranges": [
+          {
+            "start": "<string>",
+            "end": "<string>",
+            "step": "<string>"
+          }
+        ],
+        "expected_expiration_time": "2023-11-07T05:31:56Z",
+        "settlement_value": 123,
+        "settlement_value_dollars": "0.5600",
+        "settlement_ts": "2023-11-07T05:31:56Z",
+        "fee_waiver_expiration_time": "2023-11-07T05:31:56Z",
+        "early_close_condition": "<string>",
+        "strike_type": "greater",
+        "floor_strike": 123,
+        "cap_strike": 123,
+        "functional_strike": "<string>",
+        "custom_strike": {},
+        "mve_collection_ticker": "<string>",
+        "mve_selected_legs": [
+          {
+            "event_ticker": "<string>",
+            "market_ticker": "<string>",
+            "side": "<string>",
+            "yes_settlement_value_dollars": "0.5600"
+          }
+        ],
+        "primary_participant_key": "<string>",
+        "is_provisional": true
+      }
+    ]
+  },
+  "markets": [
+    {
+      "ticker": "<string>",
+      "event_ticker": "<string>",
+      "market_type": "binary",
+      "title": "<string>",
+      "subtitle": "<string>",
+      "yes_sub_title": "<string>",
+      "no_sub_title": "<string>",
+      "created_time": "2023-11-07T05:31:56Z",
+      "updated_time": "2023-11-07T05:31:56Z",
+      "open_time": "2023-11-07T05:31:56Z",
+      "close_time": "2023-11-07T05:31:56Z",
+      "expiration_time": "2023-11-07T05:31:56Z",
+      "latest_expiration_time": "2023-11-07T05:31:56Z",
+      "settlement_timer_seconds": 123,
+      "status": "initialized",
+      "response_price_units": "usd_cent",
+      "yes_bid": 123,
+      "yes_bid_dollars": "0.5600",
+      "yes_ask": 123,
+      "yes_ask_dollars": "0.5600",
+      "no_bid": 123,
+      "no_bid_dollars": "0.5600",
+      "no_ask": 123,
+      "no_ask_dollars": "0.5600",
+      "last_price": 123,
+      "last_price_dollars": "0.5600",
+      "volume": 123,
+      "volume_fp": "10.00",
+      "volume_24h": 123,
+      "volume_24h_fp": "10.00",
+      "result": "yes",
+      "can_close_early": true,
+      "open_interest": 123,
+      "open_interest_fp": "10.00",
+      "notional_value": 123,
+      "notional_value_dollars": "0.5600",
+      "previous_yes_bid": 123,
+      "previous_yes_bid_dollars": "0.5600",
+      "previous_yes_ask": 123,
+      "previous_yes_ask_dollars": "0.5600",
+      "previous_price": 123,
+      "previous_price_dollars": "0.5600",
+      "liquidity": 123,
+      "liquidity_dollars": "0.5600",
+      "expiration_value": "<string>",
+      "tick_size": 123,
+      "rules_primary": "<string>",
+      "rules_secondary": "<string>",
+      "price_level_structure": "<string>",
+      "price_ranges": [
+        {
+          "start": "<string>",
+          "end": "<string>",
+          "step": "<string>"
+        }
+      ],
+      "expected_expiration_time": "2023-11-07T05:31:56Z",
+      "settlement_value": 123,
+      "settlement_value_dollars": "0.5600",
+      "settlement_ts": "2023-11-07T05:31:56Z",
+      "fee_waiver_expiration_time": "2023-11-07T05:31:56Z",
+      "early_close_condition": "<string>",
+      "strike_type": "greater",
+      "floor_strike": 123,
+      "cap_strike": 123,
+      "functional_strike": "<string>",
+      "custom_strike": {},
+      "mve_collection_ticker": "<string>",
+      "mve_selected_legs": [
+        {
+          "event_ticker": "<string>",
+          "market_ticker": "<string>",
+          "side": "<string>",
+          "yes_settlement_value_dollars": "0.5600"
+        }
+      ],
+      "primary_participant_key": "<string>",
+      "is_provisional": true
+    }
+  ]
+}
+\end{lstlisting}
+
+\chapter{Smart Contracts}
+% --- Table 2: Contract and Events (Long Table Format) ---
+\begin{table}[H]
+\centering
+\small 
+\caption{Contract Aliases, Deployment Addresses, and Event Tables}
+\label{tab:contracts_deployment}
+\begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}X l @{}}
+\toprule
+\textbf{Alias} & \textbf{Deployment Address} & \textbf{Contract Table Name} \\ % <--- Changed \ to \\
+\midrule
+Base CTFExchange & \seqsplit{0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e} & CTFExchange \\ % <--- Changed \ to \\
+Negrisk CTFExchange & \seqsplit{0xC5d563A36AE78145C45a50134d48A1215220f80a} & CTFExchange  \\
+CTF & \seqsplit{0x4d97dcd97ec945f40cf65f87097ace5ea0476045} & (Gnosis) Conditional Tokens \\
+Negrisk Operator & \seqsplit{0x71523d0f655b41e805cec45b17163f528b59b820} & Negrisk Operator \\
+Negrisk Adapter & \seqsplit{0xd91e80cf2e7be2e162c6513ced06f1dd0da35296} & Negrisk Adapter \\
+Negrisk Adapter & \seqsplit{0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d} & UmaCtfAdapter \\
+Base UmaCtfAdapter & \seqsplit{0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74} & UmaCtfAdapter \\
+MOOV2 Adapter & \seqsplit{0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7} & UmaCtfAdapter \\
+MOOV2 & \seqsplit{0x2C0367a9DB231dDeBd88a94b4f6461a6e47C58B1} & (UMA) Managed Optimistic Oracle V2 \\
+Oracle Child Tunnel & \seqsplit{0xac60353a54873c446101216829a6A98cDbbC3f3D} & Oracle Child Tunnel \\
+FxTunnel & \seqsplit{0x8397259c983751DAf40400790063935a11afa28a} & FxTunnel \\
+OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic Oracle V2 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\vspace{1.5em} % Added space between tables
+
+
+
+
+\setlength\LTright{0pt}
+
+\begin{longtable}{@{} >{\raggedright\arraybackslash}p{\textwidth} @{}}
+\caption{Contract Event Signatures}
+\label{tab:contract_events_vertical} \\
+\toprule
+\textbf{Contract / Event Signatures} \\
+\midrule
+\endfirsthead
+
+\multicolumn{1}{c}{\tablename\ \thetable{} -- continued from previous page} \\
+\toprule
+\textbf{Contract / Event Signatures} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+% --- events_ctf_exchange ---
+\textbf{CTFExchange} \\
+\quad \texttt{FeeCharged(receiver(address), tokenId(uint256), fee(uint256))} \\
+\quad \texttt{NewAdmin(admin(address), newAdmin(address))} \\
+\quad \texttt{NewOperator(operator(address), newOperator(address))} \\
+\quad \texttt{OrderCancelled(orderHash(bytes32))} \\
+\quad \texttt{OrderFilled(orderHash(bytes32), maker(address), taker(address), makerAssetId(uint256), takerAssetId(uint256), making(uint256), taking(uint256), fee(uint256))} \\
+\quad \texttt{OrdersMatched(orderHash(bytes32), maker(address), makerAssetId(uint256), takerAssetId(uint256), making(uint256), taking(uint256))} \\
+\quad \texttt{ProxyFactoryUpdated(oldProxyFactory(address), newProxyFactory(address))} \\
+\quad \texttt{RemovedAdmin(admin(address), oldAdmin(address))} \\
+\quad \texttt{RemovedOperator(operator(address), oldOperator(address))} \\
+\quad \texttt{SafeFactoryUpdated(oldSafeFactory(address), newSafeFactory(address))} \\
+\quad \texttt{TokenRegistered(token0(uint256), token1(uint256), conditionId(bytes32))} \\
+\quad \texttt{TradingPaused(trader(address))} \\
+\quad \texttt{TradingUnpaused(trader(address))} \\[2em]
+
+
+% --- events_conditional_tokens ---
+\textbf{Conditional Tokens} \\
+\quad \texttt{ConditionPreparation(conditionId(bytes32), oracle(address), questionId(bytes32), outcomeSlotCount(uint256))} \\
+\quad \texttt{ConditionResolution(conditionId(bytes32), oracle(address), questionId(bytes32), outcomeSlotCount(uint256), payoutNumerators(uint256[]))} \\
+\quad \texttt{PositionSplit(stakeholder(address), collateralToken(address), parentCollectionId(bytes32), conditionId(bytes32), partition(uint256[]), amount(uint256))} \\
+\quad \texttt{PositionsMerge(stakeholder(address), collateralToken(address), parentCollectionId(bytes32), conditionId(bytes32), partition(uint256[]), amount(uint256))} \\
+\quad \texttt{PayoutRedemption(redeemer(address), collateralToken(address), parentCollectionId(bytes32), conditionId(bytes32), indexSets(uint256[]), payout(uint256))} \\
+\quad \texttt{URI(value(string), id(uint256))} \\[2em]
+
+% --- events_neg_risk_operator ---
+\textbf{Neg Risk Operator} \\
+\quad \texttt{MarketPrepared(marketId(bytes32), feeBips(uint256), data(bytes))} \\
+\quad \texttt{NewAdmin(admin(address), newAdmin(address))} \\
+\quad \texttt{QuestionEmergencyResolved(questionId(bytes32), result(bool))} \\
+\quad \texttt{QuestionFlagged(questionId(bytes32))} \\
+\quad \texttt{QuestionPrepared(marketId(bytes32), questionId(bytes32), requestId(bytes32), questionIndex(uint256), data(bytes))} \\
+\quad \texttt{QuestionReported(questionId(bytes32), requestId(bytes32), result(bool))} \\
+\quad \texttt{QuestionResolved(questionId(bytes32), result(bool))} \\
+\quad \texttt{QuestionUnflagged(questionId(bytes32))} \\
+\quad \texttt{RemovedAdmin(admin(address), oldAdmin(address))} \\[2em]
+
+% --- events_neg_risk_adapter ---
+\textbf{Neg Risk Adapter} \\
+\quad \texttt{MarketPrepared(marketId(bytes32), oracle(address), feeBips(uint256), data(bytes))} \\
+\quad \texttt{NewAdmin(admin(address), newAdmin(address))} \\
+\quad \texttt{OutcomeReported(marketId(bytes32), questionId(bytes32), outcome(bool))} \\
+\quad \texttt{PayoutRedemption(redeemer(address), conditionId(bytes32), amounts(uint256[]), payout(uint256))} \\
+\quad \texttt{PositionSplit(stakeholder(address), conditionId(bytes32), amount(uint256))} \\
+\quad \texttt{PositionsConverted(stakeholder(address), marketId(bytes32), indexSet(uint256), amount(uint256))} \\
+\quad \texttt{PositionsMerge(stakeholder(address), conditionId(bytes32), amount(uint256))} \\
+\quad \texttt{QuestionPrepared(marketId(bytes32), questionId(bytes32), index(uint256), data(bytes))} \\
+\quad \texttt{RemovedAdmin(admin(address), oldAdmin(address))} \\[2em]
+
+% --- events_uma_adapter ---
+\textbf{UmaCtfadapter} \\
+\quad \texttt{AncillaryDataUpdated(questionId(bytes32), creator(address), ancillaryData(bytes))} \\
+\quad \texttt{NewAdmin(admin(address), newAdmin(address))} \\
+\quad \texttt{QuestionFlagged(questionId(bytes32))} \\
+\quad \texttt{QuestionInitialized(questionId(bytes32), timestamp(uint256), creator(address), ancillaryData(bytes), rewardToken(address), reward(uint256), proposalBond(uint256))} \\
+\quad \texttt{QuestionManuallyResolved(questionId(bytes32), payouts(uint256[]))} \\
+\quad \texttt{QuestionPaused(questionId(bytes32))} \\
+\quad \texttt{QuestionReset(questionId(bytes32))} \\
+\quad \texttt{QuestionResolved(questionId(bytes32), price(int256), payouts(uint256[]))} \\
+\quad \texttt{QuestionUnflagged(questionId(bytes32))} \\
+\quad \texttt{QuestionUnpaused(questionId(bytes32))} \\
+\quad \texttt{RemovedAdmin(admin(address), oldAdmin(address))} \\[2em]
+
+% --- events_managed_oracle ---
+\textbf{Managed Optimistic Oracle V2} \\
+\quad \texttt{MessageSent(data(bytes))} \\
+\quad \texttt{PriceRequestAdded(identifier(bytes32), timestamp(uint256), ancillaryData(bytes), childRequestId(bytes32))} \\
+\quad \texttt{PriceRequestBridged(requester(address), identifier(bytes32), time(uint256), ancillaryData(bytes), childRequestId(bytes32), parentRequestId(bytes32))} \\
+\quad \texttt{PushedPrice(identifier(bytes32), timestamp(uint256), ancillaryData(bytes), price(int256), childRequestId(bytes32))} \\
+\quad \texttt{ResolvedLegacyRequest(identifier(bytes32), timestamp(uint256), ancillaryData(bytes), price(int256), childRequestId(bytes32), parentRequestId(bytes32))} \\
+\quad \texttt{AllowedBondRangeUpdated(proposer(address), minBond(uint256), maxBond(uint256))} \\
+\quad \texttt{CustomBondSet(identifier(bytes32), proposer(address), ancillaryData(bytes32), data(bytes), currency(address), bond(uint256))} \\
+\quad \texttt{CustomLivenessSet(identifier(bytes32), proposer(address), ancillaryData(bytes32), data(bytes), liveness(uint256))} \\
+\quad \texttt{CustomProposerWhitelistSet(identifier(bytes32), proposer(address), ancillaryData(bytes32), data(bytes), newProposer(address))} \\
+\quad \texttt{DefaultAdminDelayChangeCanceled()} \\
+\quad \texttt{DefaultAdminDelayChangeScheduled(delay(uint48), newDelay(uint48))} \\
+\quad \texttt{DefaultAdminTransferCanceled()} \\
+\quad \texttt{DefaultAdminTransferScheduled(newAdmin(address), time(uint48))} \\
+\quad \texttt{DefaultProposerWhitelistUpdated(newWhitelist(address))} \\
+\quad \texttt{DisputePrice(requester(address), proposer(address), disputer(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), proposedPrice(int256))} \\
+\quad \texttt{Initialized(version(uint64))} \\
+\quad \texttt{MinimumLivenessUpdated(minimumLiveness(uint256))} \\
+\quad \texttt{ProposePrice(requester(address), proposer(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), proposedPrice(int256), expirationTime(uint256), currency(address))} \\
+\quad \texttt{RequestManagerAdded(requestManager(address))} \\
+\quad \texttt{RequestManagerRemoved(requestManager(address))} \\
+\quad \texttt{RequestPrice(requester(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), currency(address), reward(uint256), finalFee(uint256))} \\
+\quad \texttt{RequesterWhitelistUpdated(newWhitelist(address))} \\
+\quad \texttt{RoleAdminChanged(role(bytes32), previousAdminRole(bytes32), newAdminRole(bytes32))} \\
+\quad \texttt{RoleGranted(role(bytes32), account(address), adminRole(bytes32))} \\
+\quad \texttt{RoleRevoked(role(bytes32), account(address), adminRole(bytes32))} \\
+\quad \texttt{Settle(requester(address), proposer(address), disputer(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), resolvedPrice(int256), payout(uint256))} \\
+\quad \texttt{Upgraded(implementation(address))} \\[2em]
+
+% --- oracle_tunnel_child ---
+\textbf{Oracle Child Tunnel} \\
+\quad \texttt{PriceRequestBridged(requester(address), identifier(bytes32), time(uint256), ancillaryData(bytes), childRequestId(bytes32), parentRequestId(bytes32))} \\
+\quad \texttt{ResolvedLegacyRequest(identifier(bytes32), timestamp(uint256), ancillaryData(bytes), price(int256), childRequestId(bytes32), parentRequestId(bytes32))} \\
+\quad \texttt{PriceRequestAdded(identifier(bytes32), timestamp(uint256), ancillaryData(bytes), childRequestId(bytes32))} \\
+\quad \texttt{PushedPrice(identifier(bytes32), timestamp(uint256), ancillaryData(bytes), price(int256), childRequestId(bytes32))} \\
+\quad \texttt{MessageSent(data(bytes))} \\[2em]
+
+% --- fx_tunnel ---
+\textbf{FxTunnel} \\
+\quad \texttt{NewFxMessage(rootMessageSender(address), receiver(address), data(bytes))} \\[2em]
+
+% --- OOV2 ---
+\textbf{Optimistic Oracle V2} \\
+\quad \texttt{RequestPrice(requester(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), currency(address), reward(uint256), finalFee(uint256))} \\
+\quad \texttt{ProposePrice(requester(address), proposer(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), proposedPrice(int256), expirationTime(uint256), currency(address))} \\
+\quad \texttt{DisputePrice(requester(address), proposer(address), disputer(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), proposedPrice(int256))} \\
+\quad \texttt{Settle(requester(address), proposer(address), disputer(address), identifier(bytes32), timestamp(uint256), ancillaryData(bytes), resolvedPrice(int256), payout(uint256))} \\
+\bottomrule
+
+\end{longtable}
+
+
+
+\chapter{Polymarket Event Object JSON Tree Analysis}
+\begin{longtable}{@{} p{9cm} r @{}}
+\caption{JSON Tree Structure Analysis of \texttt{/events} Endpoint Responses. For each entry, the Path and Total Count are on the first line, with Presence and Type Makeup on the indented second line.}
+\label{tab:json_tree_analysis_multiline} \\
+\toprule
+\textbf{Path} & \textbf{Total Count} \\
+\midrule
+\endfirsthead
+
+\multicolumn{2}{c}{\tablename\ \thetable{} -- continued from previous page} \\
+\toprule
+\textbf{Path} & \textbf{Total Count} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+% --- ROOT ---
+\texttt{ROOT} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: Object (100.0)}} \\
+\midrule
+
+% --- Aggregate Nodes ---
+\texttt{ROOT.tags} & 126555 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: Object (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[]} & 126555 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: Array (100.0)}} \\
+\midrule
+\texttt{ROOT.markets} & 126523 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: Object (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[]} & 126523 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: Array (100.0)}} \\
+\midrule
+\texttt{ROOT.series} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 83.6\% \quad Type: Object (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[]} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 83.6\% \quad Type: Array (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards} & 9805 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.7\% \quad Type: Object (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[]} & 9805 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.7\% \quad Type: Array (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: Object (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[]} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: Array (100.0)}} \\
+\midrule
+
+% --- Primitive Leaf Nodes ---
+\texttt{ROOT.tags.[].slug} & 740323 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0), str:integer (0.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].requiresTranslation} & 740323 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].label} & 740323 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0), str:integer (0.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].id} & 740323 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].updatedAt} & 740162 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].createdAt} & 731578 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 98.8\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].forceShow} & 655610 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 88.6\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].publishedAt} & 301036 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 40.7\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].approved} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].active} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clearBookOnStart} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].createdAt} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].cyom} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].feesEnabled} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].umaResolutionStatuses} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:json\_encoded (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].deploying} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].description} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].funded} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].archived} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].bestAsk} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: float (59.7), int (40.3)}} \\
+\midrule
+\texttt{ROOT.markets.[].manualActivation} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].id} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].holdingRewardsEnabled} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].pagerDutyNotificationEnabled} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].pendingDeployment} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].question} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].ready} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].rewardsMaxSpread} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: int (82.9), float (17.1)}} \\
+\midrule
+\texttt{ROOT.markets.[].outcomes} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:json\_encoded (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].rfqEnabled} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].rewardsMinSize} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: int (100.0), float (0.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].spread} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: float (83.4), int (16.6)}} \\
+\midrule
+\texttt{ROOT.markets.[].requiresTranslation} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].restricted} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].slug} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].conditionId} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:hexadecimal (99.97), str:empty (0.03)}} \\
+\midrule
+\texttt{ROOT.markets.[].closed} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].negRiskOther} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].marketMakerAddress} & 294240 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:empty (91.1), str:hexadecimal (8.9)}} \\
+\midrule
+\texttt{ROOT.markets.[].new} & 294209 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobTokenIds} & 294080 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.9\% \quad Type: str:json\_encoded (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].image} & 293596 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.8\% \quad Type: str:general (99.6), str:empty (0.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].icon} & 293371 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.7\% \quad Type: str:general (99.6), str:empty (0.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].updatedAt} & 293018 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.6\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].hasReviewedDates} & 292264 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.3\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].questionID} & 292192 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.3\% \quad Type: str:hexadecimal (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].enableOrderBook} & 291620 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.1\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].endDate} & 291388 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].startDate} & 290272 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 98.7\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].orderMinSize} & 289522 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 98.4\% \quad Type: int (100.0), float (0.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].orderPriceMinTickSize} & 289520 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 98.4\% \quad Type: float (100.0), int (0.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].endDateIso} & 288839 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 98.2\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].acceptingOrders} & 285530 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 97.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].negRisk} & 284707 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 96.8\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].outcomePrices} & 280947 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 95.5\% \quad Type: str:json\_encoded (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].automaticallyActive} & 280826 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 95.4\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].featured} & 278588 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 94.7\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].startDateIso} & 269084 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 91.5\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume} & 268901 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 91.4\% \quad Type: str:float (77.1), str:integer (22.9)}} \\
+\midrule
+\texttt{ROOT.markets.[].volumeNum} & 268901 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 91.4\% \quad Type: float (77.0), int (23.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].acceptingOrdersTimestamp} & 266051 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 90.4\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].volumeClob} & 264197 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 89.8\% \quad Type: float (76.6), int (23.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].groupItemThreshold} & 263602 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 89.6\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].closedTime} & 259848 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 88.3\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].lastTradePrice} & 258812 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 88.0\% \quad Type: int (78.0), float (22.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].umaResolutionStatus} & 257686 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 87.6\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].umaEndDate} & 257309 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 87.4\% \quad Type: str:timestamp (96.9), str:general (3.1)}} \\
+\midrule
+\texttt{ROOT.markets.[].automaticallyResolved} & 249301 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 84.7\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].updatedBy} & 241730 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 32.7\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].resolvedBy} & 240654 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 81.8\% \quad Type: str:hexadecimal (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].resolutionSource} & 236453 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 80.4\% \quad Type: str:general (74.5), str:empty (25.5)}} \\
+\midrule
+\texttt{ROOT.tags.[].isCarousel} & 231335 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 31.2\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1yrClob} & 226919 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 77.1\% \quad Type: float (61.6), int (38.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1yr} & 226919 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 77.1\% \quad Type: float (61.6), int (38.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1moClob} & 226441 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 77.0\% \quad Type: float (61.5), int (38.5)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1mo} & 226441 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 77.0\% \quad Type: float (61.5), int (38.5)}} \\
+\midrule
+\texttt{ROOT.markets.[].submitted\_by} & 225800 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 76.7\% \quad Type: str:hexadecimal (99.7), others (0.3)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1wkClob} & 223602 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 76.0\% \quad Type: float (60.6), int (39.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1wk} & 223602 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 76.0\% \quad Type: float (60.6), int (39.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].umaBond} & 219274 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 74.5\% \quad Type: str:integer (98.7), str:float (1.3)}} \\
+\midrule
+\texttt{ROOT.markets.[].umaReward} & 219274 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 74.5\% \quad Type: str:integer (98.6), str:float (1.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].negRiskRequestID} & 208566 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 70.9\% \quad Type: str:empty (54.9), str:hexadecimal (45.1)}} \\
+\midrule
+\texttt{ROOT.markets.[].groupItemTitle} & 205672 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 69.9\% \quad Type: str:general (91.6), others (8.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].oneDayPriceChange} & 201115 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 68.4\% \quad Type: float (75.7), int (24.3)}} \\
+\midrule
+\texttt{ROOT.markets.[].deployingTimestamp} & 189939 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 64.6\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].customLiveness} & 180461 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 61.3\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].bestBid} & 172631 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 58.7\% \quad Type: float (71.6), int (28.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].oneHourPriceChange} & 158604 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 53.9\% \quad Type: float (52.6), int (47.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].competitive} & 138520 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 47.1\% \quad Type: int (85.3), float (14.7)}} \\
+\midrule
+\texttt{ROOT.markets.[].liquidity} & 138485 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 47.1\% \quad Type: str:integer (80.6), str:float (19.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].liquidityNum} & 138485 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 47.1\% \quad Type: int (82.3), float (17.7)}} \\
+\midrule
+\texttt{ROOT.markets.[].showGmpOutcome} & 137594 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 46.8\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].showGmpSeries} & 137593 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 46.8\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].liquidityClob} & 133631 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 45.4\% \quad Type: int (84.3), float (15.7)}} \\
+\midrule
+\texttt{ROOT.markets.[].oneWeekPriceChange} & 124819 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 42.4\% \quad Type: int (60.2), float (39.8)}} \\
+\midrule
+\texttt{ROOT.active} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.title} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.pendingDeployment} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.requiresTranslation} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.negRiskAugmented} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.image} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (99.8), str:empty (0.2)}} \\
+\midrule
+\texttt{ROOT.icon} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (99.8), str:empty (0.2)}} \\
+\midrule
+\texttt{ROOT.id} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.deploying} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.closed} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.cyom} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.createdAt} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.enableNegRisk} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.showAllOutcomes} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.showMarketImages} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.slug} & 126558 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.ticker} & 126556 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.archived} & 126550 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.restricted} & 126550 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.featured} & 126534 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.startDate} & 126529 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.new} & 126520 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.updatedAt} & 126495 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.creationDate} & 126461 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.9\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.endDate} & 126388 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.9\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.description} & 125876 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.5\% \quad Type: str:general (100.0), others (0.0)}} \\
+\midrule
+\texttt{ROOT.commentCount} & 125633 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.3\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.openInterest} & 124935 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 98.7\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.enableOrderBook} & 123449 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 97.5\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.closedTime} & 119928 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 94.8\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.automaticallyResolved} & 114539 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 90.5\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.negRisk} & 112947 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 89.2\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.resolutionSource} & 111781 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 88.3\% \quad Type: str:general (87.2), str:empty (12.8)}} \\
+\midrule
+\texttt{ROOT.seriesSlug} & 105868 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 83.7\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].id} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].closed} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].createdAt} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].requiresTranslation} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].commentCount} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].active} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].archived} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].ticker} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].slug} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].title} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].updatedAt} & 105820 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].seriesType} & 105750 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.9\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].recurrence} & 105750 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 99.9\% \quad Type: str:general (99.9), str:empty (0.1)}} \\
+\midrule
+\texttt{ROOT.volume} & 104840 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 82.8\% \quad Type: float (95.9), int (4.1)}} \\
+\midrule
+\texttt{ROOT.automaticallyActive} & 103195 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 81.5\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].secondsDelay} & 100673 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 34.2\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].gameStartTime} & 98324 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 33.4\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].negRiskMarketID} & 94024 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 32.0\% \quad Type: str:hexadecimal (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].oneMonthPriceChange} & 89813 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 30.5\% \quad Type: int (83.6), float (16.4)}} \\
+\midrule
+\texttt{ROOT.startTime} & 88272 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 69.7\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].featured} & 83843 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 79.2\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].restricted} & 83242 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 78.7\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].image} & 81104 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 76.6\% \quad Type: str:empty (58.4), str:general (41.6)}} \\
+\midrule
+\texttt{ROOT.series.[].icon} & 81104 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 76.6\% \quad Type: str:empty (58.4), str:general (41.6)}} \\
+\midrule
+\texttt{ROOT.markets.[].eventStartTime} & 78103 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 26.5\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].createdBy} & 76858 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 10.4\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].liquidity} & 75989 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 71.8\% \quad Type: float (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].volume} & 75775 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 71.6\% \quad Type: float (98.6), int (1.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].oneYearPriceChange} & 75186 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 25.6\% \quad Type: int (99.9), float (0.1)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1wkAmm} & 75118 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 25.5\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1yrAmm} & 75118 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 25.5\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume1moAmm} & 75118 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 25.5\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.volume1yr} & 74284 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 58.7\% \quad Type: float (77.3), int (22.7)}} \\
+\midrule
+\texttt{ROOT.volume1mo} & 74274 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 58.7\% \quad Type: float (77.3), int (22.7)}} \\
+\midrule
+\texttt{ROOT.volume1wk} & 74043 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 58.5\% \quad Type: float (77.1), int (22.9)}} \\
+\midrule
+\texttt{ROOT.markets.[].sportsMarketType} & 67474 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 22.9\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.tags.[].forceHide} & 60671 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 8.2\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.competitive} & 60616 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 47.9\% \quad Type: int (92.0), float (8.0)}} \\
+\midrule
+\texttt{ROOT.liquidity} & 60435 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 47.8\% \quad Type: int (91.0), float (9.0)}} \\
+\midrule
+\texttt{ROOT.liquidityClob} & 60431 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 47.7\% \quad Type: int (91.1), float (8.9)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume24hr} & 55570 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 18.9\% \quad Type: int (85.6), float (14.4)}} \\
+\midrule
+\texttt{ROOT.liquidityAmm} & 55028 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 43.5\% \quad Type: int (99.9), float (0.1)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume24hrClob} & 50866 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 17.3\% \quad Type: int (84.3), float (15.7)}} \\
+\midrule
+\texttt{ROOT.markets.[].line} & 43542 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 14.8\% \quad Type: float (98.3), int (1.7)}} \\
+\midrule
+\texttt{ROOT.markets.[].seriesColor} & 41612 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 14.1\% \quad Type: str:empty (99.0), str:general (1.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].volumeAmm} & 41454 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 14.1\% \quad Type: int (98.7), float (1.3)}} \\
+\midrule
+\texttt{ROOT.markets.[].volume24hrAmm} & 41306 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 14.0\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].rewardsAmount} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].id} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].endDate} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].conditionId} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:hexadecimal (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].assetAddress} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:hexadecimal (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].startDate} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].clobRewards.[].rewardsDailyRate} & 32054 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: int (100.0), float (0.0)}} \\
+\midrule
+\texttt{ROOT.eventDate} & 27116 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 21.4\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].fpmmLive} & 26535 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 9.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].wideFormat} & 25839 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 8.8\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].fee} & 25829 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 8.8\% \quad Type: str:integer (100.0), str:float (0.0)}} \\
+\midrule
+\texttt{ROOT.eventWeek} & 23516 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 18.6\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].readyForCron} & 22819 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.8\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.period} & 20964 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 16.6\% \quad Type: str:general (94.1), str:empty (5.9)}} \\
+\midrule
+\texttt{ROOT.markets.[].sentDiscord} & 20529 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.ended} & 20316 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 16.1\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.live} & 20290 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 16.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.score} & 19084 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 15.1\% \quad Type: str:general (99.6), str:empty (0.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].notificationsEnabled} & 18372 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 6.2\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.sortBy} & 18208 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 14.4\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.gameId} & 17121 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 13.5\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.elapsed} & 16898 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 13.4\% \quad Type: str:empty (96.5), others (3.5)}} \\
+\midrule
+\texttt{ROOT.finishedTimestamp} & 13752 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 10.9\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.negRiskMarketID} & 11614 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 9.2\% \quad Type: str:hexadecimal (99.9), str:empty (0.1)}} \\
+\midrule
+\texttt{ROOT.series.[].new} & 10705 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 10.1\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].gameId} & 10354 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 3.5\% \quad Type: str:hexadecimal (55.1), str:integer (44.9)}} \\
+\midrule
+\texttt{ROOT.markets.[].marketType} & 10072 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 3.4\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].creator} & 10072 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 3.4\% \quad Type: str:empty (100.0)}} \\
+\midrule
+\texttt{ROOT.deployingTimestamp} & 8511 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 6.7\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.volume24hr} & 7886 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 6.2\% \quad Type: int (65.4), float (34.6)}} \\
+\midrule
+\texttt{ROOT.series.[].layout} & 7868 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.4\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].volume24hr} & 7816 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.4\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].publishedAt} & 7816 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.4\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].competitive} & 7816 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.4\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].commentsEnabled} & 7816 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.4\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].updatedBy} & 7710 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.3\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].createdBy} & 7710 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 7.3\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].startDate} & 7013 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 6.6\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.gmpChartMode} & 6866 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 5.4\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.homeTeamName} & 5770 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 4.6\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.awayTeamName} & 5770 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 4.6\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].commentsEnabled} & 5772 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 2.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].updatedBy} & 5544 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.9\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].umaEndDateIso} & 5124 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.7\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.published\_at} & 5089 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 4.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].category} & 4353 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.5\% \quad Type: str:general (99.9), str:empty (0.1)}} \\
+\midrule
+\texttt{ROOT.markets.[].takerBaseFee} & 3313 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.1\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].makerBaseFee} & 3312 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.1\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].twitterCardLocation} & 3026 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].twitterCardLastRefreshed} & 3003 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.category} & 2837 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 2.2\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].mailchimpTag} & 2668 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.9\% \quad Type: str:integer (90.0), str:null\_like (10.0)}} \\
+\midrule
+\texttt{ROOT.commentsEnabled} & 2246 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.8\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].marketGroup} & 2092 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.7\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.parentEventId} & 1603 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 1.3\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].twitterCardLastValidated} & 1435 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.5\% \quad Type: str:float (100.0)}} \\
+\midrule
+\texttt{ROOT.negRiskFeeBips} & 999 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.8\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].description} & 628 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.6\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.updatedBy} & 530 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.4\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.featuredImage} & 518 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.4\% \quad Type: str:general (66.2), str:empty (33.8)}} \\
+\midrule
+\texttt{ROOT.series.[].cgAssetName} & 512 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.5\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].pythTokenID} & 512 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.5\% \quad Type: str:hexadecimal (100.0)}} \\
+\midrule
+\texttt{ROOT.series.[].subtitle} & 512 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.5\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.featuredOrder} & 373 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.3\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].categoryMailchimpTag} & 308 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: str:null\_like (83.1), str:integer (16.9)}} \\
+\midrule
+\texttt{ROOT.createdBy} & 182 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.countryName} & 140 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: str:general (99.3), str:empty (0.7)}} \\
+\midrule
+\texttt{ROOT.electionType} & 137 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.tweetCount} & 134 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.totalsMainLine} & 99 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: float (100.0)}} \\
+\midrule
+\texttt{ROOT.spreadsMainLine} & 99 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: float (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[].id} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[].creatorImage} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[].creatorHandle} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[].creatorUrl} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[].creatorName} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.eventCreators.[].createdAt} & 87 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 100.0\% \quad Type: str:timestamp (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].subcategory} & 74 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (89.2), str:empty (10.8)}} \\
+\midrule
+\texttt{ROOT.markets.[].lowerBound} & 73 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:integer (78.1), str:float (19.2), others (2.7)}} \\
+\midrule
+\texttt{ROOT.markets.[].upperBound} & 72 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:integer (79.2), str:float (19.4), others (1.4)}} \\
+\midrule
+\texttt{ROOT.markets.[].disqusThread} & 68 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.subcategory} & 68 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.1\% \quad Type: str:general (98.5), str:empty (1.5)}} \\
+\midrule
+\texttt{ROOT.markets.[].formatType} & 66 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].twitterCardImage} & 62 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.sportsradarMatchId} & 47 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.turnProviderId} & 35 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.disqusThread} & 28 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.gameStatus} & 23 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].groupItemRange} & 22 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:json\_encoded (100.0)}} \\
+\midrule
+\texttt{ROOT.color} & 21 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:general (95.2), str:integer (4.8)}} \\
+\midrule
+\texttt{ROOT.estimateValue} & 4 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.cantEstimate} & 4 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: bool (100.0)}} \\
+\midrule
+\texttt{ROOT.carouselMap} & 4 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:json\_encoded (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].teamBID} & 4 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].teamAID} & 4 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:integer (100.0)}} \\
+\midrule
+\texttt{ROOT.estimatedValue} & 3 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:float (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].sponsorImage} & 2 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:empty (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].createdBy} & 1 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: int (100.0)}} \\
+\midrule
+\texttt{ROOT.markets.[].denominationToken} & 1 \\
+\multicolumn{2}{@{}l}{\small\textit{\quad Presence: 0.0\% \quad Type: str:empty (100.0)}} \\
+\end{longtable}
+\begin{table}[h!]
+\centering
+\caption{Raw Pairwise Comparison Statistics for CLOB Market Timestamps}
+\label{tab:timestamp_comparison_raw}
+\footnotesize
+\begin{tabular}{ll S[table-format=6.0] S[table-format=3.2] S[table-format=3.2] S[table-format=3.2]}
+\toprule
+$T_1$ & $T_2$ & {Pairs ($N$)} & {$P(T_1 < T_2)$} & {$P(T_1 = T_2)$} & {$P(T_1 > T_2)$} \\
+\midrule
+\texttt{acceptingOrdersTimestamp} & \texttt{closedTime} & 233087 & 100.00 & 0.00 & 0.00 \\
+\texttt{acceptingOrdersTimestamp} & \texttt{createdAt} & 266051 & 0.00 & 0.00 & 100.00 \\
+\texttt{acceptingOrdersTimestamp} & \texttt{endDate} & 263251 & 98.36 & 0.00 & 1.64 \\
+\texttt{acceptingOrdersTimestamp} & \texttt{startDate} & 263888 & 99.69 & 0.00 & 0.31 \\
+\texttt{acceptingOrdersTimestamp} & \texttt{umaEndDate} & 233022 & 100.00 & 0.00 & 0.00 \\
+\texttt{acceptingOrdersTimestamp} & \texttt{updatedAt} & 266051 & 100.00 & 0.00 & 0.00 \\
+\texttt{closedTime} & \texttt{createdAt} & 259848 & 0.00 & 0.00 & 100.00 \\
+\texttt{closedTime} & \texttt{endDate} & 258742 & 16.98 & 0.00 & 83.02 \\
+\texttt{closedTime} & \texttt{startDate} & 256120 & 0.02 & 0.00 & 99.98 \\
+\texttt{closedTime} & \texttt{umaEndDate} & 257286 & 1.06 & 98.07 & 0.87 \\
+\texttt{closedTime} & \texttt{updatedAt} & 259848 & 99.99 & 0.01 & 0.00 \\
+\texttt{createdAt} & \texttt{endDate} & 291388 & 97.87 & 0.00 & 2.13 \\
+\texttt{createdAt} & \texttt{startDate} & 290272 & 93.83 & 0.19 & 5.98 \\
+\texttt{createdAt} & \texttt{umaEndDate} & 257297 & 99.90 & 0.00 & 0.10 \\
+\texttt{createdAt} & \texttt{updatedAt} & 293018 & 100.00 & 0.00 & 0.00 \\
+\texttt{endDate} & \texttt{startDate} & 287460 & 2.24 & 0.72 & 97.04 \\
+\texttt{endDate} & \texttt{umaEndDate} & 256223 & 82.24 & 0.88 & 16.89 \\
+\texttt{endDate} & \texttt{updatedAt} & 290166 & 77.45 & 0.00 & 22.55 \\
+\texttt{startDate} & \texttt{umaEndDate} & 254373 & 99.21 & 0.77 & 0.02 \\
+\texttt{startDate} & \texttt{updatedAt} & 289086 & 99.58 & 0.42 & 0.00 \\
+\texttt{umaEndDate} & \texttt{updatedAt} & 257297 & 99.91 & 0.00 & 0.09 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\end{document}
