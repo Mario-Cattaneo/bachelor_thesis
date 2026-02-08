@@ -94,30 +94,43 @@ todo
 
 \chapter{Introduction}
 \section{Speculation}
-Classifying and regulating speculation on uncertain events has historically been challenging. A common classification hinges on the purpose of the speculation: whether it serves to hedge risk and provide insurance, to enable price discovery for information aggregation and forecasting, or to function as entertainment akin to gambling. However, in section~\ref{sec:spec_cases} we present cases that challenge this classification and the associated regulatory approaches.
-
-\subsection{Case Studies}
-\label{sec:spec_cases}
-The doctrine of \textit{Insurable Interest}, originating in 18th-century England, initially treated wagers made without pre-existing risk exposure as falling within the scope of illegitimate gambling~\cite{STOUT_1999}. This legal concept arose from concerns about fraudulent activity, such as the intentional destruction of insured property, and was intended to distinguish insurance from gambling by requiring a policyholder to have a financial stake in the insured item or life.
-
-However, the ``Bucket Shops'' of the early 20th century in the United States, which allowed customers to wager on stock prices without ownership, prompted courts to adopt doctrines that treated such transactions as enforceable under certain conditions. These establishments operated as off-track betting parlors for stocks and commodities, enabling public participation in financial speculation without the transfer of underlying securities. In \textit{Board of Trade v. Christie Grain} (1905), the Supreme Court recognized that a market's continuous quotations and the contractual structure of exchange dealings could justify treating functionally similar transactions as part of a legitimate market; as the Court observed, "a collection of information, otherwise entitled to protection, does not cease to be so because it concerns illegal acts"~\cite{CHRISTIE_1905}.
-
-Conversely, the \textit{Onion Futures Act of 1958} prohibited trading in onion futures in the U.S. following a substantial price collapse attributed to speculative activity, illustrating that markets otherwise regarded as legitimate can be restricted if their harms are judged to outweigh their utility~\cite{LAMBERT_2010}. Congress enacted the Act after market manipulation attributed to traders Vincent Kosuga and Sam Siegel, who in 1955 acquired dominant positions in the onion market and contributed to sharp price declines that harmed producers. The episode suggested that certain market structures; for example, those for perishable agricultural products with limited storability and seasonal production may be particularly vulnerable to manipulation, which led Congress to impose a commodity specific restriction on onion futures trading~\cite{Onion_Futures_Act_1958}.
+Classifying and regulating speculation on uncertain events has historically been challenging. 
+A common classification hinges on the purpose of the speculation,
+whether it serves to hedge risk and provide insurance, 
+to enable price discovery for information aggregation and forecasting, 
+or to function as entertainment akin to gambling.
 
 \subsection{Market Integrity}
-This regulatory ambiguity can undermine market integrity through two primary risks: direct manipulation and exploitation.
+This regulatory ambiguity can undermine market integrity through two primary risks: 
+direct manipulation and exploitation.
 
-A moral hazard arises when market participants can directly influence an event's outcome. Match-fixing in sports provides an illustrative example: a boxer might have an economic incentive to lose deliberately if betting returns on their defeat exceed the prize for winning.
+A moral hazard arises when market participants can directly influence an event's outcome. 
+Match-fixing in sports provides an illustrative example: 
+a boxer might have an economic incentive to lose deliberately if betting returns on their defeat exceed the prize for winning.
 
-A related issue is asymmetric information. Not all informational advantages are malicious; some are an unavoidable consequence of information diffusion. However, the asymmetry becomes exploitative, potentially amounting to insider trading, when it arises from privileged access that allows a few actors to profit from unfairly obtained information without altering the outcome.
+A related issue is asymmetric information. 
+Not all informational advantages are malicious, 
+some are an unavoidable consequence of information diffusion. 
+However, the asymmetry becomes exploitative, 
+potentially amounting to insider trading, 
+when it arises from privileged access that allows a few actors to profit from unfairly obtained information without altering the outcome.
 
-Both risks extend to more severe scenarios, from corporate managers taking positions that benefit from a project failure they can influence to insiders profiting from foreknowledge of military actions.
+Both risks extend to more severe scenarios, 
+from corporate managers taking positions that benefit from a project failure they can influence to insiders profiting from foreknowledge of military actions.
 
 \subsection{Modern Regulation}
-To mitigate these risks, regulators can prohibit speculation on events that present particularly high moral-hazard or exploitation risks. For example, the U.S. Commodity Futures Trading Commission (CFTC) implements 17 C.F.R. § 40.11, which provides that a registered entity "shall not list for trading or accept for clearing" contracts that, among other things, "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" and permits the Commission to identify similar activities it deems contrary to the public interest~\cite{CFTC_REG_40_11}. The rule has been central to oversight and review of event contracts: the CFTC has used §40.11 procedures in reviews of election- and political-event submissions, and in enforcement or review proceedings platforms such as Polymarket have restricted access for U.S. users to certain event contracts~\cite{CFTC_Polymarket_2022}. The rule has also been a focal point in litigation, including Kalshi's submissions and related judicial proceedings~\cite{Kalshi_v_CFTC_2024}.
+To mitigate these risks, 
+regulators can prohibit speculation on events that present particularly high moral-hazard or exploitation risks. 
+For example, the U.S. Commodity Futures Trading Commission (CFTC) implements 17 C.F.R. § 40.11, 
+which states that a registered entity "shall not list for trading or accept for clearing" contracts that 
+among other things "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" 
+and permits the Commission to identify similar activities it deems contrary to the public interest~\cite{CFTC_REG_40_11}. 
+This rule was the primary battleground Kalshi challenged to be able to list specific politcal prediction markets~\cite{Kalshi_v_CFTC_2024}
+and is a primary reason for Polymarkets restricted access for U.S. users ~\cite{CFTC_Polymarket_2022}
 
 
 \section{Prediction Market Exchanges}
+\label{sec:prediction_markets}
 Polymarket and Kalshi are two exchanges popularizing prediction markets and making them accessible globally. A prediction market is derived from the outcomes of a real-world event. On both exchanges, a prediction market is exclusively designed for binary events with YES and NO shares, which are quoted in USD, or on Polymarket, more specifically, USDC, a USD-backed ERC-20 token managed by Coinbase through a reserve such that its value is identical to USD. An example is the event ``Will the Republican Party win the House in 2026?'', which is hosted on both exchanges. A position in a prediction market refers to a specific quantity of YES or NO shares held. The process of deciding the outcome of the underlying event and assigning terminal values for a YES and NO share is called resolution, and once the values are determined, the market is deemed resolved.
 
 Kalshi specifies an explicit expiration date and central resolution source on its legally binding trading contracts for the YES and NO shares, such that a market is guaranteed to resolve to either YES or NO unambiguously upon expiration. If the market resolves to YES, then every YES share has a value of 1 USD, while every NO share has a value of 0 USD. Otherwise, the market resolves to NO and every NO share has the value of 1 USD, while every YES share has the value of 0 USD~\cite{Kalshi_Legal}.
@@ -239,7 +252,8 @@ to a separate one time exhaustive scrape on a different connection revealed that
 This anomaly was only measurable after 3 days.
 
 Unlike for the book, market and event endpoint, the documented response attributes appear in every response and are of the correct type. 
-The documented sample message can be found in the appendix ~\ref{lst:price_change_event} for the price change event, ~\ref{lst:book_event} for the book event, ~\ref{lst:trade_event} for the trade event, ~\ref{lst:new_market} for the new market event and ~\ref{lst:market_res} for the market resolved event. However, for the last trade price event, there is a missing attribute \textit{tx\_hash} of type string, which always is hexadecimal and has the length of an ethereum transaction hash. The timestamp of the market feed events are a string of an integer unix millisecond timestamp, just like the one found in the actual responses of the order book state object requests. However the fact the timestamps are only in millisecond resolution and there are no other attributes to order the events by, would render state ambiguous after a millisecond with multiple conflicting events.
+The documented sample message can be found in the appendix ~\ref{lst:price_change_event} for the price change event, ~\ref{lst:book_event} for the book event, ~\ref{lst:trade_event} for the trade event, ~\ref{lst:new_market} for the new market event and ~\ref{lst:market_res} for the market resolved event. However, for the last trade price event, there is a missing attribute \textit{tx\_hash} of type string, which always is hexadecimal and has the length of an ethereum transaction hash. 
+The timestamp of the market feed events are a string of an integer unix millisecond timestamp, just like the one found in the actual responses of the order book state object requests. However the fact the timestamps are only in millisecond resolution and there are no other attributes to order the events by, would render state ambiguous after a millisecond with multiple conflicting events.
 
 \subsection{Ambiguous Event Ordering}
 The most obvious conflict, is between events of the same type at the same millisecond with different resulting state. For price change events, this is the case when two or more price change events have the same timestamp, side, price and asset id, but different sizes, as then it is unclear exactly what the size is at the given price, side and asset id after or at the timestamp. Book events are conflicting if they share the same timestamp and asset id, but not the same bids and asks, and last trade events are conflicting when they share the same timestamp, asset id, side and price, as we can then no longer differentiate between which trade got filled using which size and price. Table ~\ref{tab:market_analysis} illustrates that this is not just theoretically possible, but actually also happens.
@@ -273,11 +287,16 @@ The final client initially scrapes the events endpoint for all currently availab
 \label{sec:kalshi_endpoints}
 Kalshi provides endpoints similar to those on Polymarket. Namely the \textit{events} endpoint for scraping any market ever created and a websocket endpoint with different channels, like \textit{trades}, \textit{orderbook updates} and \textit{market lifecycle}. Markets are uniquely identified through their market\_ticker. Dynamic subscription and unsubscription for the channels of interest, on the websocket endpoint, can be done using these market\_tickers.
 
-However unlike Polymarket, the events are not in the same format as on Polymarket, more importantly, Kalshi provides a single orderbook for both outcomes of a prediction market, where one side is for the YES prices and the other is for the NO prices ~\cite{}. The currently documented JSON format of the events collected is specifed in the appendix ~\ref{}
+However unlike Polymarket, the events are not in the same format as on Polymarket, 
+more importantly, Kalshi provides a single orderbook for both outcomes of a prediction market, where one side is for the YES prices and the other is for the NO prices, as can be seen in the documented order book delta ~\ref{lst:orderbook_delta} and order book snapshot ~\ref{lst:orderbook_snapshot} response. 
+The other documented responses can also be found in the appendix ~\ref{lst:event_object} for the event objects, ~\ref{lst:market_lifecycle_event} for the market lifcycle event, and ~\ref{lst:trade_update} for the trade update.
 
-The JSON objects inside of the messages sent by the orderbook update and trade channel contain a unique integer sequence identifier, which can be used unambiguously order the events for a given channel and spot any missing events, since the first event after subscription has sequence identifier zero, and for all other events the sequence identifier is the sequence identifier of the event happening right before it, incremented by one. However, this does not make ordering the trade events among the orderbook events unambiguously possible, as for this we would have to rely on the timestamps alone, for which the trades only specified in seconds.
+The JSON objects in the inside of the messages sent by the orderbook update and trade channel contain a unique integer sequence identifier, which can be used unambiguously order the events for a given channel and spot any missing events, since the first event after subscription has sequence identifier zero, and for all other events the sequence identifier is the sequence identifier of the event happening right before it, incremented by one. 
+Even though kalshis docs for the trade update message is missing the seq attribute, the messages do effectviely contain it. 
+However, this does not make ordering the trade events among the orderbook events unambiguously possible, as for this we would have to rely on the timestamps alone, for which the trades only specified in seconds.
 \section{Kalshi Client}
-Because of the sequence identifieres provided by kalshi, there is no need to additionally request the orderbook state, as it can be used to unambiguously maintain the state of the orderbook. The Kalshi client therefor simply subsribes t
+Because of the sequence identifieres provided by kalshi, there is no need to additionally request the orderbook state, as it can be used to unambiguously maintain the state of the orderbook. 
+The Kalshi client therefor simply does exactly what the Polymarket client does, but without the orderbook state requests.
 
 \chapter{Smart Contracts}
 \label{chap:smart_contracts}
@@ -312,34 +331,31 @@ Finally, after the payout is reported, anyone can redeem the outcome tokens they
 
 \section{UMA framework}
 \label{sec:uma}
-UMA designs protocols for oracles based on gametheory and deploys ethereum based contracts on various block chains like polygon. These deployments are connected to UMAs dedicated web application, which is allows users actively to participate in solving price requests.
+UMA designs protocols for oracles and deploys ethereum based contracts on various block chains like polygon. These deployments are connected to UMAs dedicated web application, which is allows users actively to participate in solving price requests.
 
 Polymarket exclusively used UMAs OptimisticOracleV2 (OOV2) deployment up until August 2025, where the UMIP-189 governance proposal passed and UMA deployed a ManagedOptimisticOracleV2 (MOOV2) dedicated only for Polymarket usage. The ManagedOptimisticOracleV2 is based on the same protocol, but with additional access control configurations~\cite{UMIP189}.
 
-The protocol implemented in OOV2 differs based on wether the price request is set to be event based or non event based. Polymarket atomically sets the requested prices to be event based in its UmaCtfAdapter contract. Which starts with a price request specifying an identifier, timestamp, ancillary data, ERC-20 currency and proposal reward. UMA manages an AddressWhitelist for requesters which can make price requests. This emits the \textit{RequestPrice} event. After the price was requested there are configurations that can be set this includes whether it is event based or not as well as a the proposal bond, liveness window for disputing proposals, or setting a callback for price proposals, proposal disputes and settlement. These can only be configured by the requester who made the request price. For a price request to be settled, the effective price must first be determined, this requires an initial price proposal to be made, by suggesting a price for the request identified by the requester, id, timestamp and ancillaryData. This emits the \textit{ProposePrice} event. After a price proposal is made, the price can be disputed within the liveness period which by default is two hours again with the same identifiers for the request. If the proposal remains undisputed during this period, then it becomes the effective price for the request and the request can be settled.
+The protocol implemented in OOV2 differs based on whether the price request is set to be event based or non event based. Polymarket atomically sets the requested prices to be event based in its UmaCtfAdapter contract. Which starts with a price request specifying an identifier, timestamp, ancillary data, ERC-20 currency and proposal reward. UMA manages an AddressWhitelist for requesters which can make price requests. This emits the \textit{RequestPrice} event. After the price is requested, there are configurations that can be set that includes whether it is event based or not as well as the proposal bond, liveness window for disputing proposals, or setting a callback for price proposals, proposal disputes and settlement. These can only be configured by the requester who made the request price. For a price request to be settled, the effective price must first be determined, this requires an initial price proposal to be made by suggesting a price for the request identified by the requester, id, timestamp and ancillaryData. This emits the \textit{ProposePrice} event. After a price proposal is made, the price can be disputed within the liveness period which by default is two hours, again with the same identifiers for the request. If the proposal remains undisputed during this period, then it becomes the effective price for the request and the request can be settled.
 Both the proposals and disputes have no access control in OOV2.
-If the proposal is disputed the \textit{DisputePrice} event is emitted and then a stake based voting process starts. The contract for this is deployed on the Ethereum network and therefore involves an off chain coordinated message relayer.
-After the price is determined the request can be settled, to reward or slash the proposer, and disputer if existent, depending on the correctness of their proposals compared to the final outcome. This emits the \textit{Settle} event.
+If the proposal is disputed, the \textit{DisputePrice} event is emitted and then a stake based voting process starts. The contract for this is deployed on the Ethereum blockchain and therefore involves an off chain coordinated message relayer.
+After the price is determined the request can be settled, to reward or slash the proposer and disputer if existent, depending on the correctness of their proposals compared to the final outcome. This emits the \textit{Settle} event.
 
 The OOV2 does not specify what the prices exactly mean, so in the context of Polymarket the ancillary data has to formally specify a semantic meaning of the integer price values. Polymarket does not explicitly state this, but implicitly seems to adhere to the UMIP-107 standard, in which the requested price identifier is \textit{YES\_OR\_NO\_QUERY} and the ancillary data is a utf-8 encoded dictionary, which specifies the question using the \textit{q:} key and the 4 possible prices through the \textit{p1:}, \textit{p2:}, \textit{p3:} and \textit{p4:} keys. Which specify which price is mapped to the outcomes \textit{YES}, \textit{NO}, \textit{UNKNOWN} and \textit{EARLY PROPOSAL} ~\cite{UMIP107}.
 
 \section{UmaCtfAdapter}
 \label{sec:uca}
-This is polymarkets custom contract, built on top of the CFT and OOV2, which it stores as immutable references by address. It provides an \textit{initialize} method which takes ancillary data and other UMA parameters. It initializes a market by preparing the condition in a CFT instance using itself as an oracle, $question_{id} := keccak(\text{ancillary data})$, and a hard coded outcome slot count of two. It also makes a price request with the hard coded \textit{YES\_OR\_NO\_QUERY} identifier, current block timestamp, ancillary data and the other parameters, and also in the same transaction sets the price request to be event based and only sets a callback for disputes.
+This is Polymarkets custom contract, built on top of the CFT and OOV2, which it stores as immutable references by address. It provides an \textit{initialize} method which takes ancillary data and other UMA parameters. It initializes a market by preparing the condition in a CFT instance using itself as an oracle, $question_{id} := keccak(\text{ancillary data})$, and a hard coded outcome slot count of two. It also makes a price request with the hard coded \textit{YES\_OR\_NO\_QUERY} identifier, current block timestamp, ancillary data and the other parameters, and also in the same transaction sets the price request to be event based and only sets a callback for disputes.
 
-The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. In fact, any one can use it to make a price request through the contracts deployed address as requester, even though the OOV2 has a curated requester whitelist. The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome, then uses this price to report the payouts in the CTF. The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 ether is considered as \textit{UNKNOWN}, any other price by contract logic is considered \textit{YES}. This means that even if the returned price by OOV2 is not the one specified as \textit{YES} in the ancillary data, the outcome could be considered \textit{YES} by contract logic.
+The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. In fact, any one can use it to make a price request through the contracts deployed address as requester, even though the OOV2 has a curated requester whitelist. The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome then uses this price to report the payouts in the CTF. The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 Ether is considered as \textit{UNKNOWN}, any other price by contract logic is considered \textit{YES}. This means that even if the returned price by OOV2 is not the one specified as \textit{YES} in the ancillary data, the outcome could be considered \textit{YES} by contract logic.
 If the outcome is \textit{NO} then the payout array passed to the CFT is [0,1], if the outcome is \textit{UNKNOWN} then the it is [1,1] and otherwise it is [1,0] for the outcome \textit{YES}.
 
 
-The rest of the public methods in this contract all have access of either \textit{onlyAdmin} or \textit{onlyOracle}, such as the \textit{pause} method mentioned before, which prevents the resolve method from being invoked, but there others like \textit{resolveManually} which directly reports the payouts array passed without resolution from the OOV2. Essentially providing centralized control on the market lifecycle.
-All of them emit events and are part of the exhaustive list in the appendix 
+The rest of the public methods in this contract all have access of either \textit{onlyAdmin} or \textit{onlyOracle}, such as the \textit{pause} method mentioned before, which prevents the resolve method from being invoked, but others like \textit{resolveManually} which directly reports the payouts array passed without resolution from the OOV2. Essentially providing centralized control on the market lifecycle.
+All of them emit events and are part of the exhaustive list in the Appendix.
 
 \section{CTFExchange}
 \label{sec:ctfe}
-The CTFExchange is another custom contract by Polymarket it provides the \textit{matchOrders} method for which is used for settling a taker order and the matched $n$ maker orders and emits one \textit{OrdersMatched} event and $n + 1$ \textit{OrderFilled} events. Since $n \ge 1$ we always have atleast 2 \textit{Orderfilled} events for every \textit{OrdersMatched} event. For split matches the tokens are created using \textit{splitPosition} in the CFT. Whilst for marge matched order the outcome tokens are swapped for the collateral using \textit{mergePositions} from the CFT. This and the other public methods in this contract all have restricted access.
-
-A related module built on top of the CTFExchange is the FeeModule
-which is a proxy for the CTFExchanges \textit{matchOrders} method. It is also used to manage trading fees. Emitting the \textit{FeeWithdrawn} and \textit{FeeRefunded} event. 
+The CTFExchange is another custom contract by Polymarket it provides the \textit{matchOrders} method used for settling a taker order and the matched $n$ maker orders and emits one \textit{OrdersMatched} event and $n + 1$ \textit{OrderFilled} events. Since $n \ge 1$ we always have atleast 2 \textit{Orderfilled} events for every \textit{OrdersMatched} event. For split matches, the tokens are created using \textit{splitPosition} in the CFT. Whilst for merge matched order the outcome tokens are swapped for the collateral using \textit{mergePositions} from the CFT. This and the other public methods in this contract all have restricted access.
 
 \subsection{Blockchain Slippage}
 \label{sec:bs}
@@ -353,167 +369,133 @@ However, since Polymarket orders are placed on centralized orderbook (CLOB) over
 
 \section{Negrisk}
 \label{sec:nr}
-The Negrisk framework builds on top of the UmaCtfAdpater to create multiple markets with mutually exclusive outcomes and thereby provide the \textit{convertPositions} method, which enables atomically swapping a set YES shares to the complementary set of NO shares or vice versa. This is implemented in the Negrisk Adapter, but the framework also entails a Negrisk Operator, which is used by the Negrisk UmaCtfAdapter as immutable reference for the conditional tokens contract interface, but the Negrisk Operators conditions prepared method does literally nothing and its reportPayouts method does not call any other contract, but it has other public methods which relay to the adapter, which actually references the CFT. Additionally a dedicated Nergisk CTFExchange deployment exists, which is simply another instance of the CTFExchange contract.
+The Negrisk framework builds on top of the UmaCtfAdpater to create multiple markets with mutually exclusive outcomes and thereby provide the \textit{convertPositions} method, which enables atomically swapping a set YES shares to the complementary set of NO shares or vice versa. This is implemented in the Negrisk Adapter, but the framework also entails a Negrisk Operator, which is used by the Negrisk UmaCtfAdapter as immutable reference for the conditional tokens contract interface, but the Negrisk Operators conditions prepared method does literally nothing and its reportPayouts method does not call any other contract, but it has other public methods which relay to the adapter, which actually references the CFT. Additionally a dedicated Negrisk CTFExchange deployment exists, which is simply another instance of the CTFExchange contract.
 
 \todo{figure for immutable deployment references}
 
 \section{Polygon Collection}
+\label{sec:polygon_collection}
 The polygon collection is tailored for the Infura eth\_getLogs endpoint. Infura has a rate limit of 500 credits/s, with a request to the eth\_getLogs requiring 255 credits according the documentation. However, testing showed that the actual rate limit between requests without getting rate limited is more around 1s. The rtt for a single eth\_getLogs request can be over 30s long, which is why its suited for concurrent requests. Besides the request frequency, there also is limit of 10'000 events that can requested. But the request is specified using a block range. For this purpose we can use alpha estimation with a margin 500 to converge to the block density for requesting the block expected to return 9'500 events. This seems to be effective as for most events the block density does not seem to have strong variance. But the margin can be increased if some events have a greater block density variance. As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range. The full list of collectected events can be found int the appendix ~\ref{tab:contract_events_vertical}
 
 
 \chapter{Market Lifecycle}
 \label{chap:market_lifecycle}
-The Infura client specified in section ~\ref{sec:} collected the events from appendix ~\ref{} from the Polygon block number x, with timestamp xx, up until block number y, with timestamp yy. 
-For the off chain market life cycle we can scrape the events endpoint, with historical event and market objects, as described in section ~\ref{}.
-\section{Market Object Timing}
-The seven timestamp attributes which appear consistently (over 90\%) of the market objects are \textit{createdAt}, \textit{updatedAt}, \textit{endDate}, \textit{startDate}, \textit{acceptingOrdersTimestamp}, \textit{umaEndDate}, \textit{closedTime}, as can be seen in appendix ~\ref{}. While their names are indicative of their meaning, no ordering or timing is specified in relationship to each other as well the on chain events. If for all ordered pairs of timestamps $(T_1, T_2)$ we compute $P(T_1 \le T_2)$ we see that for many pairs we have a fully consistent order where $P(T_1 \le T_2) = 1$ or $P(T_1 \le T_2) = 0$ in some cases there seem to be outliers such $P(T_1 \le T_2)$ is close to 0 or 1.
+To analyze the ma block numbers 79172086 inclusive and 81225971 inclusive, which is November 18th 2025 7:00:03 UTC to January 5th 2026 00:00:01 UTC, from polygon through the Infura client specified in ~\ref{sec:polygon_collection} and historically fetchable market objects on Polymarkets endpoints we can analyze the market lifecycle.
+\section {Market Creation}
+\subsection{Reporting Oracles}
+\label{sec:reporting_oracles}
+In section ~\ref{sec:cft} we saw that the reporting oracle for a condition is passed as an argument for condition preparation on the CFT, and is the only address which can report payouts for the final YES and NO share value after resolution. 
+Which is why it is essential to analyze which the reporting oracles being used by Polymarket.
 
-In any case to obtain a well ordered subset of the timestamps above where all of the timestamps can be compared to each other by the happens after or at $\le_\tau$ relationship, where we can set a threshold $\tau \in [0,1]$ such that $T_1 \le_{\tau} T_2 \iff P(T_1 \le T_2) \ge 1-\tau$. If we set $\tau = 0$ the largest well ordered subset we get is of size 2.
-If we set $\tau = 0.07$ we get that the largest well ordered subset is of uniquely $\{acceptingOrdersTimestamp, closedTime, createdAt, startDate, umaEndDate, \\ updatedAt\}$ with order:
+Out of the 128'003 ConditionPreparation events, 124'340 have a matching off chain market object with the same condition id.
+These matched ConditionPreparation events have three distinct reporting oracles, two of which are are not documented. 
+Namely the \textit{MOOV2 Adapter} and \textit{Centralized Adapter} in Appendix ~\ref{tab:contracts_deployment}.
 
-\begin{align}
-\label{eq:clob_order}
-    \nonumber
-    createdAt \le_0 acceptingOrdersTimestamp \le_{0.031} startDate \\  \le_{0.0002} closedTime \le_{0.0087} umaEndDate \le_{0.0009} updatedAt
-\end{align}
-
-\noindent Where the tolerance in the ordering is set to the respective minimal value such that the order holds. 
-Importantly the minimal tolerance is not transitive, since not every market has all timestamps and therefor comparisons vary. 
-For example for the order above, the actual minimal tolerance $\tau$ required is 0.0598 for $createdAt \le_{0.0598} startDate$, which is significantly larger then the transitive closure of $createdAt \le_0 acceptingOrdersTimestamp \le_{0.031} startDate$ would suggest. This is because all of the markets have a \textit{startDate} and \textit{createdAt} timestamp, but only 90.4\% of markets have an \textit{acceptingOrdersTimestamp}, as can be seen in the table ~\ref{tab:json_tree_analysis_multiline}.
-
-\section{Unkown Reporting Oracles}
-In section ~\ref{sec:cft} we saw that the oracle redefined for every condition preparation on the CFT, and is the only address which can report payouts for the final YES and NO share value after resolution. Which is why it is essential to analyze which oracles are being used and how they operate.
-
-Matching conditions ids found in the market objects with the condition ids from ConditionPreparation events reveals 2 non disclosed deployment addresses with the alias \textit{MOOV2 Adapter} and \textit{Centralized Adapter} in ~\ref{tab:contracts_deployment}. 
-\begin{table}[H]
-    \centering
-    \caption{Oracle Makeup from 123,319 Conditions Prepared}
-    \label{tab:oracle_makeup}
-    \begin{tabular}{|l|c|c|}
-        \hline
-        \textbf{Alias} & \textbf{All Events (\%)} & \textbf{Matched Events (\%)} \\\cite{}
-        \hline
-        MOO2 Adapter & 55,176 (44.68\%) & 55,052 (99.78\%) \\
-        \hline
-        Centralized Adapter & 42,181 (34.16\%) & 39,456 (93.53\%) \\
-        \hline
-        Negrisk Adapter & 25,962 (21.02\%) & 25,438(97.98\%)\\
-        \hline
-    \end{tabular}
-\end{table}
-
-
-
-
-
-The MOOV2 Adapter is an UmaCtfAdapter instance described in section ~\ref{sec:uca}. The MOOV2 Adapter uses the MOOV2 instead of the OOV2 deployment, which UMA specifically deployed for Polymarket as explained in ~\ref{sec:uma}. On the other hand Negrisk Adapter and Basic Adapter use the OOV2. However, no condition was prepared from the Base Adapter, which was has its own deployment repository and is also on in the dedicated deployment list as explained in ~\ref{sec:polydocs}. 
+The MOOV2 Adapter is an UmaCtfAdapter instance described in section ~\ref{sec:uca}. 
+The MOOV2 Adapter uses the MOOV2 instead of the OOV2.
+Interestingly, no condition has been prepared with the Basic Adapter as reporting oracle. This aligns with the umip-189 proposal and suggests that the MOOV2 Adapter replaced the Basic Adapter,
+even though Polymarket has not disclosed anything on this matter.
 
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/clob_cft_cdf.png}
-    \caption{Market \textit{createdAt} and Condition Preparation timing}
+    \caption{Cumulative count of conditions found over time}
     \label{fig:clob_cft_cdf}
 \end{figure}
 
-The figure ~\ref{fig:clob_cft_cdf} shows how the market object timestamps compare to the conditions preparared using the matched oracles. The dashed red line is an interesting point, because the accepting orders time starts to diverge from the createdAt and startDate times. This also introduced a constant gap between the conditions prepared in the CFT and the markets created. At the same time the Centralized Adapter had a sudden change in the amount of conditions being prepared.
+In figure ~\ref{fig:clob_cft_cdf} we can see that around December 17th 2025 some market objects start to appear without an acceptingOrders timestamp, 
+as can also be seen in the appendix ~\ref{tab:json_tree_analysis_multiline}.
+Additionally, this is where the 3'663 conditions were prepared on the CFT with no matching off chain market object, 
+out of which virtually all use the Centralized Adapter as reporting oracle, 
+which also had a change in the rate at which new conditions were prepared with it as reporting oracle.
 
-\section{Reporting Oracles and Resolution Source}
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/reg_cft.png}
-    \caption{UMA Price Requests and Condition Preparation timing}
-    \label{fig:reg_cft}
-\end{figure}
-
-
-Figure ~\ref{fig:reg_cft} is a strong indicator for the fact that the known deployments OOV2 and MOOV2 of the UMA protocol, are almost if not completely exlcusively used by the Negrisk Adapter and MOOV2 adapter respectively. However, we can do better.
-In section ~\ref{sec:uma} it was stated that Polymarket seems to adhere to the UMIP-107 standard for making price requests. This would imply that every identifier should be \textit{YES\_OR\_NO\_QUERY} and every ancillary data should be utf-8 encoded dictionary. Doing a similar analysis as in ~\ref{sec:clob_json} we find that virtually all of the 225814 events emitted in the time range 2025-11-18 07:00:17 to 2026-01-03 19:48:45 from the OOV2 and MOOV2 do in fact adhere to this standard and even extend with the keys: \textit{initializer}, \textit{q}, \textit{title}, \textit{description}, \textit{market\_id}.
-We can now use the market objects to match with RequestPrice events by market id and then use the condition id to matche these pairs with the ConditionPreparation events.
+\subsection{Centralized Adapter}
+The bytecode for the Centralized Adapter is not recognized by prominent bytecode to source indexers like Polygonscan or Etherscan.
+However, we can still use the matched market objects to analyze this adapter more in depth.
 
 \begin{table}[H]
     \centering
-    \caption{UMA 81,849 RequestPrice matching with CLOB market objects}
-    \label{tab:oracle_makeup1}
-    \begin{tabular}{|l|c|c|}
-        \hline
-        \textbf{Alias} & \textbf{All Events (\%)} & \textbf{Matched Events (\%)} \\
-        \hline
-        MOO2 & 55,325 (67.59\%) & 55,201 (99.78\%) \\
-        \hline
-        OOV2 & 26,524 (32.41\%) & 25,693 (96.87\%) \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \caption{UMA 81,849 RequestPrice matching with 123,319 Conditions Prepared}
-    \label{tab:oracle_makeup2}
-    \begin{tabular}{|l|c|c|}
-        \hline
-        \textbf{UMA} & \textbf{Matched Events} & \textbf{Oracle}\\
-        \hline
-        MOOV2 & 55'172 & MOOV2 Adapter \\
-        \hline
-        OOV2 & 70 & MOOV2 Adapter \\
-        \hline
-        OOV2 & 25'562 & Negrisk Adapter \\
-        \hline
-    \end{tabular}
-\end{table}
-
-Out of the 55'172 matches between conditions prepared using the MOOV2 Adapter and price requests made to the MOOV2, 55'052 share the same block timestamp. This leaves 120 matched condition preparations and price requests which could not have been executed in the same transaction atomically, and therefor are coordinated through multiple separate transaction. Out of these, 70 price requests are made to the OOV2. Which by the immutable reference to the MOOV2 in the MOOV2 Adapter contract, could not have been achieved through the \textit{initialize} method inside of the MOOV2 Adapter.
-
-On the other hand the Conditions Prepared with the Negrisk Adapter, as Oracle, matched exclusively with Price Requests made to the OOV2, which is the oracle it immutably references for price requests. However, for it only 19,832 out of the 25'562 matched had zero time difference and a matching transaction hash, indicating that for 22.4 percent of the conditions prepared, are not atomically executed in the same transaction with the price request.
-
-\section{Centralized Adapter}
-The bytecode for the Centralized Adapter is not recognized by prominent bytecode to source indexers like Polygonscan or Etherscan. 
-Decompiling it with heimdall rs without symbol inference and then using an LLM for symbol inference we get the solidity source in ~\ref{} and see a similar pattern as in the other adapter but fully centralized with access control and no UMA resolution.
-\todo{How valid is the statement/method above?}
-
-\begin{table}[H]
-    \centering
-    \caption{Centralized Adapter Events}
+    \caption{Label frequency in 41'016 market objects matched with Centralized Adapter as reporting oracle}
     \label{tab:centralized_adapter_events}
     \begin{tabular}{|l|c|}
         \hline
-        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \textbf{Label} & \textbf{Appeared in (\%)} \\
         \hline
-        Up or Down & 39,197 (92.9\%) \\
+        Up or Down & 41,016 (100\%) \\
         \hline
-        Crypto Prices & 39,197 (92.9\%) \\
+        Crypto Prices & 41,016 (100\%)  \\
         \hline
-        Hide From New & 39,197 (92.9\%) \\
+        Hide From New & 41,016 (100\%)  \\
         \hline
-        Recurring & 39,197 (92.9\%) \\
+        Recurring & 41,016 (100\%)  \\
         \hline
-        Crypto & 39,197 (92.9\%) \\
+        Crypto & 41,016 (100\%)  \\
         \hline
-        5M & 20,278 (48.1\%) \\
+        5M & 21,630 (52.7\%) \\
         \hline
-        15M & 17,824 (42.2\%) \\
+        15M & 18,270 (44.5\%) \\
         \hline
-        Solana & 9,806 (23.2\%) \\
+        Solana & 10,263 (25.0\%) \\
         \hline
-        XRP & 9,801 (23.2\%) \\
+        Ethereum & 10,257 (25.0\%) \\
         \hline
-        Ripple & 9,801 (23.2\%) \\
+        XRP & 10,256 (25.0\%) \\
         \hline
-        Ethereum & 9,800 (23.2\%) \\
+        Ripple & 10,256 (25.0\%) \\
         \hline
-        Bitcoin & 9,790 (23.2\%) \\
+        Bitcoin & 10,240 (25.0\%) \\
         \hline
-        4H & 1,095 (2.6\%) \\
+        4H & 1'116 (2.7\%) \\
         \hline
     \end{tabular}
 \end{table}
 
-Every market object has a set of labels assigned by polymarket to categorize the event. Table ~\ref{tab:centralized_adapter_events} shows the exhaustive distribution of these labels in the markets objects matched with the conditions prepared with the Centralized Adapter as oracle. Clearly being tied to crypto related events. If we look up individual matched markets on polymarkets web application, none of them have the a link to the UMA resolution status, for the UMA webapplication, which for other markets exists.
+Every market object has a set of labels assigned by polymarket to categorize the event. 
+Table ~\ref{tab:centralized_adapter_events} shows the frequency of all labels in market objects matched with the conditions prepared with the Centralized Adapter as reporting oracle. 
+Clearly, all labels are tied to crypto asset price related events. 
+If we look up individual matched markets on polymarkets web application, 
+we find that none of them have a link to the UMA resolution status on the UMA webapplication, which for other markets exists. 
+Instead they link to a source which tracks the underlying crypto asset price, which is directly used as the ground truth for resolution.
+An example for this are the cyclical 15 minute ``Bitcoin up or down?'' markets.
+
+
+
+\subsection{Resolution Source}
+Whilst the MOOV2 Adapter makes a price request atomically with the condition preparation through the initialize method, 
+a condition prepared for a Negrisk does not atomically make a price request and condition preparation atomically unless some hidden method is used for this, 
+as explained in section ~\ref{sec:nr}.
+The ConditionPreparation events and RequestPrice events have nothing that can be used to match them directly. 
+However, virtually every Ancillary data contains a market id key, which can be used to match price requests to market objects and then to ConditionPreparation events.
+Out of the 84,684 RequestPrice events, 83,743 have a matching off-chain market object and 83,652 have a matching ConditionPreparation.
+
+\begin{table}[H]
+    \centering
+    \caption{Resolution Source and Reporting Oracle Pairs}
+    \label{tab:oracle_makeup2}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Resolution Source (ids)} & \textbf{Matches} & \textbf{Oracle (Conditions)}\\
+        \hline
+        MOOV2 & 57'502 & MOOV2 Adapter \\
+        \hline
+        OOV2 & 70 & MOOV2 Adapter \\
+        \hline
+        OOV2 & 26'080 & Negrisk Adapter \\
+        \hline
+    \end{tabular}
+\end{table}
+
+A curious anomaly is that 70 out of the price requests made to the OOV2 matched with conditions prepared using the MOOV2 Adapter as reporting oracle, 
+and 50 out of the requests made to the OOV2 matched with the MOOV2 Adapter as reporting oracle do not share the same tranaction hash and are therefor not atomically executed using the initialize method.
+
+The conditions prepared with the Negrisk Adapter as reporting oracle matched exclusively with price requests made to the OOV2. Out of these matches non share the same transaction hash, 
+which means they are not executed atomically, but 21,672 (83.10\%) share the same block number, 
+which demonstrates that they mostly are executed in a timely manner, but coordinated through separate transactions.
 
 
 \section{Exchange Registration}
 \label{sec:ctfe_c}
-For matched orders on the CTFExchange to be settled, first the token id of the associated CLOB must be registered as explained in x. This emits the TokenRegistered event twice for the same condition but simply with the order of token id arguments flipped. This also means that while every condition id has two orderbooks they can only either both be registered or neither be registered on the CTFExchange.
+For matched orders on the CLOB to be settled on the on-chain exchange, first the condition id and two token ids of the prediction market must be registered as explained in section ~\ref{sec:ctfe}. 
 
 \begin{figure}[H] 
     \centering
@@ -522,39 +504,13 @@ For matched orders on the CTFExchange to be settled, first the token id of the a
     \label{fig:reg_clob}
 \end{figure}
 
-In figure ~\ref{fig:reg_clob} we can see that the market object creations start to diverge from the comined ctfe registritation around the same time that the divergence in ~\ref{fig:clob_cft_cdf} starts.
-
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/reg_unmatched_cdf.png}
-    \caption{CLOB market createAt time and unmatched cdf}
-    \label{fig:reg_unmatched_cdf}
-\end{figure}
-
-In figure ~\ref{fig:reg_unmatched_cdf} we can see the actual relationship between the createdAt timestamp and how many unmatched or matched markets exist up until that time.
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/spread_clob.png}
-    \caption{CLOB market spread and unmatched cdf}
-    \label{fig:spread_clob}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/last_trade.png}
-    \caption{CLOB market last trade price and unmatched pmf}
-    \label{fig:last_trade}
-\end{figure}
-
-In figure ~\ref{fig:reg_unmatched_cdf} we clearly see that unmatched markets objects only really start to appear after a specific threshold. The most sensible reason for this would be that the markets have no matched orders yet and therefore don't need to be registerd on the CTFExchange yet. 
-If plot we look at pmf of the three discrete cases for the lastTradePrice attribute from the market object in figure ~\ref{fig:last_trade} after the threshold time, we can clearly see that a missing last trade price or last trade price > 0 implies that the market is matched, whilst for the last trast trades at or below zero we have can only infer an unmatched market with a small probability of false positives. 
-A similar inference with small false positive rate can be done using spread = 1, as visible in ~\ref{fig:spread_clob}.
-
+In figure ~\ref{fig:reg_clob} we can see after some point in time, markets are consistently being created without being registered with the on chain exchange.
+This happens around the same time at which market objects start being created without acceptingOrder timestamps.
 
 \subsection{Unregistered Traded Outcomes}
-Using the market objects we can match the conditions prepared to the tokens registered events. In table ~\ref{tab:oracle_regs} we can see that virtually all unregistered markets were prepared using the Centralized Adapter, for which less than half of the conditions are registered. Looking back at table ~\ref{tab:centralized_adapter_events} we can see many of them are labelled as ``Hide From New''. 
+If we match the ConditionsPrepared events to the RegisteredToken events, 
+we find that virtually all unregistered markets were prepared using the Centralized Adapter as reporting oracle, 
+Additionally, less than half of the conditions are registered. 
 
 \begin{table}[H]
     \centering
@@ -573,113 +529,126 @@ Using the market objects we can match the conditions prepared to the tokens regi
     \end{tabular}
 \end{table}
 
-However there provably are markets, which are both on the web application and listed as active markets in the CLOB API, with trade and order book state change messages being emitted over the websocket market channel. 
-An example for this, are some of the 15 minute cyclical bitcoin up or down markets, which do not have any registered tokens events nor orders matched or order filled events emitted from neither the CTFE nor Negrisk CTFE. 
+Strangely, there are provably markets, which are visible on the web application, listed as active in the market object and have trade events being sent out on the websocket market feed, 
+but do not have any registered token events nor orders matched or order filled events emitted from neither the CTFE nor Negrisk CTFE. 
+An example for this, are some of the 15 minute cyclical ``bitcoin up or down?'' markets.
 
 \section{Resolution}
 \subsection{Disputes}
 As described in section ~\ref{sec:uma} the UMA OOV2 and MOOV2 protocol allows for price proposals to be disputed within a liveness period. 
-If a proposal is disputed a stake based voting process starts, which is off chain coordinated through a message relayer.
 \begin{table}[H]
     \centering
-    \caption{Ten Most Frequent Tags in 462 Matched Disputes}
+    \caption{Ten Most Frequent Tags in Matched Disputes}
     \label{tab:top10_disputes}
     \begin{tabular}{|l|c|}
         \hline
         \textbf{Label} & \textbf{Appeared In (\%)} \\
         \hline
-        Sports & 136 (29.44\%) \\
+        Politics & 104 (32.00\%) \\
         \hline
-        Politics & 130 (28.14\%) \\
+        Culture & 99 (30.46\%) \\
         \hline
-        Games & 130 (28.14\%) \\
+        Sports & 74 (22.77\%) \\
         \hline
-        Culture & 123 (26.62\%) \\
+        Games & 72 (22.15\%) \\
         \hline
-        Hide From New & 72 (15.58\%) \\
+        Hide From New & 49 (15.08\%) \\
         \hline
-        Recurring & 67 (14.50\%) \\
+        Recurring & 45 (13.85\%) \\
         \hline
-        Weather & 61 (13.20\%) \\
+        Weather & 44 (13.54\%) \\
         \hline
-        Trump & 52 (11.26\%) \\
+        Best of 2025 & 41 (12.62\%) \\
         \hline
-        Geopolitics & 52 (11.26\%) \\
+        Trump & 40 (12.31\%) \\
         \hline
-        Best of 2025 & 41 (8.87\%) \\
+        Geopolitics & 39 (12.00\%) \\
         \hline
     \end{tabular}
 \end{table}
 
-There are a total of 462 matched disputes and 113,591 matched propsals. 
+There are a total of 74,833 matched propsals and 340 matched disputes. 
 Table ~\ref{tab:top10_disputes} shows the ten most frequent labels assigned to the markets objects matched with the disputes.
-Out of the 462 matched disputes, 197 are from the OOV2 and 265 from the MOOV2.
+Out of the 340 matched disputes, 145 are on the OOV2 and 195 on the MOOV2.
+This is ironic, because according to the umip-189 proposal, the MOOV2 was explicitly designed with a propososer whitelist, 
+which Polymarket manages. Yet, the MOOV2 has more disputes than the OOV2. 
+However, its important to note that the MOOV2 also has 53,818 proposals, 
+compared to the OOV2 which has 21,015 proposals.
 
 \subsection{Reported Unkown Outcome}
-We already saw that there are three oracles polymarket uses to report the payouts to enforce a terminal value for the YES and NO shares after resolution.
-The terminal value is then determined by the payout array passed to the CFT.
-In the contracts this is hardcoded you either be [1,0] for YES, [0,1] for NO, or [1,1] for UNKNOWN.
-
+The terminal value for the YES and NO shares is determined by the payout array passed from the reporting oracle to the CFT,
+which emits a ConditionResolution event, containing the condition id and the payout array.
+Out of 112'638 ConditionResolution events, 283 (0.25\%) reported an Unknown outcome, 
+46,373 (41.17\%) reported a YES outcome and 66,982 (58.58\%) reported a NO outcome.
+If the YES and NO outcomes were uniformly distributed, we would expect them to be reported equally, 
+but most negrisk events are designed to have one prediction market resolve to YES and the rest to NO.
+In fact out of the 19'541 ConditionResolution events with a Negrisk Adapter as reporting oracle, only 2,616 (13.39\%) reported a YES outcome, 
+16,925 (86.61\%) reported a NO outcome and none reported an UNKNOWN outcome. 
+All of the UNKNOWN outcomes were reported by the MOOV2 Adapter.
 \begin{table}[H]
     \centering
-    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN outcome (n=1,011)}
+    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN}
     \label{tab:top10_tags_1_1}
     \begin{tabular}{|l|c|}
         \hline
         \textbf{Label} & \textbf{Appeared In (\%)} \\
         \hline
-        Games & 999 (98.81\%) \\
+        Games & 272 (96.11\%) \\
         \hline
-        Sports & 986 (97.53\%) \\
+        Sports & 259 (91.52\%) \\
         \hline
-        Tennis & 435 (43.03\%) \\
+        Esports & 102 (36.04\%) \\
         \hline
-        Esports & 403 (39.86\%) \\
+        Basketball & 51 (18.02\%) \\
         \hline
-        counter strike 2 & 246 (24.33\%) \\
+        NCAA & 42 (14.84\%) \\
         \hline
-        Dota 2 & 62 (6.13\%) \\
+        UFC & 39 (13.78\%) \\
         \hline
-        Basketball & 57 (5.64\%) \\
+        Dota 2 & 35 (12.37\%) \\
         \hline
-        UFC & 43 (4.25\%) \\
+        NCAA Basketball & 31 (10.95\%) \\
         \hline
-        NCAA & 43 (4.25\%) \\
+        Rocket League & 30 (10.60\%) \\
         \hline
-        NCAA Basketball & 31 (3.07\%) \\
+        Tennis & 29 (10.25\%) \\
         \hline
     \end{tabular}
 \end{table}
 
-Out of 202'514 matched Condition Resolution events only 1'011 had the UNKNOWN outcome [1,1] reported as payout array. 
-These 1'011 UNKNOWN outcomes were all reported by the MOOV2 Adapter.
-Table ~\ref{tab:top10_tags_1_1} shows the ten most event categories associated with the the markets that were reported to have an UNKNOWN outcome.
+Table ~\ref{tab:top10_tags_1_1} shows what kind of labels are associated with markets reported to have an UNKNOWN outcome.
+
 
 \subsection{Manual Resolutions}
-In sections ~\ref{sec:manual_resolutions} it was mentioned taht the UmaCtfAdapter and Negrisk Operator have administrative methods, which can be used to manually resolve markets without UMA price requests being settled.
+In sections ~\ref{sec:manual_resolutions} it was mentioned that the UmaCtfAdapter and Negrisk Operator have administrative methods, which can be used to manually resolve markets without UMA price requests being settled.
 All of the relevant methods emit events, including the \textit{resolveMarketManually} method in the UmaCtfAdapter and the \textit{emergencyResolveQuestion} method in the Negrisk Operator. 
-However, there are no events for either of these methods was emitted in any of the UmaCtfAdapter instances or the single Negrisk Operator instance.
+However, there no events for either of these methods was emitted in any of the UmaCtfAdapter instances or the single Negrisk Operator instance.
+This does not fully exclude the possibility of manual resolution, but if this is the case, then it must be done through a delegate call from a hidden proxy contract,
+such that the events are emitted from the proxy contract.
 
 \chapter{Orderbook and Trading}
 \label{chap:orderbook_trading}
-Both Polymarket and Kalshi utilize a Central Limit Order Book (CLOB) as their primary market mechanism to match buyers and sellers. Market participants can place orders through the \textit{order} or \textit{orders} endpoint on both Polymarket and Kalshi. An order on both exchanges is specified through a JSON object. The attributes vary by exchange but fundamentally there are two order types:
-\begin{itemize}
-    \item \textbf{Market orders} guarantee timely execution by attempting to match the quantity specified against existing resting limit orders by \textbf{price-time priority}. However, the price for the base assets is not guaranteed.
-    \item \textbf{Limit orders} guarantee price for the quantity specified, but not timely execution. As they only get matched if a market order is placed and they have the greatest \textbf{price-time priority}.
-\end{itemize}
-
-
-Every executed order, also simply called trade, consists of a taker, who's order was marketable, matched with at least one maker, who had a resting limit order.
+In section ~\ref{sec:prediction_markets} we explained how a prediction market consists of YES and NO shares whos price is denoted in USD.
+The CLOB used by Polymarket and Kalshi captures the intention of traders through market and limit orders,
+which are placed through HTTPS requests to \textit{order} endpoints and are matched based on price-time priority ~\cite{}.
+A limit order allows the trader to specify price at which they want to buy or sell shares, but this price can not cross other resting limit orders, 
+otherwise is becomes marketable. 
+A marketable order is either executed immediately against the best possible resting limit orders by price-time priority, or is aborted ~\cite{}.
 
 \section{State, Ordering and Matching}
 \label{sec:CLOB_state}
-Both Kalshi and Polymarket use \textbf{Price-Time Priority} for matching market orders with resting limit orders~\cite{}. This means that limit orders at better prices which arrived at the CLOB the soonest, are chosen first to execute against market orders. 
 
-On Polymarket there are three ways a maker and taker can get matched as was described in section ~\ref{}. The documentation on Polymarket presents a separate orderbook for the YES and NO shares of a prediction market with buy and sell sides.
-The data collected from the endpoints reveals that there actually only is one orderbook for a prediction market, where for every price $p$ there exists a price $1-p$ on the complementary outcomes complementary side with the exact same amount of shares available at all times.
-So for example, if there are 50 YES share bids at 0.7 USDC, then there also are 50 NO share asks at 0.3 USDC. For this reason it can be treated as a single orderbook with YES and NO sides, just like Kalshi presents it.
+A trader can either buy or sell YES or NO shares, which creates four possible orders; Sell Yes, Sell No, Buy Yes, Buy No. 
+However, among these four orders there are only two intentions, which are either to speculate on the YES outcome by buying YES shares or selling NO shares, 
+or to speculate on the NO outcome by buying NO shares or selling YES shares.
 
-The state of the CLOB can be defined through the current existing resting limit. 
+Kalshi maintains a single orderbook for each prediction market, which captures the order intentions through a YES and NO side.
+Polymarket on the other hand documents and provides separate orderbooks for the YES and NO shares, with bid and ask sides.
+However, analyzing the state of the orderbook, reveals that the bid share amount at any given price $p$ for the YES shares 
+are always the same as the same as the the ask share amount for the NO shares at price $1-p$. 
+The analogous also holds for the YES asks and NO bids.
+
+The state of the CLOB can be defined through the resting limit orders.
 A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price for an outcome share, $v \in \mathbb{R}^+$ is the quantity of the shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome and $i \in \mathbb{N}$ is the priority it has to be selected for matching with market orders at price $p$ and side $s$, a lower $i$ has a higher priority. 
 This guarantees a unique ordering for both buy and sell limit orders which is used for matching. 
 Formally, for limit orders we have that:
@@ -689,25 +658,27 @@ Formally, for limit orders we have that:
     & ((p_1, v_1, s_1, i_1) > (p_2, v_1, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
 \end{align}
 
-\noindent Where the best buy price for the taker is the lowest:
+\noindent Where the best price for the taker is:
 \begin{align}
 \label{eq:best_buy}
     & p_{market} = max \{p | (p, v, s, i)\}
 \end{align}
 
 
-\noindent The market price $p_{market}$ generically refers to the best price for the taker, regardless of whether its on the YES or NO side. 
-If the quantity for a marketable order can not be fully filled at market price, then the taker would suffer from \textbf{price slippage}, if the order is executed. 
+\noindent If the quantity for a marketable order can not be fully filled at market price, 
+then the taker would suffer from \textbf{price slippage}, if the order is executed. 
 If the marketable order can't be filled with limit orders at any price, then the taker order remains partially or fully unfilled. 
-Depending on the market order specification, a partially unfilled market order is either  executed or canceled.
+Depending on the market order specification, a partially unfilled market order is either executed or canceled.
 
 \section{Slippage}
 \label{sec:CLOB_slip}
 In general, Slippage occurs when the trade is executed at a different price than what the market suggested at the time where the intent to trade was submitted. 
 This was already covered for fully Automated Market Makers in section ~\ref{sec:bs}.
 
-Slippage in a CLOB can also occur when a taker order for quantity $x$ is not filled entirely at the market price when the order was submitted, resulting in a less favorable execution cost for the taker. 
-The CLOB is designed to allow this, with the core principle being the taker is guaranteed timely order execution but not price, whilst the maker is guaranteed order price but not timely execution. 
+Slippage in the CLOB can occur when a taker order for $x$ shares is not filled entirely at the market price when the order was submitted, 
+resulting in a less favorable execution cost for the taker. 
+The CLOB is designed to allow this, with the core principle being the taker is guaranteed timely order execution but not price, 
+whilst the maker is guaranteed order price but not timely execution. 
 We can define the slippage for a taker buying or selling $x$ base assets and getting matched with maker orders M, we have:
 \begin{align}
 \label{eq:slip}
@@ -721,50 +692,12 @@ We can define the slippage for a taker buying or selling $x$ base assets and get
 \end{align}
 
 
-\subsection{Which party will win the house 2026?}
-To compute the slippage for a taker in a trade, we can use the OrderFilled events. 
-These are emitted whenever a trade is settled for every maker order filled by the taker and once for the exchange filling the taker, as explained in section ~\ref{sec:ctfe}.
-However in section ~\ref{sec:ctfe_c} we also mentioned that not all trades are settled on chain, this also includes some if not all of the 15 minute cyclical bitcoin up or down markets.
-Since we can not reliably compute slippage from the data available from the endpoints, 
-we can only measure slippage for the ``Which party will win the house 2026?'' market on Polymarket, which has all of its trades settled on chain.
+\subsection{Slippage Rate on Polymarket}
 
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/house_trades.png}
-    \caption{Cumulative count of trades for the event "Who will win the house 2026?"}
-    \label{fig:house_trades}
-\end{figure}
 
-In figure ~\ref{fig:house_trades} we can see that at least for this specific event the settlements reported on chain seem timely with the server timestamp from last trades reported through the CLOB market channel websocket endpoint. Further analysis shows that 
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/vol_no_dem.png}
-    \caption{Cumulative volume democrats no}
-    \label{fig:vol_no_dem}
-\end{figure}
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/vol_yes_dem.png}
-    \caption{Cumulative volume democrats yes}
-    \label{fig:vol_yes_dem}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/vol_no_rep.png}
-    \caption{Cumulative volume republicans no}
-    \label{fig:vol_no_rep}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/vol_yes_rep.png}
-    \caption{Cumulative volume republicans yes}
-    \label{fig:vol_yes_rep}
-\end{figure}
 
 \begin{figure}[H] 
     \centering
@@ -773,20 +706,35 @@ In figure ~\ref{fig:house_trades} we can see that at least for this specific eve
     \label{fig:slip}
 \end{figure}
 
-In figure ~\ref{fig:slip} we can see the cumulative slippage for all trades executed on the ``Which party will control the House after the 2026 Midterm elections?'' market on Polymarket.
-This includes both markets for Democrats and Republicans winning the house, and is measured as defined in the relationship ~\ref{eq:slip}, using the OrderFilled events emitted from the CTFE contract as explained before.
-
 \section{Arbitrage}
 \label{sec:arbitrage}
-The nature of prediction markets nturally induces multiple sources for arbitrage.
-These all arise from price discrepancies between price pairs $p_1, p_2$ which depend on each other.
+The nature of prediction markets naturally induces multiple sources for arbitrage.
+These all arise from discrepancies between the market price for outcome share pairs which depend on each other.
 
 \subsection{Which party will win the house 2026?}
-For the event ``Which party will control the House after the 2026 Midterm elections?'' there are two markets, one for Democrats winning the house and one for Republicans winning the house.
+For the event ``Which party will control the House after the 2026 Midterm elections?'' there are two prediction markets on both Kalshi and Polymarket. One for Democrats winning the house and the other for Republicans winning the house.
 For which there are 8 prices in total, 4 on polymarket and 4 on kalshi. This leaves us with 28 combinations of price pairs for arbitrage.
 For analytic purposes we will restrict ourselves to 6 prices, the YES and NO prices for both the republican and democratic party on Polymarket, and the YES and NO price for the democratic party on Kalshi.
-We can now measure 3 sources of arbitrage specifically: market internal, complementary market, and mirror market arbitrage.
-\todo{Define each of these formally and illustrate transitive closure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/house_arb.png}
+    \caption{House Arbitrage Relationships}
+    \label{fig:house_arb}
+\end{figure}
+
+
+The graph in figure ~\ref{fig:house_arb} illustrates the relationships between the 6 prices we are considering for arbitrage.
+Every outcome share has a relationship witheachother, so the graph above is not exhaustive, but importantly there are only 2 positions, with 3 outcome shares each, 
+which form a closed graph under the \textit{Equal Value} relationship, since they represent the same outcome at resolution.
+This is once the outcome that the Democrats win the house, represented by the YES shares on the democratic markets and the NO shares on the republican markets, 
+and otherwise the Republicans win the house, represented by the YES shares on the republican markets and the NO shares on the democratic markets.
+Every outcome share pair for the same position have equal value, whilst every outcome share pair in different positions have complementary value, meaning their value sums to 1.
+
+We can now measure three sources of arbitrage specifically, which capture these relationships well; market internal, complementary markets, and mirror market arbitrage.
+Market internal arbitrage measures the discrepancies between the YES and NO prices on the same prediction market, 
+complementary market arbitrage measures the discrepancies between outcome prices on seperate prediction markets which represent the same position,
+and mirror market arbitrage measures the discrepancies between the outcome prices of identical prediction markets on seperate exchanges.
 
 \begin{figure}[H] 
     \centering
@@ -795,55 +743,13 @@ We can now measure 3 sources of arbitrage specifically: market internal, complem
     \label{fig:poly_dem_int}
 \end{figure}
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/poly_rep_int.png}
-    \caption{Poly Rep Internal}
-    \label{fig:poly_rep_int}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/kalshi_dem_int.png}
-    \caption{Kalshi Dem Internal}
-    \label{fig:kalshi_dem_int}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/poly_dem_com.png}
-    \caption{Poly Rep Yes and Dem No Complementary}
-    \label{fig:poly_dem_com}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/poly_rep_com.png}
-    \caption{Poly Rep No and Dem Yes Complementary}
-    \label{fig:poly_rep_com}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/dem_yes_mir.png}
-    \caption{Dem Yes Mirror}
-    \label{fig:dem_yes_mir}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/dem_no_mir.png}
-    \caption{Dem No Mirror}
-    \label{fig:dem_no_mir}
-\end{figure}
-
-\todo{Add numerical value the E(price diff), std(price diff) or P(price Difference <= tau) for each arbitrage type for some interesting tau}
-
+For all figures above we can clearly see that the price discrepancy is at most 0.05 USD, 
 
 
 \subsection{Bitcoin up or down?}
 In the prior section we saw that the event ``Which party will win the house 2026?'' had low expected price discrepancies.
-However, it is important to also consider that the price for the event itself did not move much, and also was not close to being resolved yet.
+However, it is important to also consider that the price for the event itself did not move much, as illustrated by the range of the prices throughout the entire time period in table ~\ref{}, 
+and also was not close to being resolved yet.
 With the cyclical 15 minute ``Bitcoin up or down?'' event, we can also see how price discrepancies relate to the timeline in the market life cycle.
 
 \begin{figure}[H] 
@@ -884,7 +790,7 @@ to visualize the distribution of price discrepancies at a given time in the life
 
 \chapter{Discussion}
 \label{chap:discussion}
-Love
+Love is the answer.
 % This displays the bibliography for all cited external documents. All references have to be defined in the file references.bib and can then be cited from within this document.
 \bibliographystyle{IEEEtran}
 \bibliography{references}
@@ -894,10 +800,10 @@ Love
 \chapter{Endpoint Documented JSON responses}
 \begin{lstlisting}[
     language=json, 
-    caption={Polymarkets Documented Orderbook State Object Sample}, 
-    label={lst:orderbook_state}
+    caption={Polymarkets Documented Orderbook State Object Sample},
     captionpos=t
 ]
+\label{lst:orderbook_state}
 {
   "market": "0x1b6f76e5b8587ee896c35847e12d
   11e75290a8c3934c5952e8a9d6e4c6f03cfa",
@@ -926,9 +832,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Polymarkets Documented Book Event}, 
-    label={lst:book_event}
     captionpos=t
 ]
+\label{lst:book_event}
 {
   "event_type": "book",
   "asset_id": "65818619657568813474341868652308942079804919
@@ -953,9 +859,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Polymarkets Documented Price Change Event}, 
-    label={lst:price_change_event}
     captionpos=t
 ]
+\label{lst:price_change_event}
 {
     "market": "0x5f65177b394277fd294cd75650044e32
     ba009a95022d88a0c1d565897d72f8f1",
@@ -989,9 +895,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Polymarkets Documented Last Trade Price Event}, 
-    label={lst:trade_event}
     captionpos=t
 ]
+\label{lst:last_trade_event}
 {
 "asset_id":"114122071509644379678018727908709560
 226618148003371446110114509806601493071694",
@@ -1009,9 +915,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Polymarkets Documented New Market Event}, 
-    label={lst:new_market}
     captionpos=t
 ]
+\label{lst:new_market}
 {
     "id": "1031769",
     "question": "Will NVIDIA (NVDA) close above 
@@ -1045,9 +951,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Polymarkets Documented Market Resolved Event}, 
-    label={lst:market_res}
     captionpos=t
 ]
+\label{lst:market_res}
 {
     "id": "1031769",
     "question": "Will NVIDIA (NVDA) close above $240 
@@ -1077,21 +983,13 @@ Love
 }
 \end{lstlisting}
 
+
 \begin{lstlisting}[
     language=json, 
     caption={Kalshi Documented Orderbook Delta}, 
-    label={lst:order_delta}
     captionpos=t
 ]
-
-\end{lstlisting}
-
-\begin{lstlisting}[
-    language=json, 
-    caption={Kalshi Documented Orderbook Snapshot}, 
-    label={lst:order_snapshot}
-    captionpos=t
-]
+\label{lst:orderbook_delta}
 {
   "type": "orderbook_delta",
   "sid": 2,
@@ -1112,9 +1010,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Kalshi Documented Orderbook Snapshot}, 
-    label={lst:order_snapshot}
     captionpos=t
 ]
+\label{lst:orderbook_snapshot}
 {
   "type": "orderbook_snapshot",
   "sid": 2,
@@ -1189,9 +1087,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Kalshi Documented Trade Update}, 
-    label={lst:trade_update}
     captionpos=t
 ]
+\label{lst:trade_update}
 {
   "type": "trade",
   "sid": 11,
@@ -1213,9 +1111,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Kalshi Documented Market Lifecycle V2}, 
-    label={lst:market_lifecycle_v2}
     captionpos=t
 ]
+\label{lst:market_lifecycle_v2}
 {
   "type": "market_lifecycle_v2",
   "sid": 13,
@@ -1244,9 +1142,9 @@ Love
 \begin{lstlisting}[
     language=json, 
     caption={Kalshi Documented Event Object}, 
-    label={lst:event_object}
     captionpos=t
 ]
+\label{lst:event_object}
 {
   "event": {
     "event_ticker": "<string>",

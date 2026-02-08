@@ -2,13 +2,12 @@
 \contentsline {chapter}{Abstract}{ii}{chapter*.2}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Speculation}{1}{section.1.1}%
-\contentsline {subsection}{\numberline {1.1.1}Case Studies}{1}{subsection.1.1.1}%
-\contentsline {subsection}{\numberline {1.1.2}Market Integrity}{2}{subsection.1.1.2}%
-\contentsline {subsection}{\numberline {1.1.3}Modern Regulation}{2}{subsection.1.1.3}%
-\contentsline {section}{\numberline {1.2}Prediction Market Exchanges}{3}{section.1.2}%
-\contentsline {subsection}{\numberline {1.2.1}Growth}{4}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.1.1}Market Integrity}{1}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Modern Regulation}{1}{subsection.1.1.2}%
+\contentsline {section}{\numberline {1.2}Prediction Market Exchanges}{2}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Growth}{3}{subsection.1.2.1}%
 \contentsline {subsection}{\numberline {1.2.2}US Market}{5}{subsection.1.2.2}%
-\contentsline {subsection}{\numberline {1.2.3}Accessibility}{6}{subsection.1.2.3}%
+\contentsline {subsection}{\numberline {1.2.3}Accessibility}{5}{subsection.1.2.3}%
 \contentsline {chapter}{\numberline {2}Objective and Methodology}{7}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Three Objectives}{7}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Methodology}{8}{section.2.2}%
@@ -32,25 +31,25 @@
 \contentsline {section}{\numberline {4.5}Negrisk}{19}{section.4.5}%
 \contentsline {section}{\numberline {4.6}Polygon Collection}{19}{section.4.6}%
 \contentsline {chapter}{\numberline {5}Market Lifecycle}{20}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Market Object Timing}{20}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Unkown Reporting Oracles}{21}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Reporting Oracles and Resolution Source}{23}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Centralized Adapter}{24}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Exchange Registration}{25}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Unregistered Traded Outcomes}{28}{subsection.5.5.1}%
-\contentsline {section}{\numberline {5.6}Resolution}{28}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Disputes}{28}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}Reported Unkown Outcome}{29}{subsection.5.6.2}%
-\contentsline {subsection}{\numberline {5.6.3}Manual Resolutions}{30}{subsection.5.6.3}%
-\contentsline {chapter}{\numberline {6}Orderbook and Trading}{31}{chapter.6}%
-\contentsline {section}{\numberline {6.1}State, Ordering and Matching}{31}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Slippage}{32}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Which party will win the house 2026?}{33}{subsection.6.2.1}%
-\contentsline {section}{\numberline {6.3}Arbitrage}{36}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Which party will win the house 2026?}{36}{subsection.6.3.1}%
-\contentsline {subsection}{\numberline {6.3.2}Bitcoin up or down?}{40}{subsection.6.3.2}%
-\contentsline {chapter}{\numberline {7}Discussion}{44}{chapter.7}%
-\contentsline {chapter}{Bibliography}{45}{chapter*.10}%
+\contentsline {section}{\numberline {5.1}Market Creation}{20}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Reporting Oracles}{20}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Centralized Adapter}{21}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Resolution Source}{22}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Exchange Registration}{23}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Unregistered Traded Outcomes}{24}{subsection.5.2.1}%
+\contentsline {section}{\numberline {5.3}Resolution}{24}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Disputes}{24}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Reported Unkown Outcome}{25}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Manual Resolutions}{26}{subsection.5.3.3}%
+\contentsline {chapter}{\numberline {6}Orderbook and Trading}{27}{chapter.6}%
+\contentsline {section}{\numberline {6.1}State, Ordering and Matching}{27}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Slippage}{28}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Slippage Rate on Polymarket}{29}{subsection.6.2.1}%
+\contentsline {section}{\numberline {6.3}Arbitrage}{29}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Which party will win the house 2026?}{29}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Bitcoin up or down?}{31}{subsection.6.3.2}%
+\contentsline {chapter}{\numberline {7}Discussion}{35}{chapter.7}%
+\contentsline {chapter}{Bibliography}{36}{chapter*.7}%
 \contentsline {chapter}{\numberline {A}Endpoint Documented JSON responses}{A-1}{appendix.U}%
 \contentsline {chapter}{\numberline {B}Smart Contracts}{B-1}{appendix.V}%
 \contentsline {chapter}{\numberline {C}Polymarket Event Object JSON Tree Analysis}{C-1}{appendix.W}%

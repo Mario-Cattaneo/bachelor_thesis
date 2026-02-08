@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2026.2.1)  2 FEB 2026 23:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2026.2.1)  8 FEB 2026 16:23
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -896,11 +896,7 @@ File: l3backend-pdftex.def 2023-01-16 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count372
 \l__pdf_internal_box=\box90
 )
-(./Thesis.aux
-
-LaTeX Warning: Label `{lst:order_snapshot} captionpos' multiply defined.
-
-)
+(./Thesis.aux)
 \openout1 = `Thesis.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
@@ -921,7 +917,8 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 77.
 LaTeX Font Info:    ... okay on input line 77.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 77.
 LaTeX Font Info:    ... okay on input line 77.
- (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count373
 \scratchdimen=\dimen313
@@ -969,7 +966,7 @@ f>
 converted-to.pdf figures/eth_logo_black.eps>
 (epstopdf)             \includegraphics on input line 81.
 Package epstopdf Info: Output file is already uptodate.
-<figures/eth_logo_black-eps-converted-to.pdf, id=232, 191.71625pt x 57.21375pt>
+<figures/eth_logo_black-eps-converted-to.pdf, id=228, 191.71625pt x 57.21375pt>
 
 File: figures/eth_logo_black-eps-converted-to.pdf Graphic file (type pdf)
 <use figures/eth_logo_black-eps-converted-to.pdf>
@@ -987,7 +984,7 @@ f>
 converted-to.pdf figures/disco-logo-col.eps>
 (epstopdf)             \includegraphics on input line 81.
 Package epstopdf Info: Output file is already uptodate.
-<figures/disco-logo-col-eps-converted-to.pdf, id=233, 132.495pt x 48.18pt>
+<figures/disco-logo-col-eps-converted-to.pdf, id=229, 132.495pt x 48.18pt>
 File: figures/disco-logo-col-eps-converted-to.pdf Graphic file (type pdf)
 <use figures/disco-logo-col-eps-converted-to.pdf>
 Package pdftex.def Info: figures/disco-logo-col-eps-converted-to.pdf  used on i
@@ -1035,25 +1032,26 @@ Chapter 1.
 [1
 
 
-] [2]
+]
 
-LaTeX Warning: Reference `sec:CLOB' on page 3 undefined on input line 127.
+LaTeX Warning: Reference `sec:CLOB' on page 2 undefined on input line 129.
 
-[3]
-<figures/poly_quarterly_trading.png, id=374, 1011.78pt x 505.89pt>
+[2]
+<figures/poly_quarterly_trading.png, id=355, 1011.78pt x 505.89pt>
 File: figures/poly_quarterly_trading.png Graphic file (type png)
 <use figures/poly_quarterly_trading.png>
 Package pdftex.def Info: figures/poly_quarterly_trading.png  used on input line
- 140.
+ 142.
 (pdftex.def)             Requested size: 381.4pt x 190.70406pt.
-<figures/kalshi_quarterly_vol.png, id=378, 1011.78pt x 505.89pt>
+ [3]
+<figures/kalshi_quarterly_vol.png, id=367, 1011.78pt x 505.89pt>
 File: figures/kalshi_quarterly_vol.png Graphic file (type png)
 <use figures/kalshi_quarterly_vol.png>
 Package pdftex.def Info: figures/kalshi_quarterly_vol.png  used on input line 1
-47.
+49.
 (pdftex.def)             Requested size: 381.4pt x 190.70406pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 148--148
+Underfull \hbox (badness 10000) in paragraph at lines 150--150
 \T1/cmtt/m/n/10.95 com / explorer / projects / kalshi / metrics / trading-[]vol
 ume ? interval = max &
  []
@@ -1063,14 +1061,15 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.1.1})
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.151 
-       <./figures/poly_quarterly_trading.png>] [5
+l.158 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1.2}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.160 
-       <./figures/kalshi_quarterly_vol.png>] [6]
+l.158 
+       <./figures/poly_quarterly_trading.png> <./figures/kalshi_quarterly_vol.p
+ng>] [5] [6]
 Chapter 2.
 [7
 
@@ -1081,503 +1080,276 @@ Chapter 3.
 ] [10]
 
 LaTeX Warning: Reference `lst:orderbook_state' on page 11 undefined on input li
-ne 210.
+ne 212.
 
-<figures/misses.png, id=454, 5769.555pt x 2287.54625pt>
+<figures/misses.png, id=440, 5769.555pt x 2287.54625pt>
 File: figures/misses.png Graphic file (type png)
 <use figures/misses.png>
-Package pdftex.def Info: figures/misses.png  used on input line 217.
+Package pdftex.def Info: figures/misses.png  used on input line 219.
 (pdftex.def)             Requested size: 381.4pt x 151.2089pt.
 Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 223.
+ine 225.
 [11
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.232 
+l.234 
        <./figures/misses.png (PNG copy)>]
 
-LaTeX Warning: Reference `lst:' on page 12 undefined on input line 242.
+LaTeX Warning: Reference `lst:price_change_event' on page 12 undefined on input
+ line 244.
 
 
 LaTeX Warning: Reference `lst:book_event' on page 12 undefined on input line 24
-2.
+4.
 
 
 LaTeX Warning: Reference `lst:trade_event' on page 12 undefined on input line 2
-42.
-
-
-LaTeX Warning: Reference `lst:trade_event' on page 12 undefined on input line 2
-42.
+44.
 
 
 LaTeX Warning: Reference `lst:new_market' on page 12 undefined on input line 24
-2.
+4.
 
 
 LaTeX Warning: Reference `lst:market_res' on page 12 undefined on input line 24
-2.
+4.
 
 [12] [13
 pdfTeX warning (ext4): destination with the same identifier (name{table.3.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.275 
+l.278 
       ]
 
-LaTeX Warning: Citation `' on page 14 undefined on input line 276.
+LaTeX Warning: Reference `lst:orderbook_delta' on page 14 undefined on input li
+ne 280.
 
 
-LaTeX Warning: Reference `' on page 14 undefined on input line 276.
+LaTeX Warning: Reference `lst:orderbook_snapshot' on page 14 undefined on input
+ line 280.
+
+
+LaTeX Warning: Reference `lst:event_object' on page 14 undefined on input line 
+281.
+
+
+LaTeX Warning: Reference `lst:market_lifecycle_event' on page 14 undefined on i
+nput line 281.
+
+
+LaTeX Warning: Reference `lst:trade_update' on page 14 undefined on input line 
+281.
 
 [14]
 Chapter 4.
 [15
 
 ] [16] [17]
-Overfull \hbox (11.53047pt too wide) in paragraph at lines 348--349
+Overfull \hbox (11.53047pt too wide) in paragraph at lines 353--354
 \T1/cmr/m/n/10.95 pen-sive, al-low-ing users to set lower slip-page tol-er-ance
 s with-out fi-nan-cial penalty [[]].
  []
 
 
-LaTeX Warning: Reference `' on page 18 undefined on input line 350.
+LaTeX Warning: Reference `' on page 18 undefined on input line 355.
 
 
-Overfull \hbox (2.39133pt too wide) in paragraph at lines 350--351
+Overfull \hbox (2.39133pt too wide) in paragraph at lines 355--356
 []\T1/cmr/m/n/10.95 However, since Poly-mar-ket or-ders are placed on cen-tral-
 ized or-der-book (CLOB)
  []
 
 [18] [19]
 Chapter 5.
-
-LaTeX Warning: Reference `sec:' on page 20 undefined on input line 366.
-
-
-LaTeX Warning: Reference `' on page 20 undefined on input line 366.
-
-
-LaTeX Warning: Reference `' on page 20 undefined on input line 367.
-
-
-LaTeX Warning: Reference `' on page 20 undefined on input line 369.
-
-
-Overfull \hbox (4.481pt too wide) in paragraph at lines 371--373
-\OMS/cmsy/m/n/10.95 f\OML/cmm/m/it/10.95 acceptingOrdersTimestamp; closedTime; 
-createdAt; startDate; umaEndDate; [] 
- []
-
-[20
-
-]
-
-LaTeX Warning: Citation `' on page 21 undefined on input line 394.
-
-! Misplaced \noalign.
-\hline ->\noalign 
-                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
-l.395         \hline
-                    
-I expect to see \noalign only after the \cr of
-an alignment. Proceed, and I'll ignore this case.
-
-! You can't use `\hrule' here except with leaders.
-\hline ->\noalign {\ifnum 0=`}\fi \hrule 
-                                         \@height \arrayrulewidth \futurelet...
-l.395         \hline
-                    
-To put a horizontal rule in an hbox or an alignment,
-you should use \leaders or \hrulefill (see The TeXbook).
-
-! Missing number, treated as zero.
-<to be read again> 
-                   \futurelet 
-l.395         \hline
-                    
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-
-! Illegal unit of measure (pt inserted).
-<to be read again> 
-                   \futurelet 
-l.395         \hline
-                    
-Dimensions can be in units of em, ex, in, pt, pc,
-cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!
-I'll assume that you meant to say pt, for printer's points.
-To recover gracefully from this error, it's best to
-delete the erroneous units; e.g., type `2' to delete
-two letters. (See Chapter 27 of The TeXbook.)
-
-
-LaTeX Warning: Reference `sec:polydocs' on page 21 undefined on input line 409.
-
-
-<figures/clob_cft_cdf.png, id=533, 3580.37625pt x 2027.575pt>
+<figures/clob_cft_cdf.png, id=513, 3694.80376pt x 1946.27126pt>
 File: figures/clob_cft_cdf.png Graphic file (type png)
 <use figures/clob_cft_cdf.png>
-Package pdftex.def Info: figures/clob_cft_cdf.png  used on input line 413.
-(pdftex.def)             Requested size: 381.4pt x 215.98001pt.
-[21
-pdfTeX warning (ext4): destination with the same identifier (name{table.5.1}) h
-as been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.417 
-      ]
-<figures/reg_cft.png, id=541, 4782.86874pt x 2678.005pt>
-File: figures/reg_cft.png Graphic file (type png)
-<use figures/reg_cft.png>
-Package pdftex.def Info: figures/reg_cft.png  used on input line 423.
-(pdftex.def)             Requested size: 381.4pt x 213.55011pt.
- [22
+Package pdftex.def Info: figures/clob_cft_cdf.png  used on input line 390.
+(pdftex.def)             Requested size: 381.4pt x 200.90474pt.
+[20
+
+] [21
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.427 
-       <./figures/clob_cft_cdf.png (PNG copy)>] [23
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5.2}) 
-has been already used, duplicate ignored
+l.441 
+       <./figures/clob_cft_cdf.png (PNG copy)>] [22
+pdfTeX warning (ext4): destination with the same identifier (name{table.5.1}) h
+as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.464 
-      
+l.476 
+      ]
+Overfull \hbox (1.15749pt too wide) in paragraph at lines 480--483
+[]\T1/cmr/m/n/10.95 The con-di-tions pre-pared with the Ne-grisk Adapter as re-
+port-ing or-a-cle matched
+ []
+
+<figures/reg_clob.png, id=534, 3715.8825pt x 1946.27126pt>
+File: figures/reg_clob.png Graphic file (type png)
+<use figures/reg_clob.png>
+Package pdftex.def Info: figures/reg_clob.png  used on input line 491.
+(pdftex.def)             Requested size: 381.4pt x 199.74652pt.
+[23
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.464 
-       <./figures/reg_cft.png (PNG copy)>]
-
-LaTeX Warning: Reference `' on page 24 undefined on input line 471.
-
-[24
+l.498 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{figure.5.2}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.498 
+       <./figures/reg_clob.png (PNG copy)>] [24
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.3}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.510 
-      ]
-<figures/reg_clob.png, id=563, 2710.125pt x 1505.625pt>
-File: figures/reg_clob.png Graphic file (type png)
-<use figures/reg_clob.png>
-Package pdftex.def Info: figures/reg_clob.png  used on input line 520.
-(pdftex.def)             Requested size: 381.4pt x 211.88881pt.
- [25
+l.558 
+      ] [25
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.4}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.524 
+l.607 
       ]
-<figures/reg_unmatched_cdf.png, id=572, 1445.4pt x 843.15pt>
-File: figures/reg_unmatched_cdf.png Graphic file (type png)
-<use figures/reg_unmatched_cdf.png>
-Package pdftex.def Info: figures/reg_unmatched_cdf.png  used on input line 530.
 
-(pdftex.def)             Requested size: 381.4pt x 222.48164pt.
- [26
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5.3}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.536 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5.4}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.536 
-       <./figures/reg_clob.png (PNG copy)> <./figures/reg_unmatched_cdf.png (PN
-G copy)>]
-<figures/spread_clob.png, id=580, 1445.4pt x 843.15pt>
-File: figures/spread_clob.png Graphic file (type png)
-<use figures/spread_clob.png>
-Package pdftex.def Info: figures/spread_clob.png  used on input line 539.
-(pdftex.def)             Requested size: 381.4pt x 222.48164pt.
-<figures/last_trade.png, id=581, 1686.3pt x 963.6pt>
-File: figures/last_trade.png Graphic file (type png)
-<use figures/last_trade.png>
-Package pdftex.def Info: figures/last_trade.png  used on input line 546.
-(pdftex.def)             Requested size: 381.4pt x 217.9328pt.
- [27
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5.5}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.554 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5.6}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.554 
-       <./figures/spread_clob.png (PNG copy)> <./figures/last_trade.png (PNG co
-py)>] [28
+LaTeX Warning: Reference `sec:manual_resolutions' on page 26 undefined on input
+ line 612.
+
+[26
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.5}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.613 
-      ] [29
-pdfTeX warning (ext4): destination with the same identifier (name{table.5.6}) h
-as been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.657 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{table.5.7}) h
-as been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.657 
-      ]
-
-LaTeX Warning: Reference `sec:manual_resolutions' on page 30 undefined on input
- line 659.
-
-[30]
+l.618 \chapter
+              {Orderbook and Trading}]
 Chapter 6.
 
-LaTeX Warning: Citation `' on page 31 undefined on input line 676.
+LaTeX Warning: Citation `' on page 27 undefined on input line 622.
 
 
-LaTeX Warning: Reference `' on page 31 undefined on input line 678.
+LaTeX Warning: Citation `' on page 27 undefined on input line 625.
 
-[31
+[27
 
-] [32]
-<figures/house_trades.png, id=630, 2409.0pt x 1355.0625pt>
-File: figures/house_trades.png Graphic file (type png)
-<use figures/house_trades.png>
-Package pdftex.def Info: figures/house_trades.png  used on input line 734.
+]
+<figures/slip.png, id=568, 2409.0pt x 1355.0625pt>
+File: figures/slip.png Graphic file (type png)
+<use figures/slip.png>
+Package pdftex.def Info: figures/slip.png  used on input line 693.
 (pdftex.def)             Requested size: 381.4pt x 214.51933pt.
-<figures/vol_no_dem.png, id=632, 2409.0pt x 1355.0625pt>
-File: figures/vol_no_dem.png Graphic file (type png)
-<use figures/vol_no_dem.png>
-Package pdftex.def Info: figures/vol_no_dem.png  used on input line 743.
-(pdftex.def)             Requested size: 381.4pt x 214.51933pt.
- [33
+ [28]
+<figures/house_arb.png, id=579, 631.35875pt x 641.39626pt>
+File: figures/house_arb.png Graphic file (type png)
+<use figures/house_arb.png>
+Package pdftex.def Info: figures/house_arb.png  used on input line 710.
+(pdftex.def)             Requested size: 381.4pt x 387.46361pt.
+ [29
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.747 
-       <./figures/house_trades.png (PNG copy)>]
-<figures/vol_yes_dem.png, id=639, 2409.0pt x 1355.0625pt>
-File: figures/vol_yes_dem.png Graphic file (type png)
-<use figures/vol_yes_dem.png>
-Package pdftex.def Info: figures/vol_yes_dem.png  used on input line 750.
-(pdftex.def)             Requested size: 381.4pt x 214.51933pt.
-<figures/vol_no_rep.png, id=640, 2409.0pt x 1355.0625pt>
-File: figures/vol_no_rep.png Graphic file (type png)
-<use figures/vol_no_rep.png>
-Package pdftex.def Info: figures/vol_no_rep.png  used on input line 757.
-(pdftex.def)             Requested size: 381.4pt x 214.51933pt.
- [34
+l.714 
+       <./figures/slip.png (PNG copy)>] [30
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.2}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.761 
-      
+l.723 W
+       e can now measure three sources of arbitrage specifically, which capt...
+ <./figures/house_arb.png>]
+<figures/poly_dem_int.png, id=592, 1204.5pt x 602.25pt>
+File: figures/poly_dem_int.png Graphic file (type png)
+<use figures/poly_dem_int.png>
+Package pdftex.def Info: figures/poly_dem_int.png  used on input line 730.
+(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
+
+
+LaTeX Warning: Reference `' on page 31 undefined on input line 740.
+
+<figures/poly_int.png, id=593, 1606.0pt x 1003.75pt>
+File: figures/poly_int.png Graphic file (type png)
+<use figures/poly_int.png>
+Package pdftex.def Info: figures/poly_int.png  used on input line 746.
+(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
+[31
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.3}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.761 
-       <./figures/vol_no_dem.png (PNG copy)> <./figures/vol_yes_dem.png (PNG co
-py)>]
-<figures/vol_yes_rep.png, id=647, 2409.0pt x 1355.0625pt>
-File: figures/vol_yes_rep.png Graphic file (type png)
-<use figures/vol_yes_rep.png>
-Package pdftex.def Info: figures/vol_yes_rep.png  used on input line 764.
-(pdftex.def)             Requested size: 381.4pt x 214.51933pt.
-<figures/slip.png, id=648, 2409.0pt x 1355.0625pt>
-File: figures/slip.png Graphic file (type png)
-<use figures/slip.png>
-Package pdftex.def Info: figures/slip.png  used on input line 771.
-(pdftex.def)             Requested size: 381.4pt x 214.51933pt.
- [35
+l.750 
+       <./figures/poly_dem_int.png (PNG copy)>]
+<figures/kalshi_int.png, id=600, 1606.0pt x 1003.75pt>
+File: figures/kalshi_int.png Graphic file (type png)
+<use figures/kalshi_int.png>
+Package pdftex.def Info: figures/kalshi_int.png  used on input line 753.
+(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
+<figures/yes_mir.png, id=601, 1606.0pt x 1003.75pt>
+File: figures/yes_mir.png Graphic file (type png)
+<use figures/yes_mir.png>
+Package pdftex.def Info: figures/yes_mir.png  used on input line 760.
+(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
+ [32
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.4}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.775 
+l.764 
       
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.5}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.775 
-       <./figures/vol_no_rep.png (PNG copy)> <./figures/vol_yes_rep.png (PNG co
-py)>] [36
+l.764 
+       <./figures/poly_int.png (PNG copy)> <./figures/kalshi_int.png (PNG copy)
+>]
+<figures/no_mir.png, id=608, 1606.0pt x 1003.75pt>
+File: figures/no_mir.png Graphic file (type png)
+<use figures/no_mir.png>
+Package pdftex.def Info: figures/no_mir.png  used on input line 767.
+(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
+ [33
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.6}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.790 
-       <./figures/slip.png (PNG copy)>]
-<figures/poly_dem_int.png, id=662, 1204.5pt x 602.25pt>
-File: figures/poly_dem_int.png Graphic file (type png)
-<use figures/poly_dem_int.png>
-Package pdftex.def Info: figures/poly_dem_int.png  used on input line 793.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
-<figures/poly_rep_int.png, id=663, 1204.5pt x 602.25pt>
-File: figures/poly_rep_int.png Graphic file (type png)
-<use figures/poly_rep_int.png>
-Package pdftex.def Info: figures/poly_rep_int.png  used on input line 800.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
-<figures/kalshi_dem_int.png, id=664, 1204.5pt x 602.25pt>
-File: figures/kalshi_dem_int.png Graphic file (type png)
-<use figures/kalshi_dem_int.png>
-Package pdftex.def Info: figures/kalshi_dem_int.png  used on input line 807.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
- [37
+l.774 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.7}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.811 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.8}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.811 
-       <./figures/poly_dem_int.png (PNG copy)> <./figures/poly_rep_int.png (PNG
- copy)>]
-<figures/poly_dem_com.png, id=673, 1204.5pt x 602.25pt>
-File: figures/poly_dem_com.png Graphic file (type png)
-<use figures/poly_dem_com.png>
-Package pdftex.def Info: figures/poly_dem_com.png  used on input line 814.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
-<figures/poly_rep_com.png, id=674, 1204.5pt x 602.25pt>
-File: figures/poly_rep_com.png Graphic file (type png)
-<use figures/poly_rep_com.png>
-Package pdftex.def Info: figures/poly_rep_com.png  used on input line 821.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
- [38
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.9}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.825 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.10})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.825 
-       <./figures/kalshi_dem_int.png (PNG copy)> <./figures/poly_dem_com.png (P
-NG copy)>]
-<figures/dem_yes_mir.png, id=681, 1204.5pt x 602.25pt>
-File: figures/dem_yes_mir.png Graphic file (type png)
-<use figures/dem_yes_mir.png>
-Package pdftex.def Info: figures/dem_yes_mir.png  used on input line 828.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
-<figures/dem_no_mir.png, id=682, 1204.5pt x 602.25pt>
-File: figures/dem_no_mir.png Graphic file (type png)
-<use figures/dem_no_mir.png>
-Package pdftex.def Info: figures/dem_no_mir.png  used on input line 835.
-(pdftex.def)             Requested size: 381.4pt x 190.70222pt.
- [39
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.11})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.839 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.12})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.839 
-       <./figures/poly_rep_com.png (PNG copy)> <./figures/dem_yes_mir.png (PNG 
-copy)>]
-<figures/poly_int.png, id=689, 1606.0pt x 1003.75pt>
-File: figures/poly_int.png Graphic file (type png)
-<use figures/poly_int.png>
-Package pdftex.def Info: figures/poly_int.png  used on input line 851.
-(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
- [40
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.13})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.855 
-       <./figures/dem_no_mir.png (PNG copy)>]
-<figures/kalshi_int.png, id=696, 1606.0pt x 1003.75pt>
-File: figures/kalshi_int.png Graphic file (type png)
-<use figures/kalshi_int.png>
-Package pdftex.def Info: figures/kalshi_int.png  used on input line 858.
-(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
-<figures/yes_mir.png, id=697, 1606.0pt x 1003.75pt>
-File: figures/yes_mir.png Graphic file (type png)
-<use figures/yes_mir.png>
-Package pdftex.def Info: figures/yes_mir.png  used on input line 865.
-(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
- [41
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.14})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.869 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.15})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.869 
-       <./figures/poly_int.png (PNG copy)> <./figures/kalshi_int.png (PNG copy)
->]
-<figures/no_mir.png, id=704, 1606.0pt x 1003.75pt>
-File: figures/no_mir.png Graphic file (type png)
-<use figures/no_mir.png>
-Package pdftex.def Info: figures/no_mir.png  used on input line 872.
-(pdftex.def)             Requested size: 381.4pt x 238.37779pt.
- [42
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.16})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.879 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.6.17})
- has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.879 
+l.774 
        <./figures/yes_mir.png (PNG copy)> <./figures/no_mir.png (PNG copy)>]
-[43]
+[34]
 Chapter 7.
-(./Thesis.bbl [44
-
-] [45
+(./Thesis.bbl [35
 
 ]
-Overfull \hbox (207.93962pt too wide) in paragraph at lines 100--105
+Overfull \hbox (207.93962pt too wide) in paragraph at lines 82--87
 \T1/cmr/m/n/10.95 in-[]2024-[]prediction-[]markets-[]called-[]the-[]presidentia
 l-[]election-[]before-[]the-[]polls-[]could-[]now-[]theyre-[]mostly-[]betting-[
 ]on-[]sports$[][] 
  []
 
 
-Overfull \hbox (4.1323pt too wide) in paragraph at lines 108--112
+Overfull \hbox (4.1323pt too wide) in paragraph at lines 90--94
 \T1/cmr/m/n/10.95 polymarkets-[]main-[]2024-[]us-[]presidential-[]election-[]ma
 rket-[]sees-[]35b-[]in-[]volume/$[][] 
  []
 
-[46]) [47]
+[36
+
+] [37]) [38]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 900.
+nput line 794.
  [1
 
 
@@ -1588,16 +1360,16 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.V.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1596 \end{longtable}
+l.1483 \end{longtable}
                       ] [3] [4] [5] [6] [7]
-Overfull \hbox (9.86864pt too wide) in paragraph at lines 2202--2202
+Overfull \hbox (9.86864pt too wide) in paragraph at lines 2089--2089
 []|\T1/cmtt/m/n/10.95 ROOT.markets.[].clobRewards.[].rewardsDailyRate| 
  []
 
 [1
 
 ] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17]
-Overfull \hbox (27.87755pt too wide) in paragraph at lines 2486--2513
+Overfull \hbox (27.87755pt too wide) in paragraph at lines 2373--2400
  [][] 
  []
 
@@ -1606,56 +1378,52 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.W.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2517 \end{document}
+l.2404 \end{document}
                      ] (./Thesis.aux)
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: There were multiply-defined labels.
-
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 802777DFC803604EA63AA8F56BA24F87;9966.
+(rerunfilecheck)             Checksum: 67EC4A16A6053168573CDAB54FBBB6D1;9619.
  ) 
 Here is how much of TeX's memory you used:
- 32045 strings out of 476091
- 645287 string characters out of 5794082
- 2256330 words of memory out of 5000000
- 51203 multiletter control sequences out of 15000+600000
- 537617 words of font info for 90 fonts, out of 8000000 for 9000
+ 31873 strings out of 476091
+ 641384 string characters out of 5794082
+ 2252330 words of memory out of 5000000
+ 51072 multiletter control sequences out of 15000+600000
+ 537276 words of font info for 89 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,10n,129p,1823b,2575s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/share/texmf/
-fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/tex
-live/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-di
-st/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf/fonts/type1
-/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfb
-x1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/shar
-e/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/
-public/cm-super/sfbx2074.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx
-2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1095.pfb></usr/share
-/texmf/fonts/type1/public/cm-super/sfcc1440.pfb></usr/share/texmf/fonts/type1/p
-ublic/cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0
-900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/
-texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf/fonts/type1/pu
-blic/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm14
-40.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsc1095.pfb></usr/share/t
-exmf/fonts/type1/public/cm-super/sfti1000.pfb></usr/share/texmf/fonts/type1/pub
-lic/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt090
-0.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/share/te
-xmf/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on Thesis.pdf (89 pages, 4046880 bytes).
+ 128i,10n,129p,1823b,2573s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/shar
+e/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/
+public/cm-super/sfbx1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx
+1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share
+/texmf/fonts/type1/public/cm-super/sfbx2074.pfb></usr/share/texmf/fonts/type1/p
+ublic/cm-super/sfbx2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1
+095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1440.pfb></usr/share/
+texmf/fonts/type1/public/cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/pu
+blic/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm10
+00.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/t
+exmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/pub
+lic/cm-super/sfrm1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsc109
+5.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1000.pfb></usr/share/te
+xmf/fonts/type1/public/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/publ
+ic/cm-super/sftt0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000
+.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1095.pfb>
+Output written on Thesis.pdf (80 pages, 2435612 bytes).
 PDF statistics:
- 1668 PDF objects out of 1728 (max. 8388607)
- 1464 compressed objects within 15 object streams
- 681 named destinations out of 1000 (max. 500000)
- 601 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1570 PDF objects out of 1728 (max. 8388607)
+ 1390 compressed objects within 14 object streams
+ 655 named destinations out of 1000 (max. 500000)
+ 523 words of extra memory for PDF output out of 10000 (max. 10000000)
 
