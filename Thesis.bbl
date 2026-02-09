@@ -28,40 +28,14 @@ C.~L. School, ``17 c.f.r. § 40.11,'' 2026, prohibition on contracts involving
   \url{https://www.law.cornell.edu/cfr/text/17/40.11}
 \BIBentrySTDinterwordspacing
 
-\bibitem{CFTC_Polymarket_2022}
-{U.S. Commodity Futures Trading Commission}, ``{In re Blockratize, Inc. d/b/a
-  Polymarket.com},'' CFTC Docket No. 22-09, January 2022, order Instituting
-  Proceedings Pursuant to Section 6(c) and 6(d) of the Commodity Exchange Act.
-
 \bibitem{Kalshi_v_CFTC_2024}
 ``{KalshiEx LLC v. Commodity Futures Trading Commission},'' D.D.C., September
   2024, memorandum Opinion granting summary judgment to Plaintiff.
 
-\bibitem{Kalshi_Legal}
-\BIBentryALTinterwordspacing
-{Kalshi}, ``Kalshi member agreement,'' 2026. [Online]. Available:
-  \url{https://kalshi.com/docs/kalshi-member-agreement.pdf}
-\BIBentrySTDinterwordspacing
-
-\bibitem{tokenterminalKalshi}
-\BIBentryALTinterwordspacing
-{Token Terminal}, ``Kalshi metrics: Trading volume,'' Token Terminal, 2025,
-  data covering the year 2025. Accessed January 2, 2026. [Online]. Available:
-  \url{https://tokenterminal.com/explorer/projects/kalshi/metrics/trading-volume?interval=365d}
-\BIBentrySTDinterwordspacing
-
-\bibitem{dunePolymarketQuery}
-\BIBentryALTinterwordspacing
-M.~Cattaneo, ``Dune analytics query for polymarket trading volume,'' Dune,
-  2025, query ID: 6401125. Data covering the year 2025. Accessed January 2,
-  2026. [Online]. Available: \url{https://dune.com/queries/6401125}
-\BIBentrySTDinterwordspacing
-
-\bibitem{graham2012growth}
-\BIBentryALTinterwordspacing
-P.~Graham, ``Startup = growth,'' PaulGraham.com, September 2012. [Online].
-  Available: \url{http://www.paulgraham.com/growth.html}
-\BIBentrySTDinterwordspacing
+\bibitem{CFTC_Polymarket_2022}
+{U.S. Commodity Futures Trading Commission}, ``{In re Blockratize, Inc. d/b/a
+  Polymarket.com},'' CFTC Docket No. 22-09, January 2022, order Instituting
+  Proceedings Pursuant to Section 6(c) and 6(d) of the Commodity Exchange Act.
 
 \bibitem{clinton2025prediction}
 \BIBentryALTinterwordspacing
@@ -158,18 +132,5 @@ UMAprotocol, ``Umip-189,'' Github, November 2025. [Online]. Available:
 UMAprotocol, ``Umip-107,'' Github, November 2025. [Online]. Available:
   \url{https://github.com/UMAprotocol/UMIPs/blob/master/UMIPs/umip-107.md}
 \BIBentrySTDinterwordspacing
-
-\bibitem{DAIAN2019}
-P.~Daian, S.~Goldfeder, T.~Kell, Y.~Li, X.~Zhao, I.~Bentov, L.~Breidenbach, and
-  A.~Juels, ``Flash boys 2.0: Frontrunning, transaction reordering, and
-  consensus instability in decentralized exchanges,'' in \emph{2020 IEEE
-  Symposium on Security and Privacy (SP)}.\hskip 1em plus 0.5em minus
-  0.4em\relax IEEE, 2020, pp. 910--927.
-
-\bibitem{HEIMBACH2022}
-L.~Heimbach and R.~Wattenhofer, ``Eliminating sandwich attacks with the help of
-  game theory,'' in \emph{Proceedings of the 2022 ACM on Asia Conference on
-  Computer and Communications Security}.\hskip 1em plus 0.5em minus 0.4em\relax
-  ACM, 2022, pp. 612--626.
 
 \end{thebibliography}

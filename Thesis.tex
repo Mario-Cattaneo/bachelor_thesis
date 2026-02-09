@@ -120,34 +120,52 @@ from corporate managers taking positions that benefit from a project failure the
 
 \subsection{Modern Regulation}
 To mitigate these risks, 
-regulators can prohibit speculation on events that present particularly high moral-hazard or exploitation risks. 
+regulators can prohibit speculation on events that present particularly high moral hazard or exploitation risks. 
 For example, the U.S. Commodity Futures Trading Commission (CFTC) implements 17 C.F.R. § 40.11, 
-which states that a registered entity "shall not list for trading or accept for clearing" contracts that 
-among other things "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" 
+which states that a registered entity "shall not list for trading or accept for clearing" contracts that, 
+among other things, "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" 
 and permits the Commission to identify similar activities it deems contrary to the public interest~\cite{CFTC_REG_40_11}. 
-This rule was the primary battleground Kalshi challenged to be able to list specific politcal prediction markets~\cite{Kalshi_v_CFTC_2024}
+This rule was the primary battleground that Kalshi challenged in order to list specific political prediction markets~\cite{Kalshi_v_CFTC_2024}
 and is a primary reason for Polymarkets restricted access for U.S. users ~\cite{CFTC_Polymarket_2022}
 
 
 \section{Prediction Market Exchanges}
 \label{sec:prediction_markets}
-Polymarket and Kalshi are two exchanges popularizing prediction markets and making them accessible globally. A prediction market is derived from the outcomes of a real-world event. On both exchanges, a prediction market is exclusively designed for binary events with YES and NO shares, which are quoted in USD, or on Polymarket, more specifically, USDC, a USD-backed ERC-20 token managed by Coinbase through a reserve such that its value is identical to USD. An example is the event ``Will the Republican Party win the House in 2026?'', which is hosted on both exchanges. A position in a prediction market refers to a specific quantity of YES or NO shares held. The process of deciding the outcome of the underlying event and assigning terminal values for a YES and NO share is called resolution, and once the values are determined, the market is deemed resolved.
+Polymarket and Kalshi are two exchanges popularizing prediction markets and making them accessible globally. 
+A prediction market is derived from the outcomes of a real-world event. 
+On both exchanges, a prediction market is exclusively designed for binary events with YES and NO shares, 
+which are quoted in USD, or on Polymarket, more specifically, USDC, a USD-backed ERC-20 token managed by Coinbase through a reserve such that its value is identical to USD. 
+An example is the event ``Will the Republican Party win the House in 2026?'', which is hosted on both exchanges. 
+A position in a prediction market refers to a specific quantity of YES or NO shares held. 
+The process of deciding the outcome of the underlying event and assigning terminal values for a YES and NO share is called resolution, and once the values are determined, the market is deemed resolved.
 
-Kalshi specifies an explicit expiration date and central resolution source on its legally binding trading contracts for the YES and NO shares, such that a market is guaranteed to resolve to either YES or NO unambiguously upon expiration. If the market resolves to YES, then every YES share has a value of 1 USD, while every NO share has a value of 0 USD. Otherwise, the market resolves to NO and every NO share has the value of 1 USD, while every YES share has the value of 0 USD~\cite{Kalshi_Legal}.
+Kalshi specifies an explicit expiration date and central resolution source on its legally binding trading contracts for the YES and NO shares
+and states that if the market resolves to YES, then every YES shares has value of one USD, otherwise if the market resolves to NO then every NO share has a value of one USD~\cite{}.
+It is not explicitly stated that a market is unambiguously resolved to either YES or NO, and their rulebook states that the final outcome is decided at their discretion~\cite{}, 
+but for the purpose of this thesis we assume that markets can only resolve to either YES or NO.
 
-Polymarket, on the other hand, does not provide legally binding trading contracts, but uses the Gnosis Conditional Tokens contract (CFT) to define the YES and NO shares as ERC-1155 tokens and to enforce their combined value at 1 USDC, and it uses UMA's optimistic oracle framework for resolution~\ref{sec:uma}. In this system, a prediction can resolve to UNKNOWN, rendering the value of YES and NO shares 0.5 USDC each~\ref{sec:uca}.
+Polymarket uses the Gnosis Conditional Tokens contract (CFT) to define the YES and NO shares as ERC-1155 tokens and to enforce their combined value at 1 USDC, 
+and it uses UMA's optimistic oracle framework for resolution~\ref{sec:uma}. 
+In this system, a prediction can resolve to UNKNOWN, rendering the value of YES and NO shares 0.5 USDC each~\ref{sec:uca}.
 
-In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD at all times, as enforced by the trading contract on Kalshi and by the CFT smart contract on Polymarket~\ref{sec:cft}. This does not hold for the market price of the YES and NO shares on the exchange, which are determined by a Central Limit Order Book (CLOB) on both exchanges~\ref{sec:CLOB}. This is what makes arbitrage possible, as specified in~\ref{sec:arbitrage}.
+In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD at all times, 
+as enforced by the trading contract on Kalshi and by the CFT smart contract on Polymarket~\ref{sec:cft}. 
+This does not hold for the market price of the YES and NO shares on the exchange, 
+which are determined by a Central Limit Order Book (CLOB) on both exchanges~\ref{sec:CLOB}. 
+This is what makes market internal arbitrage possible.
 
-Events with more than two discrete outcomes can be constructed using multiple prediction markets. For example, the event ``Which party will win the House in 2026?'' is decomposed into the prediction markets for the questions ``Will the Democratic Party win the House in 2026?'' and ``Will the Republican Party win the House in 2026?''. This provides powerful information aggregation capabilities built on top of the information efficiency of markets. A common pattern on both exchanges is to define an event with more than two possible discrete outcomes exhaustively, using a prediction market for all mutually exclusive outcomes. The event ``Which party will win the House in 2026?'' is an example of this. Polymarket labels these as \textit{Negrisk} and provides a full suite of smart contracts dedicated to these events, including a distinct settlement smart contract deployment \textit{Negrisk CTFE} and an atomic swap operation for converting a set of mutually exclusive outcome positions to the complement position of the complement outcomes~\ref{sec:nr}.
+Events with more than two discrete outcomes can be constructed using multiple prediction markets. 
+For example, the event ``Which party will win the House in 2026?'' is decomposed into the prediction markets for the questions 
+``Will the Democratic Party win the House in 2026?'' and ``Will the Republican Party win the House in 2026?''. 
+This provides powerful information aggregation capabilities built on top of the information efficiency of markets. 
+A common pattern on both exchanges is to define an event with more than two possible discrete outcomes exhaustively, 
+using a prediction market for all mutually exclusive outcomes. 
+The event ``Which party will win the House in 2026?'' is an example of this. 
+Polymarket labels these as \textit{Negrisk} and provides a full suite of smart contracts dedicated to these events, 
+including a distinct settlement smart contract deployment \textit{Negrisk CTFE} and an atomic swap operation for converting 
+a set of mutually exclusive outcome positions to the complement position of the complement outcomes~\ref{sec:nr}.
 
 \subsection{Growth}
-Over 2025, Kalshi's trading volume grew on average 24\% weekly with a variance of 1.45~\cite{tokenterminalKalshi}, while Polymarket's grew on average 31\% weekly with a variance of 2.82~\cite{dunePolymarketQuery}.
-
-To put these figures into perspective, we can use the benchmarks for early-stage companies popularized by Paul Graham of Y Combinator. A weekly growth rate of 5--7\% is considered good, while 10\% is exceptional~\cite{graham2012growth}.
-
-They fundamentally operate differently: Kalshi is fully centralized and strictly adheres to CFTC regulations, whilst Polymarket operates on a decentralized model using smart contracts on the Polygon network.
-
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/poly_quarterly_trading.png}
@@ -179,40 +197,73 @@ Even with CFTC approval, Kalshi faces regulatory issues on a regional level in t
 By design, Polymarket remains widely accessible even if banned, since it does not enforce identification on its main trading platform (Know-Your-Customer, KYC). Even if KYC were enforced, Polymarket's traded base assets—the ERC-1155 tokens for YES or NO shares defined through the Gnosis Conditional Tokens contract—can also be obtained using \textit{splitPosition}, swapped for USDC using \textit{mergePosition}, and, after resolution, redeemed using \textit{redeemPosition} for the value reported by Polymarket.
 
 \chapter{Objective and Methodology}
-Polymarket is a hybrid exchange in which a proprietary off‑chain CLOB serves as the market mechanism. Settlement of matched orders, enforcement of the non‑legally binding trading contracts and resolution are implemented using smart contracts. For the off‑chain CLOB, Polymarket also provides a separate market object with various attributes and categories that captures the off‑chain lifecycle. The system's exact specification and coordination are poorly documented. Information is fragmented and often implicit, ambiguous, or even provably incorrect.
-
-Endpoints to interact with Polymarket's off‑chain state are hosted under subdomains of \textit{polymarket.com}. However, throughout this thesis these endpoints have continuously changed and state inconsistencies were discovered.
-
-Some events are available on both Polymarket and Kalshi. These include the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''.
-
-\section{Three Objectives}
-The first objective was to implement reliable data‑collection clients for Polymarket's and Kalshi's endpoints to collect data for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''. Due to poor documentation and discovered state inconsistencies, this also involved analyzing the data and state presented by the endpoints.
-
-The second objective was to analyze how a prediction‑market life cycle is coordinated on Polymarket's hybrid exchange system, as this is also not specified in the documentation. 
-
-The third objective was to formalize the prediction‑market orderbook and use collected data to measure price slippage and arbitrage for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''.
+The first objective was to design a a data collection client for Polymarkets off chain endpoints. 
+The second objective was to analyze market life cycle on Polymarket
+Lastly, the third objective was to analyze slippage on Polymarket and prediction market arbitrage.
 
 \section{Methodology}
-Both Polymarket and Kalshi provide WebSocket endpoints to subscribe to orderbook state changes and trades, and HTTP endpoints to request the current orderbook state. To use these endpoints, the orderbooks of interest must be identified first. For this, both exchanges define market objects and provide HTTP endpoints to query historical market objects, as well as WebSocket endpoints to subscribe to market lifecycle events. Both exchanges use JSON for endpoint communication and define rate limits for request throughput. Due to Polymarket's poor documentation, a lot of important information had to be discovered through testing and response analysis. These findings, along with continuous endpoint changes and discovered state inconsistencies, resulted in multiple client iterations. 
-The final clients are tailored for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?'', and includes strict state and response monitoring and handling. This is covered in chapter~\ref{chap:endpoints}.
+Both Polymarket and Kalshi provide WebSocket endpoints to subscribe to orderbook state changes and trades, 
+as well as HTTP endpoints to request the orderbook state. 
+To use these endpoints, the orderbooks of interest must be identified first. 
+For this, both exchanges define market objects and provide HTTP endpoints to query historical market objects, 
+as well as WebSocket endpoints to subscribe to market lifecycle events. 
+Both exchanges use JSON for endpoint communication and define rate limits for request throughput. 
+Due to Polymarket's poor documentation, a lot of important information had to be discovered through testing and response analysis. 
+These findings, along with continuous endpoint changes and discovered state inconsistencies, 
+resulted in multiple client iterations. 
+The final clients are tailored for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''.
+This is covered in chapter~\ref{chap:endpoints}.
 
-To analyze the market lifecycle, first the statically available information of on‑chain smart contracts is analyzed in chapter ~\ref{chap:smart_contracts}. This consists of essential smart contract control flow, events emitted, and immutable contract storage, which allows important links to be made between contracts and their intended use, as well as also help identify information that can only be deduced or inferred from the emitted events. 
-For this purpose a client for the Infura `eth\_getLogs` endpoint was implemented. These events and the historical market objects, which are fetchable through Polymarket's endpoints, are then used to analyze how a market lifecycle is coordinated in chapter ~\ref{chap:market_lifecycle}.
+To analyze the market lifecycle, 
+first the statically available information of on‑chain smart contracts is analyzed in chapter ~\ref{chap:smart_contracts}. 
+This consists of essential smart contract control flow, events emitted, and immutable contract storage, 
+which allows important links to be made between contracts and their intended use, 
+as well as also help identify what can only be deduced or inferred from the emitted events. 
+For this purpose a client for the Infura \textit{eth\_getLogs} endpoint was implemented.
+These events and the historical market objects, which are fetchable through Polymarket's endpoints, 
+are then used to further analyze how the market lifecycle is coordinated in chapter ~\ref{chap:market_lifecycle}.
 
-In chapter ~\ref{chap:orderbook_trading} the orderbook for prediction markets is formalized to define how slippage and arbitrage for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?'' are measured. Then the data collected from the Polymarkets and Kalshis endpoints, and emitted events are used to analyze slippage and arbitrage by these measures.
+In chapter ~\ref{chap:orderbook_trading} the orderbook for prediction markets is formalized to define how slippage and arbitrage can be measured.
+Then the data collected from the Polymarkets and Kalshis endpoints, and emitted events are used to analyze slippage and arbitrage by these measures.
 
 Finally, chapter ~\ref{chap:discussion} discusses and interprets the findings of this thesis.
 
 \chapter{Endpoints and Clients}
 \label{chap:endpoints}
-Polymarket and Kalshi provide endpoints on subdomains of \textit{polymarket.com}. For the purpose of our data exploration we're interested in the endpoints which allow us to later analyze the market lifecycle, order book state and trades.
 
 \section{Polymarket Event and Market Endpoints}
 \label{sec:clob_json}
-Polymarket has a market object for every prediction market, with a unique market id. Additionally, every market is also part of an \textit{event}, and every event can be associated with multiple \textit{tags}. The \textit{gamma-api.polymarket.com} domain hosts a handful of HTTP endpoints to query market objects, event objects or tag objects in pages. The documentation only provides an example use case a long with list of the query parameters for the request and attributes in the response with a sample request and response. The most essential query parameters are \textit{offset} and \textit{limit} which enable accessing objects in batches, where the limit specifies how many objects are in a requested batch and the offset specifies the starting object for that batch. This implicitly assumes that the objects are somehow ordered, with the first object starting at offset zero. Additionally, an order parameter exists, without further specification. Testing has shown that using it for almost all attributes either does not order the attribute(s) to be ordered, misses some markets or returns duplicate markets at separate offsets. Querying the event objects ordered by event id seems to work without any of the anomalies mentioned above, and has recently been added as an example use in their documentation. However, ordering the market objects by id is not possible. Additionally, unspecified and found through testing; the limit parameter can at most be 500, any value greater will simply always return 500 objects starting at the specified offset. Before December 2025, it was also not specified what the response would be if an offset was requested beyond the amount of available offsets. This was found, and recently clarified in the example use case, to be an empty JSON array.
+Polymarket has a market object for every prediction market, with a unique market id. 
+Additionally, every market is also part of an \textit{event}, and every event can be associated with multiple \textit{tags}. 
+The \textit{gamma-api.polymarket.com} domain hosts a handful of HTTP endpoints to query market objects, 
+event objects or tag objects in pages. 
+The documentation only provides an example use case along with list of the query parameters for the request and attributes 
+in the response with a sample request and response. 
+The most essential query parameters are \textit{offset} and \textit{limit} which enable accessing objects in batches, 
+where the limit specifies how many objects are in a requested batch and the offset specifies the starting object for that batch. 
+This implicitly assumes that the objects are somehow ordered, with the first object starting at offset zero. 
+Additionally, an order parameter exists, without further specification. 
+Testing has shown that using the order parameter for many attributes either does not order the attribute to be ordered, 
+misses some markets or returns duplicate markets at separate offsets. 
+Querying the event objects ordered by event id seems to work without any of the anomalies mentioned above, 
+and has recently been added as an example use in their documentation. 
+However, ordering the market objects by id is not possible. 
+Additionally, unspecified and found through testing is that the limit parameter can at most be 500, 
+any value greater will simply always return 500 objects starting at the specified offset. 
+Before December 2025, it was also not specified what the response would be if an offset was requested beyond the amount of available offsets.
+This was found, and sometime in December 2025 clarified in the example use case, to be an empty JSON array.
 
 \subsection{Event and Market Objects}
-The market object is listed with over 100 attributes in the documentation. Initial testing has shown that there is a mismatch between attributes that appear in responses and those listed in the documentation, and also differs by response. For this reason all event objects, which also contain associated market and tag objects, obtainable by querying the \textit{events} endpoint are analyzed. Since JSON is specified by a deterministic context free language, we can parse it unambiguously into a tree of nodes, where every node has a type. Now for every event object we construct this tree, where every node, except for the root, either is the child of node of type object or array. In the case that it is the child of an object, it must have a string key associated. A node is a leaf if it is an empty array or object, or of type scalar; number, string, boolean or null. For a more representive type analysis the numbers are further broken down into IEEE 754 floating point and integers, whilst the strings are divided into empty strings, only spaces, JSON encoded, standardized timestamp formats, numbers, hexadecimal, case insensitive ``null'', ``none'', ``nan'', ``true'', ``false'', or a \textit{general} string otherwise. The resulting table with the type makeup and appearance percentage for every tree path can be found in the Appendix ~\ref{tab:json_tree_analysis_multiline} and will be referenced throughout the analytics.
+The market object is listed with over 100 attributes in the documentation. 
+Initial testing has shown that there is a mismatch between attributes that appear in responses and those listed in the documentation and also differs by response. 
+For this reason all event objects which also contain associated market and tag objects obtainable by querying the \textit{events} endpoint are analyzed.
+Since JSON is specified by a deterministic context free language, we can parse it unambiguously into a tree of nodes, where every node has a type. 
+Now for every event object we construct a tree, where every node, except for the root, either is the child of node of type object or array. 
+In the case that it is the child of an object, it must have a string key associated. 
+A node is a leaf if it is an empty array or object, or of type scalar; number, string, boolean or null. 
+For a more representive type analysis the numbers are further broken down into IEEE 754 floating point and integers, 
+whilst the strings are divided into empty strings, only spaces, JSON encoded, standardized timestamp formats, numbers, hexadecimal, case insensitive ``null'', ``none'', ``nan'', ``true'', ``false'', or a \textit{general} string otherwise. 
+The resulting table with the type makeup and appearance percentage for every tree path can be found in the Appendix ~\ref{tab:json_tree_analysis_multiline}.
 
 \section{Polymarket Orderbook and Trade Endpoints}
 Polymarket provides a \textit{book} HTTP endpoint, to request the current orderbook state, under the \textit{clob.polymarket.com} domain and a \textit{market} Websocket endpoint, to receive events for state changes, under the \textit{\seqsplit{ws-subscriptions-clob.polymarket.com}} domain, which is referred to as the \textit{market feed}. Every prediction market is associated with two orderbooks, one for the YES outcome and one for the NO outcome. An orderbook has a side for the prices of buying the underlying outcome token, also known as \textit{bids}, and a side for the prices of selling the underlying outcome token, also known as \textit{asks}. The orderbooks underlying outcome \textit{token id} or  also referred to as \textit{asset id}, uniquely identifies it and every market object contains two asset ids inside of a JSON array encoded string, under the key ``clobTokenIds'' ~\ref{tab:json_tree_analysis_multiline}.
@@ -223,17 +274,23 @@ The specification for the book endpoint only consists of list of the request and
 The orderbook state object in the appendix ~\ref{lst:orderbook_state} is from the sample Polymarket provides in its documentation. Importantly, the timestamp attribute in the response is listed as a string, but is actually a string of an integer unix millisecond timestamp in the responses.
 
 \subsection{Falsely Missing Orderbook State Objects}
-An initial client which made concurrent requests to the book endpoint, revealed an anomaly in the state provided from the endpoint, in which for some asset ids the endpoint would not return the order book state objects for one or multiple requests and then in later request include it again in the response. Essentially making order book state unavailable or seem as if its market has been resolved. Importantly, this could not have been a result from infringing the rate limit, as the endpoint would send regular bad response statuses, which was not the case here. The same set up was run for a couple of hours, but now making strictly serialized requests, and this anomaly was not detected. To investigate this further, every asset id was mapped to a \textit{false miss} counter, which was incremented whenever the orderbook state object for requested asset id was not in the response, and if it was in the response, then the order book state object and counter are stored and this counter was set to 0.
+An initial client which made concurrent requests to the book endpoint, 
+revealed an anomaly in the state provided from the endpoint, 
+in which for some asset ids the endpoint would not return the order book state objects for one or multiple requests and then in later request include it again in the response. 
+Essentially making order book state unavailable or seem as if its market has been resolved. 
+Importantly, this could not have been a result from infringing the rate limit, as the endpoint would send regular bad response statuses, 
+which was not the case here. 
+The same set up was run for a couple of hours, 
+but now making strictly serialized requests, 
+and this anomaly was not detected. 
+To investigate this further, every asset id was mapped to a \textit{false miss} counter, 
+which was incremented whenever the orderbook state object for requested asset id was not in the response and if it was in the response 
+then the order book state object and counter are stored and this counter was set to 0.
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/misses.png}
-    \caption{Cumulative count of falsely missed asset ids}
-    \label{fig:misses}
-\end{figure}
-
-In ~\ref{fig:misses} we can see that initially there is a burst of false miss reports. 
-\todo{illustrate that initially false miss count is in rang 0-15 then it there are fewer but much larger culprits}
+This revealed an initial burst of false misses for many asset ids, 
+but with false miss counts below 13. After this initial burst, 
+the amount of asset ids with false misses decreased significantly, but the reported miss counts had a much larger variance, 
+some with over 1000 false misses.
 
 \subsection{Market Feed}
 The market feed sends out different event messages for subscribed markets.
@@ -335,36 +392,55 @@ UMA designs protocols for oracles and deploys ethereum based contracts on variou
 
 Polymarket exclusively used UMAs OptimisticOracleV2 (OOV2) deployment up until August 2025, where the UMIP-189 governance proposal passed and UMA deployed a ManagedOptimisticOracleV2 (MOOV2) dedicated only for Polymarket usage. The ManagedOptimisticOracleV2 is based on the same protocol, but with additional access control configurations~\cite{UMIP189}.
 
-The protocol implemented in OOV2 differs based on whether the price request is set to be event based or non event based. Polymarket atomically sets the requested prices to be event based in its UmaCtfAdapter contract. Which starts with a price request specifying an identifier, timestamp, ancillary data, ERC-20 currency and proposal reward. UMA manages an AddressWhitelist for requesters which can make price requests. This emits the \textit{RequestPrice} event. After the price is requested, there are configurations that can be set that includes whether it is event based or not as well as the proposal bond, liveness window for disputing proposals, or setting a callback for price proposals, proposal disputes and settlement. These can only be configured by the requester who made the request price. For a price request to be settled, the effective price must first be determined, this requires an initial price proposal to be made by suggesting a price for the request identified by the requester, id, timestamp and ancillaryData. This emits the \textit{ProposePrice} event. After a price proposal is made, the price can be disputed within the liveness period which by default is two hours, again with the same identifiers for the request. If the proposal remains undisputed during this period, then it becomes the effective price for the request and the request can be settled.
+Polymarket atomically sets the requested prices to be event based in its UmaCtfAdapter contract. 
+Which starts with a price request.
+This emits the \textit{RequestPrice} event. 
+For a price request to be settled, 
+the effective price must first be determined, 
+this requires an initial price proposal to be made by suggesting a price for the request. 
+This emits the \textit{ProposePrice} event. 
+After a price proposal is made, the price can be disputed within the liveness period which by default is two hours. 
+If the proposal remains undisputed during this period, 
+then it becomes the effective price for the request and the request can be settled.
 Both the proposals and disputes have no access control in OOV2.
-If the proposal is disputed, the \textit{DisputePrice} event is emitted and then a stake based voting process starts. The contract for this is deployed on the Ethereum blockchain and therefore involves an off chain coordinated message relayer.
-After the price is determined the request can be settled, to reward or slash the proposer and disputer if existent, depending on the correctness of their proposals compared to the final outcome. This emits the \textit{Settle} event.
+If the proposal is disputed, the \textit{DisputePrice} event is emitted and then a stake based voting process starts. 
+The contract for this is deployed on the Ethereum blockchain and therefore involves an off chain coordinated message relayer.
+After the price is determined the request can be settled, to reward or slash the proposer and disputer if existent, 
+depending on the correctness of their proposals compared to the final outcome. 
+This emits the \textit{Settle} event.
 
-The OOV2 does not specify what the prices exactly mean, so in the context of Polymarket the ancillary data has to formally specify a semantic meaning of the integer price values. Polymarket does not explicitly state this, but implicitly seems to adhere to the UMIP-107 standard, in which the requested price identifier is \textit{YES\_OR\_NO\_QUERY} and the ancillary data is a utf-8 encoded dictionary, which specifies the question using the \textit{q:} key and the 4 possible prices through the \textit{p1:}, \textit{p2:}, \textit{p3:} and \textit{p4:} keys. Which specify which price is mapped to the outcomes \textit{YES}, \textit{NO}, \textit{UNKNOWN} and \textit{EARLY PROPOSAL} ~\cite{UMIP107}.
+The OOV2 does not specify what the prices exactly mean. 
+So in the context of Polymarket the ancillary data has to formally specify semantic meaning of the integer price values. 
+Polymarket does not explicitly state this, but analyzing the emitted events shows that virtually all ancillary data extends the UMIP-107 standard, 
+such that the requested price identifier is \textit{YES\_OR\_NO\_QUERY} and the ancillary data is a utf-8 encoded dictionary, 
+which specifies the question using the \textit{q:}, the associated market by the \textit{market id}  key and the 4 possible prices through the 
+\textit{p1:}, \textit{p2:}, \textit{p3:} and \textit{p4:} keys. 
+Which specify which price is mapped to the outcomes \textit{YES}, \textit{NO}, \textit{UNKNOWN} and \textit{EARLY PROPOSAL} ~\cite{UMIP107}.
 
 \section{UmaCtfAdapter}
 \label{sec:uca}
-This is Polymarkets custom contract, built on top of the CFT and OOV2, which it stores as immutable references by address. It provides an \textit{initialize} method which takes ancillary data and other UMA parameters. It initializes a market by preparing the condition in a CFT instance using itself as an oracle, $question_{id} := keccak(\text{ancillary data})$, and a hard coded outcome slot count of two. It also makes a price request with the hard coded \textit{YES\_OR\_NO\_QUERY} identifier, current block timestamp, ancillary data and the other parameters, and also in the same transaction sets the price request to be event based and only sets a callback for disputes.
-
-The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. In fact, any one can use it to make a price request through the contracts deployed address as requester, even though the OOV2 has a curated requester whitelist. The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome then uses this price to report the payouts in the CTF. The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 Ether is considered as \textit{UNKNOWN}, any other price by contract logic is considered \textit{YES}. This means that even if the returned price by OOV2 is not the one specified as \textit{YES} in the ancillary data, the outcome could be considered \textit{YES} by contract logic.
+This is Polymarkets custom contract, 
+built on top of the CFT and OOV2,
+which it stores as immutable references by address. 
+It provides an \textit{initialize} which atomically prepares the condition on the CFT, using itself as an oracle and a hard coded outcome slot count of two, and also makes the price request to the OOV2.
+The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. 
+The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. 
+It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome then uses this price to report the payouts in the CTF. 
+The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 Ether is considered as \textit{UNKNOWN}, 
+any other price is considered \textit{YES}.
 If the outcome is \textit{NO} then the payout array passed to the CFT is [0,1], if the outcome is \textit{UNKNOWN} then the it is [1,1] and otherwise it is [1,0] for the outcome \textit{YES}.
 
-
-The rest of the public methods in this contract all have access of either \textit{onlyAdmin} or \textit{onlyOracle}, such as the \textit{pause} method mentioned before, which prevents the resolve method from being invoked, but others like \textit{resolveManually} which directly reports the payouts array passed without resolution from the OOV2. Essentially providing centralized control on the market lifecycle.
-All of them emit events and are part of the exhaustive list in the Appendix.
+The rest of the public methods in this contract all have access restricted to either \textit{onlyAdmin} or \textit{onlyOracle}.
+This also includes the \textit{resolveManually} method which directly reports the payouts array passed without settling any price request.
 
 \section{CTFExchange}
 \label{sec:ctfe}
-The CTFExchange is another custom contract by Polymarket it provides the \textit{matchOrders} method used for settling a taker order and the matched $n$ maker orders and emits one \textit{OrdersMatched} event and $n + 1$ \textit{OrderFilled} events. Since $n \ge 1$ we always have atleast 2 \textit{Orderfilled} events for every \textit{OrdersMatched} event. For split matches, the tokens are created using \textit{splitPosition} in the CFT. Whilst for merge matched order the outcome tokens are swapped for the collateral using \textit{mergePositions} from the CFT. This and the other public methods in this contract all have restricted access.
-
-\subsection{Blockchain Slippage}
-\label{sec:bs}
-There are plenty of case studies conducted on this matter, but the general conclusion is that market participants in decentralized market mechanisms face a trade-off between lowering their slippage tolerance, risking the trade being aborted, or simply paying an additional trading fee for the price slippage~\cite{DAIAN2019}.
-
-Emerging blockchains, like Solana, implement various measures to mitigate this, such as increasing state synchronization frequency to reduce execution uncertainty, and minimizing gas fees. Lower fees make aborted transactions less expensive, allowing users to set lower slippage tolerances without financial penalty~\cite{HEIMBACH2022}. Some blockchains even centralize node management to prevent predatory transaction reordering; Polygon, for example, curates its validator set through a centralized application process and limits it to a fixed size.
-
-However, since Polymarket orders are placed on centralized orderbook (CLOB) over HTTPS and order flow data is not publicly available through the CLOB this vector, there cannot be any maliciously induced price slippage, unless Polymarket itself manipulates the market or on chain settlements somehow leak enough information in a timely manner. Price slippage still is possible and measurable on polymarket as illustrated in ~\ref{}.
-
+The CTFExchange is another custom contract by Polymarket it provides the \textit{matchOrders} method used for settling a match on the CLOB between a taker order and $n$ maker orders and emits one \textit{OrdersMatched} event, and $n+1$ \textit{OrderFilled} events. 
+One OrderFilled event is for the taker facing the exchange and the other $n$ are for the makers facing the taker. There are three types of matches; split, merge and complementary.
+A split match is when the taker and maker are both buyers, one for YES shares and the other for NO shares. 
+Analogously, a merge match is when the taker and maker are both sellers, one for YES shares and the other for NO shares.
+When the taker is selling the shares the maker is buying, or vice versa, then it is a complementary match.
+The match type and also the amount of the instruments exchanged can be deduced from the order filled events.
 
 
 \section{Negrisk}
@@ -375,7 +451,15 @@ The Negrisk framework builds on top of the UmaCtfAdpater to create multiple mark
 
 \section{Polygon Collection}
 \label{sec:polygon_collection}
-The polygon collection is tailored for the Infura eth\_getLogs endpoint. Infura has a rate limit of 500 credits/s, with a request to the eth\_getLogs requiring 255 credits according the documentation. However, testing showed that the actual rate limit between requests without getting rate limited is more around 1s. The rtt for a single eth\_getLogs request can be over 30s long, which is why its suited for concurrent requests. Besides the request frequency, there also is limit of 10'000 events that can requested. But the request is specified using a block range. For this purpose we can use alpha estimation with a margin 500 to converge to the block density for requesting the block expected to return 9'500 events. This seems to be effective as for most events the block density does not seem to have strong variance. But the margin can be increased if some events have a greater block density variance. As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range. The full list of collectected events can be found int the appendix ~\ref{tab:contract_events_vertical}
+The polygon collection is tailored for the Infura eth\_getLogs endpoint. Infura has a rate limit of 500 credits/s, with a request to the eth\_getLogs requiring 255 credits according the documentation. 
+However, testing showed that the actual rate limit between requests without getting rate limited is more around 1s. 
+The rtt for a single eth\_getLogs request can be over 30s long, which is why its suited for concurrent requests. 
+Besides the request frequency, there also is limit of 10'000 events that can requested. 
+But the request is specified using a block range. For this purpose we can use alpha estimation with a margin 500 to converge to the block density for requesting the block expected to return 9'500 events. 
+This seems to be effective as for most events the block density does not seem to have strong variance. 
+But the margin can be increased if some events have a greater block density variance. 
+As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range. 
+The full list of collectected events can be found int the appendix ~\ref{tab:contract_events_vertical}
 
 
 \chapter{Market Lifecycle}
@@ -693,57 +777,39 @@ We can define the slippage for a taker buying or selling $x$ base assets and get
 
 
 \subsection{Slippage Rate on Polymarket}
-
-
-
-
-
+Using the Orderfilled events emitted by the CTFExchange, 
+we can measure the slippage for all 1'443'953 settlements, 
+since we have the USDC amount that the taker paid or received in the fill where taker is facing the exchange, 
+and the amount of shares and their price for every fill where the maker is facing the taker.
+We can now construct a set $A$ of tuples $(x, y, t)$ for every settlement, 
+where $x$ is the USDC amount the taker paid or received, $y$ is the slippage and $t$ is the timestamp of the settlement.
 
 \begin{figure}[H] 
     \centering
-    \includegraphics[width=1\columnwidth]{figures/slip.png}
-    \caption{Cumulative slippage}
-    \label{fig:slip}
+    \includegraphics[width=1\columnwidth]{figures/slip_rate.png}
+    \caption{Cumulative Taker USDC Divided by Cumulative Slippage}
+    \label{fig:slip_rate}
 \end{figure}
+
+
+In figure ~\ref{fig:slip_rate} we can see that the cumulative taker USDC amount divided by the cumulative slippage up until time $t$ for all settlements,
+converges to some value around 100. This can be explained by the law of large numbers, 
+if we assume that the $x$ and $y$ values in the tuples in $A$ are i.i.d. and that the expected value of $x$ is finite and non zero, then we have that:
+\begin{align}
+\label{eq:slip_rate_convergence}
+    & \frac{\sum_{(x, y, t) \in A} x}{\sum_{(x, y, t) \in A} y} \xrightarrow{a.s.} \frac{E[x]}{E[y]}
+\end{align}
+
+
+Fitting $y = \alpha x + \beta$ for $y$ as the cumulative Slippage amount and $x$ as the cumulative Taker USDC amount, 
+for the 1'412'812 settlements after one day in, to avoid the initial artifact,
+we find that $\alpha = 0.00126$ and $\beta = 2.04$ with a standard error $SE = 5.65 \cdot 10^{-6}$ and $R^2 = 0.01765$.
+This means that for the aggregate of all settlements we have an extremely good fit, but for individual settlements this is a poor predictor of slippage given the total USDC amount of the taker.
 
 \section{Arbitrage}
 \label{sec:arbitrage}
-The nature of prediction markets naturally induces multiple sources for arbitrage.
-These all arise from discrepancies between the market price for outcome share pairs which depend on each other.
-
-\subsection{Which party will win the house 2026?}
-For the event ``Which party will control the House after the 2026 Midterm elections?'' there are two prediction markets on both Kalshi and Polymarket. One for Democrats winning the house and the other for Republicans winning the house.
-For which there are 8 prices in total, 4 on polymarket and 4 on kalshi. This leaves us with 28 combinations of price pairs for arbitrage.
-For analytic purposes we will restrict ourselves to 6 prices, the YES and NO prices for both the republican and democratic party on Polymarket, and the YES and NO price for the democratic party on Kalshi.
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/house_arb.png}
-    \caption{House Arbitrage Relationships}
-    \label{fig:house_arb}
-\end{figure}
 
 
-The graph in figure ~\ref{fig:house_arb} illustrates the relationships between the 6 prices we are considering for arbitrage.
-Every outcome share has a relationship witheachother, so the graph above is not exhaustive, but importantly there are only 2 positions, with 3 outcome shares each, 
-which form a closed graph under the \textit{Equal Value} relationship, since they represent the same outcome at resolution.
-This is once the outcome that the Democrats win the house, represented by the YES shares on the democratic markets and the NO shares on the republican markets, 
-and otherwise the Republicans win the house, represented by the YES shares on the republican markets and the NO shares on the democratic markets.
-Every outcome share pair for the same position have equal value, whilst every outcome share pair in different positions have complementary value, meaning their value sums to 1.
-
-We can now measure three sources of arbitrage specifically, which capture these relationships well; market internal, complementary markets, and mirror market arbitrage.
-Market internal arbitrage measures the discrepancies between the YES and NO prices on the same prediction market, 
-complementary market arbitrage measures the discrepancies between outcome prices on seperate prediction markets which represent the same position,
-and mirror market arbitrage measures the discrepancies between the outcome prices of identical prediction markets on seperate exchanges.
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/poly_dem_int.png}
-    \caption{Poly Dem Internal}
-    \label{fig:poly_dem_int}
-\end{figure}
-
-For all figures above we can clearly see that the price discrepancy is at most 0.05 USD, 
 
 
 \subsection{Bitcoin up or down?}
