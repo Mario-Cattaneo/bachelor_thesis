@@ -149,7 +149,7 @@ Polymarket uses the Gnosis Conditional Tokens contract (CTF) to define the YES a
 Additionally, it uses UMA's optimistic oracle framework for resolution~\ref{sec:uma}. 
 In this system, a prediction can resolve to UNKNOWN, rendering the value of YES and NO shares 0.5 USDC each~\ref{sec:uca}.
 
-In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD (or USDC) at all times, 
+In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD at all times, 
 as enforced by the trading contract on Kalshi and by the CTF smart contract on Polymarket~\ref{sec:CTF}. 
 This does not hold for the market prices of the YES and NO shares on the exchange, 
 which are determined by a Central Limit Order Book (CLOB) on both exchanges~\ref{chap:orderbook_trading}. 
@@ -181,53 +181,54 @@ a set of mutually exclusive outcome positions into the complementary positions o
     \label{fig:KALSHI_QUARTERLY_TRADES}
 \end{figure}
 
-The figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} illustrate the quarterly USD trading volume. For Polymarket we additionally can distinguish between the trading volume on the Negrisk CTFE and Basic CTFE~\ref{sec:ctfe}. 
+Figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} show the quarterly USD trading volume. For Polymarket, we can also distinguish between trading volume on the Negrisk CTFE and the Basic CTFE~\ref{sec:ctfe}. 
 
 \subsection{US Market}
-The immediate flat line in Polymarket's trading volume begins immediately after the CFTC action in January 2022. Kalshi operated exclusively within the U.S. until October 2025. This includes the first three quarters of 2025 and the last quarter of 2024 in figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
+The flat line in Polymarket's trading volume starts right after the CFTC action in January 2022. Kalshi operated only in the U.S. until October 2025, covering the first three quarters of 2025 and the last quarter of 2024 shown in Figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
 
-The 47th U.S. presidential election was a major event on both exchanges. There have been various studies comparing the forecasting ability and information efficiency of the prediction markets on Kalshi and Polymarket for this event, specifically compared to other forecasting methods like New York Times polls~\cite{clinton2025prediction,wolfers2024prediction}. Besides that, you can clearly see the spike in trading volume in the fourth quarter of 2024. On Kalshi, markets related to politics and election accounted for roughly 1 billion USD volume in November alone~\cite{morningstar2024kalshi}, while on Polymarket, the main market for the presidential election accumulated a total volume of 3.5 billion USDC~\cite{coindesk2024polymarket}.
+The 47th U.S. presidential election was a major event for both exchanges. Various studies have compared the forecasting ability and information efficiency of Kalshi and Polymarket for this event against other methods like New York Times polls~\cite{clinton2025prediction,wolfers2024prediction}. The volume spike in the fourth quarter of 2024 is also clearly visible. On Kalshi, markets related to politics and the election accounted for roughly 1 billion USD in volume in November alone~\cite{morningstar2024kalshi}. On Polymarket, the main market for the presidential election accumulated a total volume of 3.5 billion USDC~\cite{coindesk2024polymarket}.
 
-However, a recent study using two unsupervised network models suggests that around 18\% or less of the volume traded on Polymarket is "washed" (i.e., likely orchestrated to inflate activity). One method reported that around 60\% of December 2024 volume was washed~\cite{WashTrading}, which was the month after the U.S. election markets concluded and which showed an immediate decline of over 50\% in total trading volume~\cite{duneNovDec}.
+However, a recent study using two unsupervised network models suggests that around 18\% or less of the volume traded on Polymarket is wash trading, where users trade with themselves to inflate activity. One method reported that approximately 60\% of the December 2024 volume was washed~\cite{WashTrading}. This occurred the month after the U.S. election markets concluded and coincided with a decline of over 50\% in total trading volume~\cite{duneNovDec}.
 
 \subsection{Accessibility}
-Kalshi has officially expanded to over 140 countries in October 2025~\cite{kalshi2025expansion} and Polymarket has expressed intentions to reenter the U.S. On July 21, 2025, Polymarket acquired QCX LLC, a company that had registered as a Designated Contract Market (DCM) with the CFTC earlier that month~\cite{GCX_ACQUIRY}. This entity was subsequently rebranded as ``Polymarket US''~\cite{GCX_CFTC_REGISTRY}. As of December 4, 2025, Polymarket is not yet available in the U.S. Both exchanges face regulatory headwinds in many jurisdictions. In many countries they are banned for usage by gambling authorities. This includes Switzerland, where the Swiss Gambling Supervisory Authority (GESPA) has blacklisted their DNS domains, making them irresolvable through Swiss ISPs~\cite{GESPA_BLACKLIST}.
+Kalshi expanded to over 140 countries in October 2025~\cite{kalshi2025expansion}, and Polymarket plans to reenter the U.S. market. On July 21, 2025, Polymarket acquired QCX LLC, a company that had registered as a Designated Contract Market (DCM) with the CFTC earlier that month~\cite{GCX_ACQUIRY}. This entity was subsequently rebranded as ``Polymarket US''~\cite{GCX_CFTC_REGISTRY}. As of December 4, 2025, Polymarket was not yet available in the U.S. Both exchanges face regulatory headwinds in many jurisdictions. Gambling authorities in several countries have banned them. This includes Switzerland, where the Swiss Gambling Supervisory Authority (GESPA) has blacklisted their DNS domains, blocking access via Swiss ISPs~\cite{GESPA_BLACKLIST}.
 
-Even with CFTC approval, Kalshi faces regulatory issues on a regional level in the U.S. An example is the Illinois Department of Financial and Professional Regulation (IDFPR) issuing a cease-and-desist order preventing Kalshi from operating in Illinois for allegedly defying state gambling regulation. Kalshi argues that national oversight by the CFTC preempts these claims. This ongoing case demonstrates that the regulatory landscape surrounding speculation remains conflicted~\cite{kalshi2025illinois}.
+Despite CFTC approval, Kalshi faces state-level regulatory issues in the U.S. For example, the Illinois Department of Financial and Professional Regulation (IDFPR) issued a cease-and-desist order preventing Kalshi from operating in Illinois for allegedly defying state gambling regulations. Kalshi argues that national oversight by the CFTC preempts these claims. This ongoing case demonstrates that the regulatory landscape surrounding speculation remains conflicted~\cite{kalshi2025illinois}.
 
-By design, Polymarket remains widely accessible even if banned, since it does not enforce identification on its main trading platform (Know-Your-Customer, KYC). Even if KYC were enforced, Polymarket's traded base assets—the ERC-1155 tokens for YES or NO shares defined through the Gnosis Conditional Tokens contract—can also be obtained using \textit{splitPosition}, swapped for USDC using \textit{mergePosition}, and, after resolution, redeemed using \textit{redeemPosition} for the value reported by Polymarket.
+Polymarket remains accessible by design, even where banned, because it does not require Know-Your-Customer (KYC) identification on its main platform. Even if KYC were enforced, users could still interact with the underlying smart contracts directly. The ERC-1155 tokens representing YES or NO shares are defined by the Gnosis Conditional Tokens contract. These can be obtained via \textit{splitPosition}, swapped for USDC via \textit{mergePosition}, and redeemed after resolution using \textit{redeemPosition} for the value reported by Polymarket.
 
 \chapter{Objective and Methodology}
-The first objective was to design a a data collection client for Polymarkets off chain endpoints. 
-The second objective was to analyze market life cycle on Polymarket
-Lastly, the third objective was to analyze slippage on Polymarket and prediction market arbitrage.
+The first objective was to design a data collection client for Polymarket's off-chain endpoints. 
+The second objective was to analyze the market lifecycle on Polymarket.
+The third objective was to analyze slippage on Polymarket and prediction market arbitrage.
 
 \section{Methodology}
 Both Polymarket and Kalshi provide WebSocket endpoints to subscribe to orderbook state changes and trades, 
 as well as HTTP endpoints to request the orderbook state. 
-To use these endpoints, the orderbooks of interest must be identified first. 
-For this, both exchanges define market objects and provide HTTP endpoints to query historical market objects, 
+To use these endpoints, the orderbooks of interest must first be identified. 
+For this, both exchanges define market objects and provide HTTP endpoints to query historical data, 
 as well as WebSocket endpoints to subscribe to market lifecycle events. 
 Both exchanges use JSON for endpoint communication and define rate limits for request throughput. 
-Due to Polymarket's poor documentation, a lot of important information had to be discovered through testing and response analysis. 
+
+Due to Polymarket's sparse documentation, significant information had to be discovered through testing and response analysis. 
 These findings, along with continuous endpoint changes and discovered state inconsistencies, 
 resulted in multiple client iterations. 
 The final clients are tailored for the events ``Which party will win the House in 2026?'' and the cyclical 15‑minute event ``Bitcoin up or down?''.
-This is covered in chapter~\ref{chap:endpoints}.
+This is covered in Chapter~\ref{chap:endpoints}.
 
 To analyze the market lifecycle, 
-first the statically available information of on‑chain smart contracts is analyzed in chapter ~\ref{chap:smart_contracts}. 
-This consists of essential smart contract control flow, events emitted, and immutable contract storage, 
-which allows important links to be made between contracts and their intended use, 
-as well as also help identify what can only be deduced or inferred from the emitted events. 
-For this purpose a client for the Infura \textit{eth\_getLogs} endpoint was implemented.
-These events and the historical market objects, which are fetchable through Polymarket's endpoints, 
-are then used to further analyze how the market lifecycle is coordinated in chapter ~\ref{chap:market_lifecycle}.
+Chapter~\ref{chap:smart_contracts} first examines the statically available information from on‑chain smart contracts. 
+This includes essential smart contract control flow, emitted events, and immutable contract storage. 
+These elements allow for establishing links between contracts and their intended use, 
+and they help identify details that can only be deduced from emitted events. 
+For this purpose, a client for the Infura \textit{eth\_getLogs} endpoint was implemented.
+These events and the historical market objects, retrieved through Polymarket's endpoints, 
+are then used to analyze market lifecycle coordination in Chapter~\ref{chap:market_lifecycle}.
 
-In chapter ~\ref{chap:orderbook_trading} the orderbook for prediction markets is formalized to define how slippage and arbitrage can be measured.
-Then the data collected from the Polymarkets and Kalshis endpoints, and emitted events are used to analyze slippage and arbitrage by these measures.
+In Chapter~\ref{chap:orderbook_trading}, the orderbook for prediction markets is formalized to define how slippage and arbitrage are measured.
+Then, data collected from Polymarket's and Kalshi's endpoints, along with emitted events, are used to analyze slippage and arbitrage using these measures.
 
-Finally, chapter ~\ref{chap:discussion} discusses and interprets the findings of this thesis.
+Finally, Chapter~\ref{chap:discussion} discusses and interprets the findings of this thesis.
 
 \chapter{Endpoints and Clients}
 \label{chap:endpoints}
