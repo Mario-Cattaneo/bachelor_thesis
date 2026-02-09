@@ -18,7 +18,7 @@
 \contentsline {subsection}{\numberline {3.2.2}Falsely Missing Orderbook State Objects}{10}{subsection.3.2.2}%
 \contentsline {subsection}{\numberline {3.2.3}Market Feed}{10}{subsection.3.2.3}%
 \contentsline {subsection}{\numberline {3.2.4}Ambiguous Event Ordering}{11}{subsection.3.2.4}%
-\contentsline {section}{\numberline {3.3}Final Polymarket Client}{12}{section.3.3}%
+\contentsline {section}{\numberline {3.3}Final Polymarket Client}{11}{section.3.3}%
 \contentsline {section}{\numberline {3.4}Kalshi Endpoints}{12}{section.3.4}%
 \contentsline {section}{\numberline {3.5}Kalshi Client}{13}{section.3.5}%
 \contentsline {chapter}{\numberline {4}Smart Contracts}{14}{chapter.4}%
@@ -44,9 +44,8 @@
 \contentsline {section}{\numberline {6.2}Slippage}{26}{section.6.2}%
 \contentsline {subsection}{\numberline {6.2.1}Slippage Rate on Polymarket}{26}{subsection.6.2.1}%
 \contentsline {section}{\numberline {6.3}Arbitrage}{28}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Bitcoin up or down?}{28}{subsection.6.3.1}%
-\contentsline {chapter}{\numberline {7}Discussion}{31}{chapter.7}%
-\contentsline {chapter}{Bibliography}{32}{chapter*.6}%
+\contentsline {chapter}{\numberline {7}Discussion}{29}{chapter.7}%
+\contentsline {chapter}{Bibliography}{30}{chapter*.5}%
 \contentsline {chapter}{\numberline {A}Endpoint Documented JSON responses}{A-1}{appendix.U}%
 \contentsline {chapter}{\numberline {B}Smart Contracts}{B-1}{appendix.V}%
 \contentsline {chapter}{\numberline {C}Polymarket Event Object JSON Tree Analysis}{C-1}{appendix.W}%

@@ -235,90 +235,103 @@ Finally, Chapter~\ref{chap:discussion} discusses and interprets the findings of 
 
 \section{Polymarket Event and Market Endpoints}
 \label{sec:clob_json}
-Polymarket has a market object for every prediction market, with a unique market id. 
-Additionally, every market is also part of an \textit{event}, and every event can be associated with multiple \textit{tags}. 
-The \textit{gamma-api.polymarket.com} domain hosts a handful of HTTP endpoints to query market objects, 
-event objects or tag objects in pages. 
-The documentation only provides an example use case along with list of the query parameters for the request and attributes 
-in the response with a sample request and response. 
-The most essential query parameters are \textit{offset} and \textit{limit} which enable accessing objects in batches, 
-where the limit specifies how many objects are in a requested batch and the offset specifies the starting object for that batch. 
-This implicitly assumes that the objects are somehow ordered, with the first object starting at offset zero. 
-Additionally, an order parameter exists, without further specification. 
-Testing has shown that using the order parameter for many attributes either does not order the attribute to be ordered, 
-misses some markets or returns duplicate markets at separate offsets. 
-Querying the event objects ordered by event id seems to work without any of the anomalies mentioned above, 
-and has recently been added as an example use in their documentation. 
-However, ordering the market objects by id is not possible. 
-Additionally, unspecified and found through testing is that the limit parameter can at most be 500, 
-any value greater will simply always return 500 objects starting at the specified offset. 
-Before December 2025, it was also not specified what the response would be if an offset was requested beyond the amount of available offsets.
-This was found, and sometime in December 2025 clarified in the example use case, to be an empty JSON array.
+Polymarket defines a market object for every prediction market, identified by a unique market ID. 
+Every market is part of an \textit{event}, and every event can be associated with multiple \textit{tags}. 
+The \textit{gamma-api.polymarket.com} domain hosts several HTTP endpoints to query market, event, or tag objects using pagination. 
+The documentation provides only an example use case, a list of query parameters, and a sample request and response. 
+
+The most essential query parameters are \textit{offset} and \textit{limit}, which enable batch access. 
+The limit specifies the number of objects in a batch, while the offset determines the starting point. 
+This implicitly assumes an ordered list of objects starting at offset zero. 
+An \textit{order} parameter also exists but lacks detailed specification. 
+Testing revealed that sorting by many attributes fails to order the results correctly, omits markets, or returns duplicates at different offsets. 
+Querying event objects ordered by event ID avoids these anomalies and was recently added as an example in the documentation. 
+However, ordering market objects by ID is not possible. 
+
+Testing also revealed an undocumented constraint: the limit parameter is capped at 500. 
+Any value exceeding this simply returns 500 objects starting at the specified offset. 
+Before December 2025, the response behavior for requesting an offset beyond the available range was unspecified. 
+It was eventually clarified in December 2025 that such requests return an empty JSON array.
 
 \subsection{Event and Market Objects}
 The market object is listed with over 100 attributes in the documentation. 
-Initial testing has shown that there is a mismatch between attributes that appear in responses and those listed in the documentation and also differs by response. 
-For this reason all event objects which also contain associated market and tag objects obtainable by querying the \textit{events} endpoint are analyzed.
-Since JSON is specified by a deterministic context free language, we can parse it unambiguously into a tree of nodes, where every node has a type. 
-Now for every event object we construct a tree, where every node, except for the root, either is the child of node of type object or array. 
-In the case that it is the child of an object, it must have a string key associated. 
-A node is a leaf if it is an empty array or object, or of type scalar; number, string, boolean or null. 
-For a more representive type analysis the numbers are further broken down into IEEE 754 floating point and integers, 
-whilst the strings are divided into empty strings, only spaces, JSON encoded, standardized timestamp formats, numbers, hexadecimal, case insensitive ``null'', ``none'', ``nan'', ``true'', ``false'', or a \textit{general} string otherwise. 
-The resulting table with the type makeup and appearance percentage for every tree path can be found in the Appendix ~\ref{tab:json_tree_analysis_multiline}.
+Initial testing showed a mismatch between the attributes in actual responses and those listed in the documentation; 
+furthermore, the attributes vary between responses. 
+For this reason, this analysis covers all event objects (which include associated market and tag objects) obtained from the \textit{events} endpoint.
+
+Since JSON is specified by a deterministic context-free language, it can be parsed unambiguously into a tree of nodes, where every node has a type. 
+For every event object, a tree is constructed where every node (except the root) is a child of either an object or an array. 
+If a node is a child of an object, it must have an associated string key. 
+A node is a leaf if it is an empty array, an empty object, or a scalar type (number, string, boolean, or null). 
+
+For a more representative type analysis, numbers are further categorized as IEEE 754 floating-point values or integers. 
+Strings are classified as empty, whitespace-only, JSON-encoded, standardized timestamps, numeric strings, hexadecimal, case-insensitive literals (``null'', ``none'', ``nan'', ``true'', ``false''), or \textit{general} strings. 
+The resulting table showing the type distribution and occurrence frequency for every tree path is available in Appendix~\ref{tab:json_tree_analysis_multiline}.
 
 \section{Polymarket Orderbook and Trade Endpoints}
-Polymarket provides a \textit{book} HTTP endpoint, to request the current orderbook state, under the \textit{clob.polymarket.com} domain and a \textit{market} Websocket endpoint, to receive events for state changes, under the \textit{\seqsplit{ws-subscriptions-clob.polymarket.com}} domain, which is referred to as the \textit{market feed}. Every prediction market is associated with two orderbooks, one for the YES outcome and one for the NO outcome. An orderbook has a side for the prices of buying the underlying outcome token, also known as \textit{bids}, and a side for the prices of selling the underlying outcome token, also known as \textit{asks}. The orderbooks underlying outcome \textit{token id} or  also referred to as \textit{asset id}, uniquely identifies it and every market object contains two asset ids inside of a JSON array encoded string, under the key ``clobTokenIds'' ~\ref{tab:json_tree_analysis_multiline}.
+Polymarket provides a \textit{book} HTTP endpoint to request the current orderbook state under the \textit{clob.polymarket.com} domain. 
+It also provides a \textit{market} WebSocket endpoint to receive state change events under the \textit{\seqsplit{ws-subscriptions-clob.polymarket.com}} domain, referred to as the \textit{market feed}. 
+Every prediction market is associated with two orderbooks: one for the YES outcome and one for the NO outcome. 
+An orderbook has a side for buying the underlying outcome token (bids) and a side for selling the underlying outcome token (asks). 
+The orderbook's underlying outcome is uniquely identified by a \textit{token ID}, also referred to as an \textit{asset ID}. 
+Every market object contains two asset IDs within a JSON-encoded string array under the key ``clobTokenIds''~\ref{tab:json_tree_analysis_multiline}.
+
 \subsection{Book Endpoint}
 \label{sec:missing}
-The specification for the book endpoint only consists of list of the request and response JSON attributes with sample for both. This endpoint returns the orderbook state objects for the requested asset ids. The documentation does not specify the amount of asset ids that can be requested or orderbooks that can be returned, nor what happens if the orderbook of an already resolved market is requested. Testing shows that the orderbooks states for requested asset ids are returned in the order they were requested, any orderbook state object requested for an asset id, whos market is already resolved will not be in the response, and the response consists of at most 500 orderbook state objects. 
+The specification for the book endpoint consists only of a list of request and response JSON attributes, along with samples for both. 
+This endpoint returns the orderbook state objects for the requested asset IDs. 
+The documentation does not specify the maximum number of asset IDs that can be requested, the limit on returned orderbooks, or the behavior when requesting the orderbook of an already resolved market. 
+Testing revealed that orderbook states are returned in the order requested. 
+However, any orderbook state object requested for an asset ID whose market is already resolved is omitted from the response. 
+Additionally, the response contains at most 500 orderbook state objects.
 
-The orderbook state object in the appendix ~\ref{lst:orderbook_state} is from the sample Polymarket provides in its documentation. Importantly, the timestamp attribute in the response is listed as a string, but is actually a string of an integer unix millisecond timestamp in the responses.
+The orderbook state object shown in Appendix~\ref{lst:orderbook_state} is based on the sample provided in Polymarket's documentation. 
+Notably, the timestamp attribute is described as a string but appears in responses as a string representation of a Unix millisecond timestamp.
 
 \subsection{Falsely Missing Orderbook State Objects}
-An initial client which made concurrent requests to the book endpoint, 
-revealed an anomaly in the state provided from the endpoint, 
-in which for some asset ids the endpoint would not return the order book state objects for one or multiple requests and then in later request include it again in the response. 
-Essentially making order book state unavailable or seem as if its market has been resolved. 
-Importantly, this could not have been a result from infringing the rate limit, as the endpoint would send regular bad response statuses, 
-which was not the case here. 
-The same set up was run for a couple of hours, 
-but now making strictly serialized requests, 
-and this anomaly was not detected. 
-To investigate this further, every asset id was mapped to a \textit{false miss} counter, 
-which was incremented whenever the orderbook state object for requested asset id was not in the response and if it was in the response 
-then the order book state object and counter are stored and this counter was set to 0.
+An initial client making concurrent requests to the book endpoint revealed an anomaly where the endpoint failed to return orderbook state objects for specific asset IDs, only to include them in subsequent responses. 
+This effectively made the orderbook state unavailable, mimicking a resolved market. 
+Crucially, this was not caused by rate limiting, as the endpoint did not return error status codes. 
 
-This revealed an initial burst of false misses for many asset ids, 
-but with false miss counts below 13. After this initial burst, 
-the amount of asset ids with false misses decreased significantly, but the reported miss counts had a much larger variance, 
-some with over 1000 false misses.
+The same setup was run for several hours using strictly serialized requests, and this anomaly was not detected. 
+To investigate further, every asset ID was mapped to a \textit{false miss} counter. 
+This counter incremented whenever the orderbook state object for a requested asset ID was missing from the response; 
+if the object appeared, the counter was reset to 0.
+
+This experiment revealed an initial burst of false misses for many asset IDs, though the counts remained below 13. 
+After this initial burst, the number of asset IDs experiencing false misses decreased significantly, but the reported miss counts showed much larger variance, with some exceeding 1,000 false misses.
 
 \subsection{Market Feed}
-The market feed sends out different event messages for subscribed markets.
-Before December 17 2025 this endpoint only allowed for subscription once on an established Websocket connection. 
-This means that if any markets were resolved or created, a new Websocket connection had to be established to adapt for this change. 
-This was not documented, and testing simply revealed that attempting to send more than one subscription message would stop any events from arriving. 
-Even with a timeout of 30 seconds the server was still keeping the underlying persistant TCP and Websocket connection alive and no other messages were sent, 
-essentially turning it into a zombie. 
+The market feed broadcasts event messages for subscribed markets. 
+Prior to December 17, 2025, this endpoint allowed only a single subscription per established WebSocket connection. 
+Consequently, if any markets were resolved or created, a new WebSocket connection had to be established to adapt to the change. 
+This limitation was undocumented; testing simply revealed that sending more than one subscription message stopped all event delivery. 
+Even with a 30-second timeout, the server kept the underlying persistent TCP and WebSocket connection alive without sending further messages, effectively turning it into a zombie connection.
 
-On December 17th dynamic subscriptions and unsubscription messages were announced through their discord server, confirming that this in fact was not possible beforehand. 
-This was a game changer, as the prior client had to create a new Websocket connection whenever new markets were created. Another significant improvement was introduced around January 5th 2026, 
-where life cycle updates were added to the market feed. Before this the market or events endpoint had to be scraped continuously, to check if a new market was created or an existing market was resolved. 
-This introduced unnecessary latency and complexity. 
-Comparing the market objects found on the long lived connection, which was continuously scraped for market life cycle changes, 
-to a separate one time exhaustive scrape on a different connection revealed that some market objects were never returned at any offset on the market endpoint for the long lived connection. 
-This anomaly was only measurable after 3 days.
+On December 17, dynamic subscription and unsubscription messages were announced via Discord, confirming that this functionality was previously unavailable. 
+This was a significant improvement, as the prior client required a new WebSocket connection whenever new markets were created. 
+Another major improvement occurred around January 5, 2026, when lifecycle updates were added to the market feed. 
+Previously, the market or events endpoint had to be scraped continuously to check for new or resolved markets, introducing unnecessary latency and complexity. 
+Comparing market objects from a long-lived connection (continuously scraped for lifecycle changes) against a separate, one-time exhaustive scrape revealed that some market objects were never returned at any offset on the market endpoint for the long-lived connection. 
+This anomaly was only measurable after three days.
 
-Unlike for the book, market and event endpoint, the documented response attributes appear in every response and are of the correct type. 
-The documented sample message can be found in the appendix ~\ref{lst:price_change_event} for the price change event, ~\ref{lst:book_event} for the book event, ~\ref{lst:trade_event} for the trade event, ~\ref{lst:new_market} for the new market event and ~\ref{lst:market_res} for the market resolved event. However, for the last trade price event, there is a missing attribute \textit{tx\_hash} of type string, which always is hexadecimal and has the length of an ethereum transaction hash. 
-The timestamp of the market feed events are a string of an integer unix millisecond timestamp, just like the one found in the actual responses of the order book state object requests. However the fact the timestamps are only in millisecond resolution and there are no other attributes to order the events by, would render state ambiguous after a millisecond with multiple conflicting events.
+Unlike the book, market, and event endpoints, the market feed's documented response attributes appear in every response and are of the correct type. 
+Sample messages can be found in the Appendix: ~\ref{lst:price_change_event} for price changes, ~\ref{lst:book_event} for book events, ~\ref{lst:trade_event} for trade events, ~\ref{lst:new_market} for new market events, and ~\ref{lst:market_res} for market resolved events. 
+However, the last trade price event contains an undocumented attribute \textit{tx\_hash} of type string, which is always a hexadecimal value with the length of an Ethereum transaction hash. 
+The timestamps for market feed events are string representations of Unix millisecond timestamps, matching those found in the book endpoint responses. 
+However, because timestamps only have millisecond resolution and there are no other attributes to order events, the state becomes ambiguous when multiple conflicting events occur within the same millisecond.
 
 \subsection{Ambiguous Event Ordering}
-The most obvious conflict, is between events of the same type at the same millisecond with different resulting state. For price change events, this is the case when two or more price change events have the same timestamp, side, price and asset id, but different sizes, as then it is unclear exactly what the size is at the given price, side and asset id after or at the timestamp. Book events are conflicting if they share the same timestamp and asset id, but not the same bids and asks, and last trade events are conflicting when they share the same timestamp, asset id, side and price, as we can then no longer differentiate between which trade got filled using which size and price. Table ~\ref{tab:market_analysis} illustrates that this is not just theoretically possible, but actually also happens.
+The most obvious conflict arises between events of the same type occurring at the same millisecond with different resulting states. 
+For price change events, this occurs when two or more events share the same timestamp, side, price, and asset ID, but have different sizes. 
+In such cases, it is unclear what the exact size is at the given price, side, and asset ID at or after that timestamp. 
+Book events conflict if they share the same timestamp and asset ID but list different bids and asks. 
+Similarly, last trade events conflict when they share the same timestamp, asset ID, side, and price, making it impossible to differentiate which trade was filled at which size. 
+Table~\ref{tab:market_analysis} illustrates that this occurs in practice.
+
 \begin{table}[H]
 \centering
-\caption{Bitcoin Up or Down --- January 7, 11:00AM-11:15AM ET}
+\caption{Bitcoin Up or Down - January 7, 11:00AM-11:15AM ET}
 \label{tab:market_analysis}
 \begin{tabular}{|l|l|c|c|}
 \hline
@@ -328,34 +341,49 @@ The most obvious conflict, is between events of the same type at the same millis
 \hline
 Last Trade Prices & 3,562 & 24 (0.67\%) & 0 (0.0\%) \\
 \hline
-Price Changes & 158,662 & 3'228 (2.04\%) & 1'336 (0.84\%) \\
+Price Changes & 158,662 & 3,228 (2.04\%) & 1,336 (0.84\%) \\
 \hline
 Books & 6,074 & 0 (0.0\%) & 0 (0.0\%) \\
 \hline
 \end{tabular}
 \end{table}
 
-If we additionally consider the ambiguity that arises when a price change message and book summary message share the same timestamp, i.e unclear whether the price change applied before or after the book sate summary, we find that 7'160 price changes are ambiguous.
+If we additionally consider the ambiguity arising when a price change message and a book summary message share the same timestamp (i.e., it is unclear whether the price change applied before or after the book state summary), we find that 7,160 price changes are ambiguous.
 
 \section{Final Polymarket Client}
-The initial client was intended to subsribe to the market feed and make order book state requests for all existing unresolved markets. This involved over 30 thousand orderbooks. Since only 500 orderbooks can be requested at once, there is a clear trade off between how many orderbooks are used for requests and how frequently we can request an orderbook. Additionally, the fact that the market feed events can not unambiguously be ordered, makes requesting the actual orderbook state frequently even more valuable. For these reasons the final client was designed to use less than 500 orderbook, and request their state strictly serially, with at least 500ms between requests. The documentation specifies a rate limit of 500 requests/s, so this setup is very conservative. For the event ``Which party will win the house in 2026?'' there are 4 order books and for the cyclical 15 minutes ``Bitcoin up or down?'' there seem to be less than 100 active order books.
+The initial client was designed to subscribe to the market feed and make orderbook state requests for all existing unresolved markets. 
+This involved over 30,000 orderbooks. 
+Since only 500 orderbooks can be requested at once, there is a clear trade-off between the number of orderbooks monitored and the frequency of updates. 
+Additionally, since market feed events cannot be unambiguously ordered, frequent requests for the actual orderbook state become even more valuable. 
+For these reasons, the final client was designed to monitor fewer than 500 orderbooks and request their states sequentially, with a minimum interval of 500ms between requests. 
+The documentation specifies a rate limit of 500 requests/s, so this setup is very conservative. 
+For the event ``Which party will win the House in 2026?'', there are four orderbooks, while the cyclical 15-minute event ``Bitcoin up or down?'' typically has fewer than 100 active orderbooks.
 
-The final client initially scrapes the events endpoint for all currently available 15 min cyclical ``Bitcoin up or down?'' markets. Then subscribe to the to the market feed using these and the 4 known orderbooks from the `Which party will win the house in 2026?'' to subscribe to the market feed, and listen for newly created or resolved ``Bitcoin up or down?'' markets, to then subscribe or unsubscribe to. We also start making the orderbook state requests as specified above, and obviously store the price change, book, last trade price events, and orderbook state objects persistently in a database table.
+The final client initially scrapes the events endpoint for all currently available 15-minute cyclical ``Bitcoin up or down?'' markets. 
+It then subscribes to the market feed using these IDs and the four known orderbooks from ``Which party will win the House in 2026?''. 
+It also listens for newly created or resolved ``Bitcoin up or down?'' markets to dynamically manage subscriptions. 
+The client also initiates the orderbook state requests as specified above and persistently stores the price change, book, last trade price events, and orderbook state objects in a database.
 
 \section{Kalshi Endpoints}
 \label{sec:kalshi_endpoints}
-Kalshi provides endpoints similar to those on Polymarket. Namely the \textit{events} endpoint for scraping any market ever created and a websocket endpoint with different channels, like \textit{trades}, \textit{orderbook updates} and \textit{market lifecycle}. Markets are uniquely identified through their market\_ticker. Dynamic subscription and unsubscription for the channels of interest, on the websocket endpoint, can be done using these market\_tickers.
+Kalshi provides endpoints similar to those on Polymarket. 
+These include the \textit{events} endpoint for scraping any market ever created and a WebSocket endpoint with different channels, such as \textit{trades}, \textit{orderbook updates}, and \textit{market lifecycle}. 
+Markets are uniquely identified through their \textit{market\_ticker}. 
+These tickers allow for dynamic subscription and unsubscription for the channels of interest on the WebSocket endpoint.
 
-However unlike Polymarket, the events are not in the same format as on Polymarket, 
-more importantly, Kalshi provides a single orderbook for both outcomes of a prediction market, where one side is for the YES prices and the other is for the NO prices, as can be seen in the documented order book delta ~\ref{lst:orderbook_delta} and order book snapshot ~\ref{lst:orderbook_snapshot} response. 
-The other documented responses can also be found in the appendix ~\ref{lst:event_object} for the event objects, ~\ref{lst:market_lifecycle_event} for the market lifcycle event, and ~\ref{lst:trade_update} for the trade update.
+However, unlike Polymarket, Kalshi provides a single orderbook for both outcomes of a prediction market. 
+One side represents the YES prices and the other the NO prices, as seen in the documented orderbook delta~\ref{lst:orderbook_delta} and orderbook snapshot~\ref{lst:orderbook_snapshot} responses. 
+Other documented responses are available in the Appendix: ~\ref{lst:event_object} for event objects, ~\ref{lst:market_lifecycle_event} for market lifecycle events, and ~\ref{lst:trade_update} for trade updates.
 
-The JSON objects in the inside of the messages sent by the orderbook update and trade channel contain a unique integer sequence identifier, which can be used unambiguously order the events for a given channel and spot any missing events, since the first event after subscription has sequence identifier zero, and for all other events the sequence identifier is the sequence identifier of the event happening right before it, incremented by one. 
-Even though kalshis docs for the trade update message is missing the seq attribute, the messages do effectviely contain it. 
-However, this does not make ordering the trade events among the orderbook events unambiguously possible, as for this we would have to rely on the timestamps alone, for which the trades only specified in seconds.
+The JSON objects within the messages sent by the orderbook update and trade channels contain a unique integer sequence identifier. 
+This identifier can be used to unambiguously order the events for a given channel and spot any missing events, as the first event after subscription has sequence identifier zero, and each subsequent event increments the identifier by one. 
+Although Kalshi's documentation for the trade update message is missing the \textit{seq} attribute, the messages effectively contain it. 
+However, ordering trade events relative to orderbook events remains ambiguous, as it relies on timestamps that are only specified in seconds for trades.
+
 \section{Kalshi Client}
-Because of the sequence identifieres provided by kalshi, there is no need to additionally request the orderbook state, as it can be used to unambiguously maintain the state of the orderbook. 
-The Kalshi client therefor simply does exactly what the Polymarket client does, but without the orderbook state requests.
+Due to the sequence identifiers provided by Kalshi, there is no need to additionally request the orderbook state, as the identifiers allow for unambiguous maintenance of the orderbook state. 
+The Kalshi client therefore functions similarly to the Polymarket client, but without the need for periodic orderbook state requests.
+
 
 \chapter{Smart Contracts}
 \label{chap:smart_contracts}
@@ -811,50 +839,18 @@ This means that for the aggregate of all settlements we have an extremely good f
 \section{Arbitrage}
 \label{sec:arbitrage}
 
-
-
-
-\subsection{Bitcoin up or down?}
 In the prior section we saw that the event ``Which party will win the house 2026?'' had low expected price discrepancies.
 However, it is important to also consider that the price for the event itself did not move much, as illustrated by the range of the prices throughout the entire time period in table ~\ref{}, 
 and also was not close to being resolved yet.
 With the cyclical 15 minute ``Bitcoin up or down?'' event, we can also see how price discrepancies relate to the timeline in the market life cycle.
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/poly_int.png}
-    \caption{Poly Internal}
-    \label{fig:poly_int}
-\end{figure}
 
 \begin{figure}[H] 
     \centering
-    \includegraphics[width=1\columnwidth]{figures/kalshi_int.png}
-    \caption{Kalshi Internal}
-    \label{fig:kalshi_int}
+    \includegraphics[width=1\columnwidth]{figures/prices.png}
+    \caption{Price Discrepancy Distribution for 15 minute cyclical ``Bitcoin up or down?'' markets}
+    \label{fig:prices}
 \end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/yes_mir.png}
-    \caption{Yes Mirror}
-    \label{fig:yes_mir}
-\end{figure}
-
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=1\columnwidth]{figures/no_mir.png}
-    \caption{No Mirror}
-    \label{fig:no_mir}
-\end{figure}
-
-The tables above create a heat map using the 15 minute cyclical ``Bitcoin up or down?'' events, 
-to visualize the distribution of price discrepancies at a given time in the life cycle of the market.
-
-\todo{better illustrate how cross exchange (mirror arb) are more variant with higher expected value. Also how in general variance decreases at start and increases at the end of the market life cycle.}
-
-
-
 
 \chapter{Discussion}
 \label{chap:discussion}
@@ -866,12 +862,7 @@ Love is the answer.
 % This creates an appendix chapter, comment if not needed.
 \appendix
 \chapter{Endpoint Documented JSON responses}
-\begin{lstlisting}[
-    language=json, 
-    caption={Polymarkets Documented Orderbook State Object Sample},
-    captionpos=t
-]
-\label{lst:orderbook_state}
+\begin{lstlisting}[language=json, caption={Polymarkets Documented Orderbook State Object Sample}, captionpos=t, label={lst:orderbook_state}]
 {
   "market": "0x1b6f76e5b8587ee896c35847e12d
   11e75290a8c3934c5952e8a9d6e4c6f03cfa",
@@ -897,12 +888,7 @@ Love is the answer.
 \end{lstlisting}
 
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Polymarkets Documented Book Event}, 
-    captionpos=t
-]
-\label{lst:book_event}
+\begin{lstlisting}[language=json, caption={Polymarkets Documented Book Event}, captionpos=t, label={lst:book_event}]
 {
   "event_type": "book",
   "asset_id": "65818619657568813474341868652308942079804919
@@ -924,12 +910,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Polymarkets Documented Price Change Event}, 
-    captionpos=t
-]
-\label{lst:price_change_event}
+\begin{lstlisting}[language=json, caption={Polymarkets Documented Price Change Event}, captionpos=t, label={lst:price_change_event}]
 {
     "market": "0x5f65177b394277fd294cd75650044e32
     ba009a95022d88a0c1d565897d72f8f1",
@@ -960,12 +941,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Polymarkets Documented Last Trade Price Event}, 
-    captionpos=t
-]
-\label{lst:last_trade_event}
+\begin{lstlisting}[language=json, caption={Polymarkets Documented Last Trade Price Event}, captionpos=t, label={lst:trade_event}]
 {
 "asset_id":"114122071509644379678018727908709560
 226618148003371446110114509806601493071694",
@@ -980,12 +956,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Polymarkets Documented New Market Event}, 
-    captionpos=t
-]
-\label{lst:new_market}
+\begin{lstlisting}[language=json, caption={Polymarkets Documented New Market Event}, captionpos=t, label={lst:new_market}]
 {
     "id": "1031769",
     "question": "Will NVIDIA (NVDA) close above 
@@ -1016,12 +987,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Polymarkets Documented Market Resolved Event}, 
-    captionpos=t
-]
-\label{lst:market_res}
+\begin{lstlisting}[language=json, caption={Polymarkets Documented Market Resolved Event}, captionpos=t, label={lst:market_res}]
 {
     "id": "1031769",
     "question": "Will NVIDIA (NVDA) close above $240 
@@ -1052,12 +1018,7 @@ Love is the answer.
 \end{lstlisting}
 
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Kalshi Documented Orderbook Delta}, 
-    captionpos=t
-]
-\label{lst:orderbook_delta}
+\begin{lstlisting}[language=json, caption={Kalshi Documented Orderbook Delta}, captionpos=t, label={lst:orderbook_delta}]
 {
   "type": "orderbook_delta",
   "sid": 2,
@@ -1075,12 +1036,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Kalshi Documented Orderbook Snapshot}, 
-    captionpos=t
-]
-\label{lst:orderbook_snapshot}
+\begin{lstlisting}[language=json, caption={Kalshi Documented Orderbook Snapshot}, captionpos=t, label={lst:orderbook_snapshot}]
 {
   "type": "orderbook_snapshot",
   "sid": 2,
@@ -1152,12 +1108,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Kalshi Documented Trade Update}, 
-    captionpos=t
-]
-\label{lst:trade_update}
+\begin{lstlisting}[language=json, caption={Kalshi Documented Trade Update}, captionpos=t, label={lst:trade_update}]
 {
   "type": "trade",
   "sid": 11,
@@ -1176,12 +1127,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Kalshi Documented Market Lifecycle V2}, 
-    captionpos=t
-]
-\label{lst:market_lifecycle_v2}
+\begin{lstlisting}[language=json, caption={Kalshi Documented Market Lifecycle V2}, captionpos=t, label={lst:market_lifecycle_event}]
 {
   "type": "market_lifecycle_v2",
   "sid": 13,
@@ -1207,12 +1153,7 @@ Love is the answer.
 }
 \end{lstlisting}
 
-\begin{lstlisting}[
-    language=json, 
-    caption={Kalshi Documented Event Object}, 
-    captionpos=t
-]
-\label{lst:event_object}
+\begin{lstlisting}[language=json, caption={Kalshi Documented Event Object}, captionpos=t, label={lst:event_object}]
 {
   "event": {
     "event_ticker": "<string>",
