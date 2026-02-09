@@ -109,7 +109,7 @@ Match-fixing in sports provides an illustrative example:
 a boxer might have an economic incentive to lose deliberately if betting returns on their defeat exceed the prize for winning.
 
 A related issue is asymmetric information. 
-Not all informational advantages are malicious, 
+Not all informational advantages are malicious; 
 some are an unavoidable consequence of information diffusion. 
 However, the asymmetry becomes exploitative, 
 potentially amounting to insider trading, 
@@ -126,44 +126,45 @@ which states that a registered entity "shall not list for trading or accept for 
 among other things, "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" 
 and permits the Commission to identify similar activities it deems contrary to the public interest~\cite{CFTC_REG_40_11}. 
 This rule was the primary battleground that Kalshi challenged in order to list specific political prediction markets~\cite{Kalshi_v_CFTC_2024}
-and is a primary reason for Polymarkets restricted access for U.S. users ~\cite{CFTC_Polymarket_2022}
-
+and is a primary reason for Polymarket's restricted access for U.S. users~\cite{CFTC_Polymarket_2022}.
 
 \section{Prediction Market Exchanges}
 \label{sec:prediction_markets}
 Polymarket and Kalshi are two exchanges popularizing prediction markets and making them accessible globally. 
-A prediction market is derived from the outcomes of a real-world event. 
-On both exchanges, a prediction market is exclusively designed for binary events with YES and NO shares, 
-which are quoted in USD, or on Polymarket, more specifically, USDC, a USD-backed ERC-20 token managed by Coinbase through a reserve such that its value is identical to USD. 
+A prediction market is derived from the outcome of a real-world event. 
+On both exchanges, a prediction market is exclusively designed for binary events with YES and NO outcomes. 
+These outcomes are represented as shares quoted in USD, or on Polymarket specifically, in USDC, 
+a USD-backed ERC-20 token managed by Coinbase through a reserve ensuring its value is identical to USD. 
 An example is the event ``Will the Republican Party win the House in 2026?'', which is hosted on both exchanges. 
 A position in a prediction market refers to a specific quantity of YES or NO shares held. 
-The process of deciding the outcome of the underlying event and assigning terminal values for a YES and NO share is called resolution, and once the values are determined, the market is deemed resolved.
+The process of deciding the outcome of the underlying event and assigning terminal values for a YES and NO share is called resolution; 
+once the values are determined, the market is deemed resolved.
 
-Kalshi specifies an explicit expiration date and central resolution source on its legally binding trading contracts for the YES and NO shares
-and states that if the market resolves to YES, then every YES shares has value of one USD, otherwise if the market resolves to NO then every NO share has a value of one USD~\cite{}.
-It is not explicitly stated that a market is unambiguously resolved to either YES or NO, and their rulebook states that the final outcome is decided at their discretion~\cite{}, 
-but for the purpose of this thesis we assume that markets can only resolve to either YES or NO.
+On Kalshi, every YES or NO share is a contract with an expiration date and a central resolution source. 
+Kalshi states, ``Each contract is worth \$1 if you're right''~\cite{kalshi_payout}.
+Their legally binding rulebook states that the final outcome is decided at their discretion and that contract modifications are possible~\cite{kalshi_rulebook}. 
+However, for the purpose of this thesis, we assume that markets can only resolve to either YES or NO.
 
-Polymarket uses the Gnosis Conditional Tokens contract (CFT) to define the YES and NO shares as ERC-1155 tokens and to enforce their combined value at 1 USDC, 
-and it uses UMA's optimistic oracle framework for resolution~\ref{sec:uma}. 
+Polymarket uses the Gnosis Conditional Tokens contract (CTF) to define the YES and NO shares as ERC-1155 tokens and to enforce their combined value at 1 USDC. 
+Additionally, it uses UMA's optimistic oracle framework for resolution~\ref{sec:uma}. 
 In this system, a prediction can resolve to UNKNOWN, rendering the value of YES and NO shares 0.5 USDC each~\ref{sec:uca}.
 
-In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD at all times, 
-as enforced by the trading contract on Kalshi and by the CFT smart contract on Polymarket~\ref{sec:cft}. 
-This does not hold for the market price of the YES and NO shares on the exchange, 
-which are determined by a Central Limit Order Book (CLOB) on both exchanges~\ref{sec:CLOB}. 
-This is what makes market internal arbitrage possible.
+In both cases, the combined value of a YES and NO share for a prediction is exactly 1 USD (or USDC) at all times, 
+as enforced by the trading contract on Kalshi and by the CTF smart contract on Polymarket~\ref{sec:CTF}. 
+This does not hold for the market prices of the YES and NO shares on the exchange, 
+which are determined by a Central Limit Order Book (CLOB) on both exchanges~\ref{chap:orderbook_trading}. 
+This discrepancy is what makes internal market arbitrage possible.
 
 Events with more than two discrete outcomes can be constructed using multiple prediction markets. 
-For example, the event ``Which party will win the House in 2026?'' is decomposed into the prediction markets for the questions 
+For example, the event ``Which party will win the House in 2026?'' is decomposed into prediction markets for the questions 
 ``Will the Democratic Party win the House in 2026?'' and ``Will the Republican Party win the House in 2026?''. 
 This provides powerful information aggregation capabilities built on top of the information efficiency of markets. 
 A common pattern on both exchanges is to define an event with more than two possible discrete outcomes exhaustively, 
-using a prediction market for all mutually exclusive outcomes. 
+using a separate prediction market for each mutually exclusive outcome. 
 The event ``Which party will win the House in 2026?'' is an example of this. 
 Polymarket labels these as \textit{Negrisk} and provides a full suite of smart contracts dedicated to these events, 
 including a distinct settlement smart contract deployment \textit{Negrisk CTFE} and an atomic swap operation for converting 
-a set of mutually exclusive outcome positions to the complement position of the complement outcomes~\ref{sec:nr}.
+a set of mutually exclusive outcome positions into the complementary positions of the alternative outcomes~\ref{sec:nr}.
 
 \subsection{Growth}
 \begin{figure}[H] 
@@ -360,7 +361,7 @@ The Kalshi client therefor simply does exactly what the Polymarket client does, 
 Polymarket has a dedicated github account with over 90 repositories. There are many individual repositories containing the solidity source for smart contracts and their deployment status. They also have a dedicated repository which lists any deployment address that seemingly can be found elsewhere, the associated contract and a security audit, if present~\cite{polyDepList}. It is not explicitly mentioned if it is an exhaustive list, but at least looking through the entire documentation on the website and all repositories on github, does not reveal any undeclared deployment, since there is no other authorative source overriding this, it will be used as the reference of the disclosed deployments.
 
 \section{Conditional Tokens}
-\label{sec:cft}
+\label{sec:CTF}
 The Gnosis Conditional Tokens contract (CTF) extends the ERC-1155 standard, utilizing it to construct tokens representing the outcomes of an event or condition. This enables transferring, minting, and burning multiple outcome tokens within a single transaction.
 
 The contract defines the relationship between the value of the n outcome tokens $(O_1, \dots, O_n)$ for an event and the ERC-20 collateral token $Q$ as:
@@ -420,15 +421,15 @@ Which specify which price is mapped to the outcomes \textit{YES}, \textit{NO}, \
 \section{UmaCtfAdapter}
 \label{sec:uca}
 This is Polymarkets custom contract, 
-built on top of the CFT and OOV2,
+built on top of the CTF and OOV2,
 which it stores as immutable references by address. 
-It provides an \textit{initialize} which atomically prepares the condition on the CFT, using itself as an oracle and a hard coded outcome slot count of two, and also makes the price request to the OOV2.
+It provides an \textit{initialize} which atomically prepares the condition on the CTF, using itself as an oracle and a hard coded outcome slot count of two, and also makes the price request to the OOV2.
 The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. 
 The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. 
 It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome then uses this price to report the payouts in the CTF. 
 The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 Ether is considered as \textit{UNKNOWN}, 
 any other price is considered \textit{YES}.
-If the outcome is \textit{NO} then the payout array passed to the CFT is [0,1], if the outcome is \textit{UNKNOWN} then the it is [1,1] and otherwise it is [1,0] for the outcome \textit{YES}.
+If the outcome is \textit{NO} then the payout array passed to the CTF is [0,1], if the outcome is \textit{UNKNOWN} then the it is [1,1] and otherwise it is [1,0] for the outcome \textit{YES}.
 
 The rest of the public methods in this contract all have access restricted to either \textit{onlyAdmin} or \textit{onlyOracle}.
 This also includes the \textit{resolveManually} method which directly reports the payouts array passed without settling any price request.
@@ -445,7 +446,7 @@ The match type and also the amount of the instruments exchanged can be deduced f
 
 \section{Negrisk}
 \label{sec:nr}
-The Negrisk framework builds on top of the UmaCtfAdpater to create multiple markets with mutually exclusive outcomes and thereby provide the \textit{convertPositions} method, which enables atomically swapping a set YES shares to the complementary set of NO shares or vice versa. This is implemented in the Negrisk Adapter, but the framework also entails a Negrisk Operator, which is used by the Negrisk UmaCtfAdapter as immutable reference for the conditional tokens contract interface, but the Negrisk Operators conditions prepared method does literally nothing and its reportPayouts method does not call any other contract, but it has other public methods which relay to the adapter, which actually references the CFT. Additionally a dedicated Negrisk CTFExchange deployment exists, which is simply another instance of the CTFExchange contract.
+The Negrisk framework builds on top of the UmaCtfAdpater to create multiple markets with mutually exclusive outcomes and thereby provide the \textit{convertPositions} method, which enables atomically swapping a set YES shares to the complementary set of NO shares or vice versa. This is implemented in the Negrisk Adapter, but the framework also entails a Negrisk Operator, which is used by the Negrisk UmaCtfAdapter as immutable reference for the conditional tokens contract interface, but the Negrisk Operators conditions prepared method does literally nothing and its reportPayouts method does not call any other contract, but it has other public methods which relay to the adapter, which actually references the CTF. Additionally a dedicated Negrisk CTFExchange deployment exists, which is simply another instance of the CTFExchange contract.
 
 \todo{figure for immutable deployment references}
 
@@ -468,7 +469,7 @@ To analyze the ma block numbers 79172086 inclusive and 81225971 inclusive, which
 \section {Market Creation}
 \subsection{Reporting Oracles}
 \label{sec:reporting_oracles}
-In section ~\ref{sec:cft} we saw that the reporting oracle for a condition is passed as an argument for condition preparation on the CFT, and is the only address which can report payouts for the final YES and NO share value after resolution. 
+In section ~\ref{sec:CTF} we saw that the reporting oracle for a condition is passed as an argument for condition preparation on the CTF, and is the only address which can report payouts for the final YES and NO share value after resolution. 
 Which is why it is essential to analyze which the reporting oracles being used by Polymarket.
 
 Out of the 128'003 ConditionPreparation events, 124'340 have a matching off chain market object with the same condition id.
@@ -489,7 +490,7 @@ even though Polymarket has not disclosed anything on this matter.
 
 In figure ~\ref{fig:clob_cft_cdf} we can see that around December 17th 2025 some market objects start to appear without an acceptingOrders timestamp, 
 as can also be seen in the appendix ~\ref{tab:json_tree_analysis_multiline}.
-Additionally, this is where the 3'663 conditions were prepared on the CFT with no matching off chain market object, 
+Additionally, this is where the 3'663 conditions were prepared on the CTF with no matching off chain market object, 
 out of which virtually all use the Centralized Adapter as reporting oracle, 
 which also had a change in the rate at which new conditions were prepared with it as reporting oracle.
 
@@ -660,7 +661,7 @@ However, its important to note that the MOOV2 also has 53,818 proposals,
 compared to the OOV2 which has 21,015 proposals.
 
 \subsection{Reported Unkown Outcome}
-The terminal value for the YES and NO shares is determined by the payout array passed from the reporting oracle to the CFT,
+The terminal value for the YES and NO shares is determined by the payout array passed from the reporting oracle to the CTF,
 which emits a ConditionResolution event, containing the condition id and the payout array.
 Out of 112'638 ConditionResolution events, 283 (0.25\%) reported an Unknown outcome, 
 46,373 (41.17\%) reported a YES outcome and 66,982 (58.58\%) reported a NO outcome.
