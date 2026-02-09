@@ -90,7 +90,13 @@
 \end{acknowledgements}
 
 \begin{abstract}
-todo
+Polymarket and Kalshi have emerged as leading decentralized prediction market platforms, enabling global speculation on binary outcomes while leveraging blockchain technology for settlement and smart contracts for outcome resolution. 
+This thesis analyzes Polymarket's hybrid exchange architecture combining an off-chain Central Limit Order Book (CLOB) with on-chain smart contract settlement. 
+We design and implement data collection clients for Polymarket's and Kalshi's REST and WebSocket endpoints, addressing poorly documented APIs and discovered inconsistencies. 
+Through on-chain event analysis from November 18, 2025 to January 5, 2026, we examine the market lifecycle, identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market registration patterns, and outcomes distribution (41.2\% YES, 58.6\% NO, 0.3\% UNKNOWN). 
+For orderbook trading, we measure slippage on 1.44M settlements, finding a convergent slippage rate of 0.7\% with 52.2\% zero-slippage trades, contrasting favorably with on-chain AMM models that suffer from both mechanical slippage and MEV extraction. 
+Price discrepancy analysis across Polymarket and Kalshi for 15-minute ``Bitcoin up or down?'' markets reveals lower internal arbitrage spreads on Polymarket, though this may correlate with reported wash trading activity. 
+Key findings highlight the higher implementation barrier for reliable data collection due to Polymarket's incomplete documentation, undocumented smart contract coordination, and endpoint inconsistencies, yet suggest the platform maintains effective price discovery and arbitrage mechanisms despite these obstacles.
 \end{abstract}
 
 \tableofcontents
@@ -321,7 +327,7 @@ Comparing market objects from a long-lived connection (continuously scraped for 
 This anomaly was only measurable after three days.
 
 Unlike the book, market, and event endpoints, the market feed's documented response attributes appear in every response and are of the correct type. 
-Sample messages can be found in the Appendix: ~\ref{lst:price_change_event} for price changes, ~\ref{lst:book_event} for book events, ~\ref{lst:trade_event} for trade events, ~\ref{lst:new_market} for new market events, and ~\ref{lst:market_res} for market resolved events. 
+Sample messages can be found in the Appendix (~\ref{lst:price_change_event} for price changes, ~\ref{lst:book_event} for book events, ~\ref{lst:trade_event} for trade events, ~\ref{lst:new_market} for new market events, and ~\ref{lst:market_res} for market resolved events). 
 However, the last trade price event contains an undocumented attribute \textit{tx\_hash} of type string, which is always a hexadecimal value with the length of an Ethereum transaction hash. 
 The timestamps for market feed events are string representations of Unix millisecond timestamps, matching those found in the book endpoint responses. 
 However, because timestamps only have millisecond resolution and there are no other attributes to order events, the state becomes ambiguous when multiple conflicting events occur within the same millisecond.
@@ -378,7 +384,7 @@ These tickers allow for dynamic subscription and unsubscription for the channels
 
 However, unlike Polymarket, Kalshi provides a single orderbook for both outcomes of a prediction market. 
 One side represents the YES prices and the other the NO prices, as seen in the documented orderbook delta~\ref{lst:orderbook_delta} and orderbook snapshot~\ref{lst:orderbook_snapshot} responses. 
-Other documented responses are available in the Appendix: ~\ref{lst:event_object} for event objects, ~\ref{lst:market_lifecycle_event} for market lifecycle events, and ~\ref{lst:trade_update} for trade updates.
+Other documented responses are available in the Appendix (~\ref{lst:event_object} for event objects, ~\ref{lst:market_lifecycle_event} for market lifecycle events, and ~\ref{lst:trade_update} for trade updates).
 
 The JSON objects within the messages sent by the orderbook update and trade channels contain a unique integer sequence identifier. 
 This identifier can be used to unambiguously order the events for a given channel and spot any missing events, as the first event after subscription has sequence identifier zero, and each subsequent event increments the identifier by one. 
@@ -510,17 +516,16 @@ Similarly to the UmaCtfAdapter, the Negrisk Operator has a \textit{emergencyReso
 
 \section{Polygon Collection}
 \label{sec:polygon_collection}
-The polygon collection is tailored for the Infura eth\_getLogs endpoint. Infura has a rate limit of 500 credits/s, with a request to the eth\_getLogs requiring 255 credits according the documentation. 
-However, testing showed that the actual rate limit between requests without getting rate limited is more around 1s. 
-The rtt for a single eth\_getLogs request can be over 30s long, which is why its suited for concurrent requests. 
-Besides the request frequency, there also is limit of 10'000 events that can requested. 
-But the request is specified using a block range. For this purpose we can use alpha estimation with a margin 500 to converge to the block density for requesting the block expected to return 9'500 events. 
+The data collection process uses the Infura eth\_getLogs endpoint. Infura has a rate limit of 500 credits/s, with a request to the eth\_getLogs requiring 255 credits according to the documentation. 
+However, testing showed that the actual rate limit between consecutive requests without rate limiting is approximately 1s. 
+The round-trip time (RTT) for a single eth\_getLogs request can exceed 30s, making it suitable for concurrent requests. 
+Additionally, there is a limit of 10,000 events per request. 
+Requests are specified using a block range. To manage this constraint, we use block density estimation with a margin of 500 blocks to target approximately 9,500 events per request. 
 This seems to be effective as for most events the block density does not seem to have strong variance. 
 But the margin can be increased if some events have a greater block density variance. 
-As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range.
-For consistency the block range from block 79172086 inclusive to block 81225971 inclusive, which is November 18th 2025 7:00:03 UTC to January 5th 2026 00:00:01 UTC, has been used for the analytics in 
-Chapter ~\ref{chap:market_lifecycle} and Chapter ~\ref{chap:orderbook_trading}. 
-The full list of collectected events can be found int the appendix ~\ref{tab:contract_events_vertical}
+As a sanity check, the number of events returned was compared against those found in Dune Analytics over the same block range.
+For consistency, the block range from 79,172,086 (inclusive) to 81,225,971 (inclusive), spanning November 18, 2025 07:00:03 UTC to January 5, 2026 00:00:01 UTC, was used for all analytics in Chapters~\ref{chap:market_lifecycle} and~\ref{chap:orderbook_trading}. 
+The complete list of collected events is provided in Appendix~\ref{tab:contract_events_vertical}.
 
 
 \chapter{Market Lifecycle}
@@ -696,64 +701,54 @@ This observation does not fully exclude the possibility of manual resolution, bu
 
 \chapter{Orderbook and Trading}
 \label{chap:orderbook_trading}
-In section ~\ref{sec:prediction_markets} we explained how a prediction market consists of YES and NO shares whos price is denoted in USD.
-The CLOB used by Polymarket and Kalshi captures the intention of traders through market and limit orders,
-which are placed through HTTPS requests to \textit{order} endpoints and are matched based on price-time priority ~\cite{}.
-A limit order allows the trader to specify price at which they want to buy or sell shares, but this price can not cross other resting limit orders, 
-otherwise is becomes marketable. 
-A marketable order is either executed immediately against the best possible resting limit orders by price-time priority, or is aborted ~\cite{}.
+Section~\ref{sec:prediction_markets} explained how a prediction market consists of YES and NO shares whose price is denoted in USD.
+The Central Limit Order Book (CLOB) used by Polymarket and Kalshi captures the intention of traders through market and limit orders.
+These orders are placed via HTTPS requests to \textit{order} endpoints and are matched based on price-time priority~\cite{kalshi_orders, polymarket_orders}.
+A limit order allows the trader to specify the price at which they want to buy or sell shares. This price cannot cross other resting limit orders; otherwise, the order becomes marketable. 
+A marketable order is either executed immediately against the best possible resting limit orders by price-time priority or is aborted~\cite{kalshi_market_orders, polymarket_market_orders}.
 
-\section{State, Ordering and Matching}
+\section{State, Ordering, and Matching}
 \label{sec:CLOB_state}
 
-A trader can either buy or sell YES or NO shares, which creates four possible orders; Sell Yes, Sell No, Buy Yes, Buy No. 
-However, among these four orders there are only two intentions, which are either to speculate on the YES outcome by buying YES shares or selling NO shares, 
-or to speculate on the NO outcome by buying NO shares or selling YES shares.
+A trader can either buy or sell YES or NO shares, which creates four possible order types: Sell Yes, Sell No, Buy Yes, and Buy No. 
+However, these four types represent only two core intentions: speculating on the YES outcome by buying YES shares or selling NO shares, or speculating on the NO outcome by buying NO shares or selling YES shares.
 
-Kalshi maintains a single orderbook for each prediction market, which captures the order intentions through a YES and NO side.
-Polymarket on the other hand documents and provides separate orderbooks for the YES and NO shares, with bid and ask sides.
-However, analyzing the state of the orderbook, reveals that the bid share amount at any given price $p$ for the YES shares 
-are always the same as the same as the the ask share amount for the NO shares at price $1-p$. 
-The analogous also holds for the YES asks and NO bids.
+Kalshi maintains a single orderbook for each prediction market, capturing order intentions through a YES and a NO side.
+Polymarket, on the other hand, documents and provides separate orderbooks for the YES and NO shares, each with bid and ask sides.
+However, analyzing the orderbook state reveals that the bid share amount at any given price $p$ for the YES shares is always the same as the ask share amount for the NO shares at price $1-p$. 
+The analogous relationship also holds for the YES asks and NO bids.
 
-The state of the CLOB can be defined through the resting limit orders.
-A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price for an outcome share, $v \in \mathbb{R}^+$ is the quantity of the shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome and $i \in \mathbb{N}$ is the priority it has to be selected for matching with market orders at price $p$ and side $s$, a lower $i$ has a higher priority. 
-This guarantees a unique ordering for both buy and sell limit orders which is used for matching. 
-Formally, for limit orders we have that:
+The state of the CLOB is defined by the resting limit orders.
+A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price for an outcome share, $v \in \mathbb{R}^+$ is the quantity of shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome, and $i \in \mathbb{N}$ is the priority for selection when matching with market orders at price $p$ and side $s$. A lower $i$ indicates a higher priority. 
+This guarantees a unique ordering for both buy and sell limit orders used for matching. 
+Formally, for limit orders, the ordering is:
 
 \begin{align}
 \label{eq:sales_ordering}
-    & ((p_1, v_1, s_1, i_1) > (p_2, v_1, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
+    & ((p_1, v_1, s_1, i_1) > (p_2, v_2, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
 \end{align}
 
 \noindent Where the best price for the taker is:
 \begin{align}
 \label{eq:best_buy}
-    & p_{market} = max \{p | (p, v, s, i)\}
+    & p_{\text{market}} = \max \{p | (p, v, s, i)\}
 \end{align}
 
 
-\noindent If the quantity for a marketable order can not be fully filled at market price, 
-then the taker would suffer from \textbf{price slippage}, if the order is executed. 
-If the marketable order can't be filled with limit orders at any price, then the taker order remains partially or fully unfilled. 
+\noindent If the quantity for a marketable order cannot be fully filled at the best market price, the taker suffers from **price slippage** if the order is executed. 
+If the marketable order cannot be filled by limit orders at any price, the taker order remains partially or fully unfilled. 
 Depending on the market order specification, a partially unfilled market order is either executed or canceled.
 
 \section{Slippage}
 \label{sec:CLOB_slip}
-In general, Slippage occurs when the trade is executed at a different price than what the market suggested at the time where the intent to trade was submitted. 
-This was already covered for fully Automated Market Makers in section ~\ref{sec:bs}.
-
-Slippage in the CLOB can occur when a taker order for $x$ shares is not filled entirely at the market price when the order was submitted, 
-resulting in a less favorable execution cost for the taker. 
-The CLOB is designed to allow this, with the core principle being the taker is guaranteed timely order execution but not price, 
-whilst the maker is guaranteed order price but not timely execution. 
-We can define the slippage for a taker buying or selling $x$ base assets and getting matched with maker orders M, we have:
+The CLOB is designed to allow this, with the core principle being that the taker is guaranteed timely order execution but not price, while the maker is guaranteed order price but not timely execution. 
+We can define the slippage for a taker buying or selling $x$ base assets and getting matched with maker orders $M$ as:
 \begin{align}
 \label{eq:slip}
-    Slippage(x,M) = |\sum_{(p, v, s, i) \in M} p*v - p_{market} \cdot x|
+    \text{Slippage}(x,M) = \left|\sum_{(p, v, s, i) \in M} p \cdot v - p_{\text{market}} \cdot x\right|
 \end{align}
 
-\noindent The least limit order $(p, v, s, i) = min\{M\}$ might only be part of a limit order such that another limit order $(p, v',s, i)$ now exists where the previous limit order was $(p, v'',s, i)$ for $v'' = v' + v$ and:
+\noindent The least limit order $(p, v, s, i) = \min\{M\}$ might only be partially consumed. The set $M$ consists of all limit orders (or partial limit orders) used to fill the marketable order. The total quantity executed, $x$, is the sum of the quantities from all matched maker orders:
 \begin{align}
 \label{eq:exec_cost}
     & x = \sum_{(p, v,s, i) \in M} v
@@ -761,12 +756,9 @@ We can define the slippage for a taker buying or selling $x$ base assets and get
 
 
 \subsection{Slippage Rate on Polymarket}
-Using the Orderfilled events emitted by the CTFExchange, 
-we can measure the slippage for all 1'443'953 settlements, 
-since we have the USDC amount that the taker paid or received in the fill where taker is facing the exchange, 
-and the amount of shares and their price for every fill where the maker is facing the taker.
-We can now construct a set $A$ of tuples $(x, y, t)$ for every settlement, 
-where $x$ is the USDC amount the taker paid or received, $y$ is the slippage and $t$ is the timestamp of the settlement.
+Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 1,443,953 settlements. 
+We have the USDC amount the taker paid or received from the fill where the taker faces the exchange, and the amount of shares and their price for every fill where the maker faces the taker.
+We can now construct a set $S$ of tuples $(x, y, t)$ for every settlement, where $x$ is the USDC amount the taker paid or received, $y$ is the slippage, and $t$ is the timestamp of the settlement.
 
 \begin{figure}[H] 
     \centering
@@ -776,39 +768,73 @@ where $x$ is the USDC amount the taker paid or received, $y$ is the slippage and
 \end{figure}
 
 
-In figure ~\ref{fig:slip_rate} we can see that the cumulative taker USDC amount divided by the cumulative slippage up until time $t$ for all settlements,
-converges to some value around 100. This can be explained by the law of large numbers, 
-if we assume that the $x$ and $y$ values in the tuples in $A$ are i.i.d. and that the expected value of $x$ is finite and non zero, then we have that:
+Figure~\ref{fig:slip_rate} shows that the cumulative slippage rate (cumulative USDC divided by cumulative slippage) for all settlements up until time $t$ appears to converge to some value. 
+If we assume that the $x$ and $y$ values in the tuples in $S$ are independent and identically distributed (i.i.d.) random variables $X$ and $Y$, then we get:
 \begin{align}
 \label{eq:slip_rate_convergence}
-    & \frac{\sum_{(x, y, t) \in A} x}{\sum_{(x, y, t) \in A} y} \xrightarrow{a.s.} \frac{E[x]}{E[y]}
+    & \frac{\sum_{(x, y, t) \in S} x}{\sum_{(x, y, t) \in S} y} \xrightarrow{a.s.} \frac{E[X]}{E[Y]} 
 \end{align}
 
+With $E[X] = 356.435$ and $E[Y] = 2.491$ computed from $S$, we get a slippage rate of $0.007$, which matches the suggestion in Figure~\ref{fig:slip_rate}.
+However, this ratio is a poor predictor for individual settlements, as $\text{std}(X/Y) = 0.129$ and $X/Y \in [0,1]$. 
+In fact, $52.176\%$ of settlements have a slippage of $0$, with some being in the top $1\%$ of taker amounts.
 
-Fitting $y = \alpha x + \beta$ for $y$ as the cumulative Slippage amount and $x$ as the cumulative Taker USDC amount, 
-for the 1'412'812 settlements after one day in, to avoid the initial artifact,
-we find that $\alpha = 0.00126$ and $\beta = 2.04$ with a standard error $SE = 5.65 \cdot 10^{-6}$ and $R^2 = 0.01765$.
-This means that for the aggregate of all settlements we have an extremely good fit, but for individual settlements this is a poor predictor of slippage given the total USDC amount of the taker.
+\subsection{Comparison with Decentralized AMM Slippage}
+Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
+In Uniswap V2, slippage follows the constant product formula $x \cdot y = k$ and scales with trade size relative to liquidity, making price impact unavoidable. 
+Polymarket's CLOB achieves zero slippage for $52.176\%$ of settlements at the best bid-ask prices, though exhibiting high variance ($\text{std}(X/Y) = 0.129$) for larger orders. 
+Additionally, on-chain AMMs suffer from MEV extraction via sandwich attacks and flashbots, where validators and bots front-run and back-run transactions for profit~\cite{DAIAN2019, HEIMBACH2022}. 
+Polymarket's off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction, meaning observed slippage reflects only order book consumption without adversarial extraction.
 
 \section{Arbitrage}
 \label{sec:arbitrage}
-
-In the prior section we saw that the event ``Which party will win the house 2026?'' had low expected price discrepancies.
-However, it is important to also consider that the price for the event itself did not move much, as illustrated by the range of the prices throughout the entire time period in table ~\ref{}, 
-and also was not close to being resolved yet.
-With the cyclical 15 minute ``Bitcoin up or down?'' event, we can also see how price discrepancies relate to the timeline in the market life cycle.
-
+For the 15-minute cyclical ``Bitcoin up or down?'' markets, there are four shares in total.
+We can partition these into the YES share partition \{YES\_Kalshi, YES\_Polymarket\} and the NO share partition \{NO\_Kalshi, NO\_Polymarket\}.
+Every share within the same partition shares the same value, and the values of any pair of shares from different groups are complementary, summing to 1. 
 
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/prices.png}
-    \caption{Price Discrepancy Distribution for 15 minute cyclical ``Bitcoin up or down?'' markets}
+    \caption{Price Discrepancy Distribution for 15-minute cyclical ``Bitcoin up or down?'' markets}
     \label{fig:prices}
 \end{figure}
 
+Figure~\ref{fig:prices} shows the distribution of the price discrepancy between four of the six possible pairs of shares.
+It is important to note that for both Polymarket and Kalshi, the orderbook for a specific 15-minute interval was available before the start of the interval.
+The price discrepancy is lower when more Polymarket shares are involved, regardless of the point in time, but especially at the start of the interval.
+In all cases, the median price discrepancy is highest at the start of the interval. 
+Towards the end of the cycle, the median remains relatively low, but the distribution becomes increasingly skewed.
+
+
+
 \chapter{Discussion}
 \label{chap:discussion}
-Love is the answer.
+
+\section{Data Collection Barriers}
+The barrier for reliable data collection on Polymarket is relatively high as a result of the incomplete, fragmented and even incorrect documentation. 
+This applies to both the off-chain endpoints and the on-chain smart contracts, where the exact coordination is abstracted away.
+Analyzing the on-chain events and off-chain market objects revealed just how much of the system actually is undocumented, including the transition to the MOOV2 Adapter without public disclosure, the existence of the Centralized Adapter with unrecognized bytecode, and recurring event ambiguities from millisecond-resolution timestamps. 
+Additionally, the off-chain endpoints have demonstrated inconsistent behavior, such as false misses in orderbook requests and zombie connections on the WebSocket feed, which is difficult to assert since there is no specification for expected endpoint behavior in the first place.
+
+\section{Market Integrity and Effectiveness}
+Despite these documentation and consistency challenges, the market mechanisms appear effective. 
+Comparing the market internal price discrepancy between Polymarket and Kalshi for the 15-minute cyclical ``Bitcoin up or down?'' markets suggests that arbitrageurs are maintaining lower price discrepancies on Polymarket compared to Kalshi, indicating tighter and more efficient pricing.
+However, this efficiency may be partially attributed to wash trading activity, as a recent study suggests approximately 18\% or potentially up to 60\% of December 2024 volume on Polymarket involved wash trades.
+
+\section{Slippage and Market Design}
+The measured slippage rate of 0.7\% on Polymarket represents a favorable outcome compared to decentralized AMMs, where slippage is determined by the constant product formula $x \cdot y = k$ and scales unavoidably with trade size.
+The finding that 52.2\% of settlements incur zero slippage demonstrates a key advantage of the CLOB model: trades can execute at resting prices without consuming deeper liquidity. 
+However, the high variance ($\text{std}(X/Y) = 0.129$) in the slippage-to-volume ratio indicates that large orders face unpredictable price impact from order book depth constraints.
+
+The off-chain CLOB architecture also avoids the protocol-level MEV extraction inherent to on-chain AMMs, where flashbots and sandwich attacks introduce additional adversarial slippage beyond mechanical price impact. 
+This represents a structural advantage of Polymarket's hybrid model, though application-layer front-running risks remain.
+
+\section{Unregistered Markets and Emerging Infrastructure}
+A notable finding is the emergence of unregistered prediction markets on Polymarket around December 2025, primarily using the Centralized Adapter as the reporting oracle. 
+These markets are visible on the web platform, show trading activity, yet lack corresponding smart contract registrations and on-chain trade settlement. 
+This suggests Polymarket is experimenting with markets that may not require on-chain settlement, potentially introducing infrastructure variability that complicates end-to-end analysis.
+
+
 % This displays the bibliography for all cited external documents. All references have to be defined in the file references.bib and can then be cited from within this document.
 \bibliographystyle{IEEEtran}
 \bibliography{references}

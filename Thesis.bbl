@@ -143,4 +143,41 @@ UMAprotocol, ``Umip-107,'' Github, November 2025. [Online]. Available:
   \url{https://github.com/UMAprotocol/UMIPs/blob/master/UMIPs/umip-107.md}
 \BIBentrySTDinterwordspacing
 
+\bibitem{kalshi_orders}
+\BIBentryALTinterwordspacing
+Kalshi, ``Kalshi order queue position,'' February 2026. [Online]. Available:
+  \url{https://docs.kalshi.com/api-reference/orders/get-queue-positions-for-orders}
+\BIBentrySTDinterwordspacing
+
+\bibitem{polymarket_orders}
+\BIBentryALTinterwordspacing
+Polymarket, ``Polymarket limit orders,'' February 2026. [Online]. Available:
+  \url{https://docs.polymarket.com/polymarket-learn/trading/limit-orders}
+\BIBentrySTDinterwordspacing
+
+\bibitem{kalshi_market_orders}
+\BIBentryALTinterwordspacing
+Kalshi, ``Kalshi create orders,'' February 2026. [Online]. Available:
+  \url{https://docs.kalshi.com/api-reference/orders/create-order}
+\BIBentrySTDinterwordspacing
+
+\bibitem{polymarket_market_orders}
+\BIBentryALTinterwordspacing
+Polymarket, ``Polymarket order placement,'' February 2026. [Online]. Available:
+  \url{https://docs.polymarket.com/developers/CLOB/orders/create-order}
+\BIBentrySTDinterwordspacing
+
+\bibitem{DAIAN2019}
+P.~Daian, S.~Goldfeder, T.~Kell, Y.~Li, X.~Zhao, I.~Bentov, L.~Breidenbach, and
+  A.~Juels, ``Flash boys 2.0: Frontrunning, transaction reordering, and
+  consensus instability in decentralized exchanges,'' in \emph{2020 IEEE
+  Symposium on Security and Privacy (SP)}.\hskip 1em plus 0.5em minus
+  0.4em\relax IEEE, 2020, pp. 910--927.
+
+\bibitem{HEIMBACH2022}
+L.~Heimbach and R.~Wattenhofer, ``Eliminating sandwich attacks with the help of
+  game theory,'' in \emph{Proceedings of the 2022 ACM on Asia Conference on
+  Computer and Communications Security}.\hskip 1em plus 0.5em minus 0.4em\relax
+  ACM, 2022, pp. 612--626.
+
 \end{thebibliography}
