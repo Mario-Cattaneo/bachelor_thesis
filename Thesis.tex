@@ -1379,43 +1379,8 @@ This suggests Polymarket is experimenting with markets that may not require on-c
     \end{tabular}
 \end{table}
 
-
-
-
 \chapter{Smart Contracts}
 % --- Table 2: Contract and Events (Long Table Format) ---
-\begin{table}[H]
-\centering
-\small 
-\caption{Contract Aliases, Deployment Addresses, and Event Tables}
-\label{tab:contracts_deployment}
-\begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}X l @{}}
-\toprule
-\textbf{Alias} & \textbf{Deployment Address} & \textbf{Contract Table Name} \\ % <--- Changed \ to \\
-\midrule
-CTFE & \seqsplit{0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e} & CTFExchange \\ % <--- Changed \ to \\
-Negrisk CTFE & \seqsplit{0xC5d563A36AE78145C45a50134d48A1215220f80a} & CTFExchange  \\
-CTF & \seqsplit{0x4d97dcd97ec945f40cf65f87097ace5ea0476045} & (Gnosis) Conditional Tokens \\
-Negrisk Operator & \seqsplit{0x71523d0f655b41e805cec45b17163f528b59b820} & Negrisk Operator \\
-Negrisk Adapter & \seqsplit{0xd91e80cf2e7be2e162c6513ced06f1dd0da35296} & Negrisk Adapter \\
-Negrisk UmaCtfAdapter & \seqsplit{0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d} & UmaCtfAdapter \\
-OOV2 UmaCtfAdapter & \seqsplit{0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74} & UmaCtfAdapter \\
-MOOV2 Adapter & \seqsplit{0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7} & UmaCtfAdapter \\
-MOOV2 & \seqsplit{0x2C0367a9DB231dDeBd88a94b4f6461a6e47C58B1} & (UMA) Managed Optimistic Oracle V2 \\
-Oracle Child Tunnel & \seqsplit{0xac60353a54873c446101216829a6A98cDbbC3f3D} & Oracle Child Tunnel \\
-FxTunnel & \seqsplit{0x8397259c983751DAf40400790063935a11afa28a} & FxTunnel \\
-OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic Oracle V2 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\vspace{1.5em} % Added space between tables
-
-
-
-
-\setlength\LTright{0pt}
-
 \begin{longtable}{@{} >{\raggedright\arraybackslash}p{\textwidth} @{}}
 \caption{Contract Event Signatures}
 \label{tab:contract_events_vertical} \\
@@ -1549,6 +1514,30 @@ OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic 
 
 \end{longtable}
 
+\begin{table}[H]
+\centering
+\small 
+\caption{Contract Aliases, Deployment Addresses, and Event Tables}
+\label{tab:contracts_deployment}
+\begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}X l @{}}
+\toprule
+\textbf{Alias} & \textbf{Deployment Address} & \textbf{Contract Table Name} \\ % <--- Changed \ to \\
+\midrule
+CTFE & \seqsplit{0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e} & CTFExchange \\ % <--- Changed \ to \\
+Negrisk CTFE & \seqsplit{0xC5d563A36AE78145C45a50134d48A1215220f80a} & CTFExchange  \\
+CTF & \seqsplit{0x4d97dcd97ec945f40cf65f87097ace5ea0476045} & (Gnosis) Conditional Tokens \\
+Negrisk Operator & \seqsplit{0x71523d0f655b41e805cec45b17163f528b59b820} & Negrisk Operator \\
+Negrisk Adapter & \seqsplit{0xd91e80cf2e7be2e162c6513ced06f1dd0da35296} & Negrisk Adapter \\
+Negrisk UmaCtfAdapter & \seqsplit{0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d} & UmaCtfAdapter \\
+OOV2 UmaCtfAdapter & \seqsplit{0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74} & UmaCtfAdapter \\
+MOOV2 Adapter & \seqsplit{0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7} & UmaCtfAdapter \\
+MOOV2 & \seqsplit{0x2C0367a9DB231dDeBd88a94b4f6461a6e47C58B1} & (UMA) Managed Optimistic Oracle V2 \\
+Oracle Child Tunnel & \seqsplit{0xac60353a54873c446101216829a6A98cDbbC3f3D} & Oracle Child Tunnel \\
+FxTunnel & \seqsplit{0x8397259c983751DAf40400790063935a11afa28a} & FxTunnel \\
+OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic Oracle V2 \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 
 \chapter{Polymarket Event Object JSON Tree Analysis}

@@ -50,7 +50,6 @@
 \contentsline {section}{\numberline {7.2}Market Integrity and Effectiveness}{30}{section.7.2}%
 \contentsline {section}{\numberline {7.3}Slippage and Market Design}{30}{section.7.3}%
 \contentsline {section}{\numberline {7.4}Unregistered Markets and Emerging Infrastructure}{31}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Limitations and Future Work}{31}{section.7.5}%
 \contentsline {chapter}{Bibliography}{32}{chapter*.4}%
 \contentsline {chapter}{\numberline {A}Endpoint Documented JSON responses}{A-1}{appendix.U}%
 \contentsline {chapter}{\numberline {B}Resolution Tables}{B-1}{appendix.V}%
