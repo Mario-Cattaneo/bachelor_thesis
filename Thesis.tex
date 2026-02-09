@@ -1,4 +1,6 @@
 \documentclass[a4paper, oneside]{discothesis}
+% Avoid inserted blank pages for appendix/chapters (useful if class defines \cleardoublepage)
+\let\cleardoublepage\clearpage
 
 % ===================================================================
 % ENCODING AND FONT PACKAGES
@@ -26,6 +28,9 @@
 \let\newtheorem\relax
 \let\theoremstyle\relax
 \usepackage{amsthm}
+
+% Allow line breaks in long URLs (works well with hyperref)
+\usepackage{xurl}
 
 \definecolor{bg}{rgb}{0.97,0.97,0.97}
 \definecolor{jsonstring}{rgb}{0.0, 0.5, 0.5}
@@ -181,7 +186,7 @@ a set of mutually exclusive outcome positions into the complementary positions o
     \label{fig:KALSHI_QUARTERLY_TRADES}
 \end{figure}
 
-Figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} show the quarterly USD trading volume. For Polymarket, we can also distinguish between trading volume on the Negrisk CTFE and the Basic CTFE~\ref{sec:ctfe}. 
+Figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} show the quarterly USD trading volume. For Polymarket, we can also distinguish between trading volume on the Negrisk CTFE and the OOV2 CTFE~\ref{sec:ctfe}. 
 
 \subsection{US Market}
 The flat line in Polymarket's trading volume starts right after the CFTC action in January 2022. Kalshi operated only in the U.S. until October 2025, covering the first three quarters of 2025 and the last quarter of 2024 shown in Figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
@@ -387,97 +392,121 @@ The Kalshi client therefore functions similarly to the Polymarket client, but wi
 
 \chapter{Smart Contracts}
 \label{chap:smart_contracts}
-Polymarket has a dedicated github account with over 90 repositories. There are many individual repositories containing the solidity source for smart contracts and their deployment status. They also have a dedicated repository which lists any deployment address that seemingly can be found elsewhere, the associated contract and a security audit, if present~\cite{polyDepList}. It is not explicitly mentioned if it is an exhaustive list, but at least looking through the entire documentation on the website and all repositories on github, does not reveal any undeclared deployment, since there is no other authorative source overriding this, it will be used as the reference of the disclosed deployments.
+Polymarket maintains a GitHub organization with over 90 repositories. 
+Many individual repositories contain the Solidity source code for smart contracts and their deployment details. 
+They also maintain a dedicated repository listing deployment addresses, associated contracts, and security audits, if available~\cite{polyDepList}. 
+Although not explicitly labeled as exhaustive, a review of the website documentation and GitHub repositories revealed no undeclared deployments. 
+In the absence of another authoritative source, this list serves as the reference for disclosed deployments.
 
 \section{Conditional Tokens}
 \label{sec:CTF}
-The Gnosis Conditional Tokens contract (CTF) extends the ERC-1155 standard, utilizing it to construct tokens representing the outcomes of an event or condition. This enables transferring, minting, and burning multiple outcome tokens within a single transaction.
+The Gnosis Conditional Tokens Framework (CTF) extends the ERC-1155 standard to construct tokens representing the outcomes of an event or condition. 
+This enables the transfer, minting, and burning of multiple outcome tokens within a single transaction.
 
-The contract defines the relationship between the value of the n outcome tokens $(O_1, \dots, O_n)$ for an event and the ERC-20 collateral token $Q$ as:
+The contract defines the relationship between the value of the $n$ outcome tokens $(O_1, \dots, O_n)$ for an event and the ERC-20 collateral token $Q$ as:
 \begin{align}
 \label{eq:rule1}
     Q = \sum_{i=1}^{n} O_i
 \end{align}
 
-\noindent The \textit{splitPositions} method atomically swaps an amount $n$ of collateral $Q$ for $n$ units of each outcome token and emits the \textit{PositionSplit} event. The \textit{mergePositions} method performs the reverse atomic swap and emits the \textit{PositionsMerge} event.
+\noindent The \textit{splitPositions} method atomically swaps a specific amount of collateral $Q$ for an equal amount of each outcome token and emits the \textit{PositionSplit} event. 
+The \textit{mergePositions} method performs the reverse atomic swap and emits the \textit{PositionsMerge} event.
 
-Before these methods can be utilized, the condition must be prepared using the \textit{prepareConditions} method with an oracle address, a question ID, and an outcome count. This emits the \textit{ConditionPreparation} event. Every condition is assigned a unique identifier defined as:
+Before these methods can be used, the condition must be prepared using the \textit{prepareCondition} method with an oracle address, a question ID, and an outcome count. 
+This emits the \textit{ConditionPreparation} event. 
+Every condition is assigned a unique identifier defined as:
 \begin{align}
 \label{eq:cond_id}
     condition_{id} := keccak(oracle \parallel question_{id} \parallel \text{outcome count})
 \end{align}
 
-\noindent Subsequently, only the oracle can report the payouts using the \textit{reportPayouts} method by passing an array of unsigned integers $payouts = (p_1, ..., p_n)$ for the $n$ outcome tokens respectively. This emits the \textit{ConditionResolution} event and assigns each outcome token $O_i$ a value new value:
+\noindent Subsequently, only the oracle can report payouts using the \textit{reportPayouts} method by passing an array of unsigned integers $payouts = (p_1, \dots, p_n)$ corresponding to the $n$ outcome tokens. 
+This emits the \textit{ConditionResolution} event and assigns each outcome token $O_i$ a new value:
 \begin{align}
 \label{eq:rule2}
     O_i := Q \cdot \frac{p_i}{\sum_{k=1}^{n} p_k}
 \end{align}
-After this assigment we still have that \eqref{eq:rule1} holds. 
+After this assignment, Equation~\eqref{eq:rule1} still holds. 
 
-Finally, after the payout is reported, anyone can redeem the outcome tokens they own for the value assigned to them in \eqref{eq:rule2} using the \textit{redeemPositions} method, which emits the \textit{PayoutRedemption} event.
+Finally, after the payout is reported, anyone can redeem their outcome tokens for the value assigned in Equation~\eqref{eq:rule2} using the \textit{redeemPositions} method, which emits the \textit{PayoutRedemption} event.
 
-\section{UMA framework}
+\section{UMA Framework}
 \label{sec:uma}
-UMA designs protocols for oracles and deploys ethereum based contracts on various block chains like polygon. These deployments are connected to UMAs dedicated web application, which is allows users actively to participate in solving price requests.
+UMA designs oracle protocols and deploys Ethereum-based contracts on various blockchains, such as Polygon. 
+These deployments connect to UMA's dedicated web application, allowing users to actively participate in resolving price requests.
 
-Polymarket exclusively used UMAs OptimisticOracleV2 (OOV2) deployment up until August 2025, where the UMIP-189 governance proposal passed and UMA deployed a ManagedOptimisticOracleV2 (MOOV2) dedicated only for Polymarket usage. The ManagedOptimisticOracleV2 is based on the same protocol, but with additional access control configurations~\cite{UMIP189}.
+Polymarket exclusively used UMA's OptimisticOracleV2 (OOV2) deployment until August 2025, when the UMIP-189 governance proposal passed. 
+Subsequently, UMA deployed a ManagedOptimisticOracleV2 (MOOV2) dedicated exclusively to Polymarket usage. 
+The ManagedOptimisticOracleV2 is based on the same protocol but includes additional access control configurations~\cite{UMIP189}.
 
-Polymarket atomically sets the requested prices to be event based in its UmaCtfAdapter contract. 
-Which starts with a price request.
-This emits the \textit{RequestPrice} event. 
-For a price request to be settled, 
-the effective price must first be determined, 
-this requires an initial price proposal to be made by suggesting a price for the request. 
-This emits the \textit{ProposePrice} event. 
-After a price proposal is made, the price can be disputed within the liveness period which by default is two hours. 
-If the proposal remains undisputed during this period, 
-then it becomes the effective price for the request and the request can be settled.
-Both the proposals and disputes have no access control in OOV2.
-If the proposal is disputed, the \textit{DisputePrice} event is emitted and then a stake based voting process starts. 
-The contract for this is deployed on the Ethereum blockchain and therefore involves an off chain coordinated message relayer.
-After the price is determined the request can be settled, to reward or slash the proposer and disputer if existent, 
-depending on the correctness of their proposals compared to the final outcome. 
+Polymarket atomically sets price requests to be event-based within its \textit{UmaCtfAdapter} contract. 
+The process begins with a price request, which emits the \textit{RequestPrice} event. 
+For a price request to be settled, the effective price must first be determined. 
+This requires an initial price proposal suggesting a value for the request, which emits the \textit{ProposePrice} event. 
+Once a price proposal is made, it can be disputed within a liveness period, which defaults to two hours. 
+If the proposal remains undisputed during this period, it becomes the effective price, and the request can be settled.
+
+In OOV2, neither proposals nor disputes have access control restrictions. 
+If the proposal is disputed, the \textit{DisputePrice} event is emitted, initiating a stake-based voting process. 
+The contract governing this process is deployed on the Ethereum blockchain, necessitating an off-chain coordinated message relayer. 
+Once the price is determined, the request is settled. 
+This involves rewarding or slashing the proposer and disputer (if present), depending on the accuracy of their proposals relative to the final outcome. 
 This emits the \textit{Settle} event.
 
-The OOV2 does not specify what the prices exactly mean. 
-So in the context of Polymarket the ancillary data has to formally specify semantic meaning of the integer price values. 
-Polymarket does not explicitly state this, but analyzing the emitted events shows that virtually all ancillary data extends the UMIP-107 standard, 
-such that the requested price identifier is \textit{YES\_OR\_NO\_QUERY} and the ancillary data is a utf-8 encoded dictionary, 
-which specifies the question using the \textit{q:}, the associated market by the \textit{market id}  key and the 4 possible prices through the 
-\textit{p1:}, \textit{p2:}, \textit{p3:} and \textit{p4:} keys. 
-Which specify which price is mapped to the outcomes \textit{YES}, \textit{NO}, \textit{UNKNOWN} and \textit{EARLY PROPOSAL} ~\cite{UMIP107}.
+The OOV2 protocol does not inherently specify the semantic meaning of the prices. 
+Therefore, in the context of Polymarket, \textit{ancillary data} must formally specify the semantic meaning of the integer price values. 
+Although Polymarket does not explicitly state this, an analysis of emitted events reveals that virtually all ancillary data extends the UMIP-107 standard~\cite{UMIP107}. 
+Specifically, the requested price identifier is \textit{YES\_OR\_NO\_QUERY}, and the ancillary data is a UTF-8 encoded dictionary. 
+This dictionary specifies the question using the \textit{q} key, the associated market via the \textit{marketId} key, and the four possible prices through the \textit{p1}, \textit{p2}, \textit{p3}, and \textit{p4} keys. 
+These keys map specific prices to the outcomes \textit{YES}, \textit{NO}, \textit{UNKNOWN}, and \textit{EARLY\_PROPOSAL}.
 
 \section{UmaCtfAdapter}
 \label{sec:uca}
-This is Polymarkets custom contract, 
-built on top of the CTF and OOV2,
-which it stores as immutable references by address. 
-It provides an \textit{initialize} which atomically prepares the condition on the CTF, using itself as an oracle and a hard coded outcome slot count of two, and also makes the price request to the OOV2.
+This is Polymarket's custom contract, built on top of the CTF and OOV2, whose addresses are stored as immutable references. 
+It provides an \textit{initialize} method that atomically prepares the condition on the CTF and requests the price from the OOV2. 
+When preparing the condition, it uses itself as the oracle and a hardcoded outcome count of two. 
 The \textit{initialize} method is permissionless and emits the \textit{QuestionInitialized} event. 
-The other permissionless method \textit{resolve}, emitting the \textit{QuestionResolved} event, can only be invoked if the markets requested price has been determined and it is not paused. 
-It calls the OOV2 to settle and get the \textit{int256} price and if the price is not that of the \textit{EARLY PROPOSAL} outcome then uses this price to report the payouts in the CTF. 
-The \textit{EARLY PROPOSAL} outcome is hard coded as the least \textit{int256} value for comparison, a price of 0 is considered as \textit{NO}, a price of 0.5 Ether is considered as \textit{UNKNOWN}, 
-any other price is considered \textit{YES}.
-If the outcome is \textit{NO} then the payout array passed to the CTF is [0,1], if the outcome is \textit{UNKNOWN} then the it is [1,1] and otherwise it is [1,0] for the outcome \textit{YES}.
 
-The rest of the public methods in this contract all have access restricted to either \textit{onlyAdmin} or \textit{onlyOracle}.
-This also includes the \textit{resolveManually} method which directly reports the payouts array passed without settling any price request.
+The other permissionless method is \textit{resolve}, which emits the \textit{QuestionResolved} event. 
+It can only be invoked if the market's requested price has been determined and the contract is not paused. 
+This method calls the OOV2 to settle and retrieve the \textit{int256} price. 
+If the price does not correspond to the \textit{EARLY\_PROPOSAL} outcome, it is used to report the payouts on the CTF. 
+The \textit{EARLY\_PROPOSAL} outcome is hardcoded as the minimum \textit{int256} value for comparison. 
+A price of 0 is interpreted as \textit{NO}, a price of 0.5 Ether is interpreted as \textit{UNKNOWN}, and any other price is considered \textit{YES}. 
+Based on the outcome, a specific payout array is passed to the CTF: `[0,1]` for \textit{NO}, `[1,1]` for \textit{UNKNOWN}, and `[1,0]` for \textit{YES}.
+
+All other public methods in this contract are restricted to either an \textit{onlyAdmin} or \textit{onlyOracle} role. 
+This includes the \textit{resolveManually} method, which allows an authorized party to report a payout array directly without settling a price request.
 
 \section{CTFExchange}
 \label{sec:ctfe}
-The CTFExchange is another custom contract by Polymarket it provides the \textit{matchOrders} method used for settling a match on the CLOB between a taker order and $n$ maker orders and emits one \textit{OrdersMatched} event, and $n+1$ \textit{OrderFilled} events. 
-One OrderFilled event is for the taker facing the exchange and the other $n$ are for the makers facing the taker. There are three types of matches; split, merge and complementary.
-A split match is when the taker and maker are both buyers, one for YES shares and the other for NO shares. 
-Analogously, a merge match is when the taker and maker are both sellers, one for YES shares and the other for NO shares.
-When the taker is selling the shares the maker is buying, or vice versa, then it is a complementary match.
-The match type and also the amount of the instruments exchanged can be deduced from the order filled events.
+The CTFExchange is another custom contract by Polymarket that provides the \textit{matchOrders} method. 
+This method is used for settling a match on the CLOB between a taker order and $n$ maker orders. 
+It emits one \textit{OrdersMatched} event for the overall match and $n+1$ \textit{OrderFilled} events. 
+One \textit{OrderFilled} event corresponds to the taker's side of the trade, while the other $n$ events correspond to the makers' sides. 
+There are three types of matches: split, merge, and complementary.
 
+A split match occurs when the taker and makers are both buyers, one for YES shares and the other for NO shares. 
+Analogously, a merge match occurs when the taker and makers are both sellers, one for YES shares and the other for NO shares. 
+A complementary match happens when the taker is selling the shares that the makers are buying, or vice versa. 
+The match type and the amount of instruments exchanged can be deduced from the `OrderFilled` events.
 
 \section{Negrisk}
 \label{sec:nr}
-The Negrisk framework builds on top of the UmaCtfAdpater to create multiple markets with mutually exclusive outcomes and thereby provide the \textit{convertPositions} method, which enables atomically swapping a set YES shares to the complementary set of NO shares or vice versa. This is implemented in the Negrisk Adapter, but the framework also entails a Negrisk Operator, which is used by the Negrisk UmaCtfAdapter as immutable reference for the conditional tokens contract interface, but the Negrisk Operators conditions prepared method does literally nothing and its reportPayouts method does not call any other contract, but it has other public methods which relay to the adapter, which actually references the CTF. Additionally a dedicated Negrisk CTFExchange deployment exists, which is simply another instance of the CTFExchange contract.
+The Negrisk framework builds on top of the UmaCtfAdapter to create multiple markets with mutually exclusive outcomes. 
+It provides a \textit{convertPositions} method, which enables atomically swapping a set of YES shares for the complementary set of NO shares, or vice versa. 
+This functionality is implemented in the Negrisk Adapter.
 
-\todo{figure for immutable deployment references}
+However, the framework also contains a Negrisk Operator, which the Negrisk UmaCtfAdapter uses as an immutable reference for the conditional tokens contract interface. 
+Notably, the Negrisk Operator's `prepareCondition` method is empty, and its `reportPayouts` method does not call any other contract. 
+This implies condition preparation and price requests for a Negrisk market are not atomically executed within the same transaction, 
+unless a hidden contract facilitates this.
+
+Additionally, there is a distinct Negrisk CTFExchange deployment. 
+This is simply another instance of the CTFExchange contract that uses the Negrisk Adapter for splitting and merging. 
+It also uses its own collateral token, which is a wrapper around USDC.
+
+Similarly to the UmaCtfAdapter, the Negrisk Operator has a \textit{emergencyResolveQuestion} method to manually report payouts without settling a price request through UMA.
 
 \section{Polygon Collection}
 \label{sec:polygon_collection}
@@ -488,27 +517,27 @@ Besides the request frequency, there also is limit of 10'000 events that can req
 But the request is specified using a block range. For this purpose we can use alpha estimation with a margin 500 to converge to the block density for requesting the block expected to return 9'500 events. 
 This seems to be effective as for most events the block density does not seem to have strong variance. 
 But the margin can be increased if some events have a greater block density variance. 
-As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range. 
+As a sanity check the amount of events returned have been compared to the amount of events returned to that found in dune over the same block range.
+For consistency the block range from block 79172086 inclusive to block 81225971 inclusive, which is November 18th 2025 7:00:03 UTC to January 5th 2026 00:00:01 UTC, has been used for the analytics in 
+Chapter ~\ref{chap:market_lifecycle} and Chapter ~\ref{chap:orderbook_trading}. 
 The full list of collectected events can be found int the appendix ~\ref{tab:contract_events_vertical}
 
 
 \chapter{Market Lifecycle}
 \label{chap:market_lifecycle}
-To analyze the ma block numbers 79172086 inclusive and 81225971 inclusive, which is November 18th 2025 7:00:03 UTC to January 5th 2026 00:00:01 UTC, from polygon through the Infura client specified in ~\ref{sec:polygon_collection} and historically fetchable market objects on Polymarkets endpoints we can analyze the market lifecycle.
-\section {Market Creation}
+\section{Market Creation}
 \subsection{Reporting Oracles}
 \label{sec:reporting_oracles}
-In section ~\ref{sec:CTF} we saw that the reporting oracle for a condition is passed as an argument for condition preparation on the CTF, and is the only address which can report payouts for the final YES and NO share value after resolution. 
-Which is why it is essential to analyze which the reporting oracles being used by Polymarket.
+As explained in Section~\ref{sec:CTF}, the reporting oracle for a condition is passed as an argument during condition preparation on the CTF. 
+This address is the only one that can report payouts to determine the final YES and NO share values after resolution. 
+This makes it essential to analyze the reporting oracles used by Polymarket.
 
-Out of the 128'003 ConditionPreparation events, 124'340 have a matching off chain market object with the same condition id.
-These matched ConditionPreparation events have three distinct reporting oracles, two of which are are not documented. 
-Namely the \textit{MOOV2 Adapter} and \textit{Centralized Adapter} in Appendix ~\ref{tab:contracts_deployment}.
+Out of 128,003 `ConditionPreparation` events, 124,340 have a matching off-chain market object with the same condition ID. 
+These matched events use three distinct reporting oracles, two of which are undocumented: the \textit{MOOV2 Adapter} and the \textit{Centralized Adapter}, detailed in Appendix~\ref{tab:contracts_deployment}.
 
-The MOOV2 Adapter is an UmaCtfAdapter instance described in section ~\ref{sec:uca}. 
-The MOOV2 Adapter uses the MOOV2 instead of the OOV2.
-Interestingly, no condition has been prepared with the Basic Adapter as reporting oracle. This aligns with the umip-189 proposal and suggests that the MOOV2 Adapter replaced the Basic Adapter,
-even though Polymarket has not disclosed anything on this matter.
+The MOOV2 Adapter is an `UmaCtfAdapter` instance as described in Section~\ref{sec:uca}, but it uses the MOOV2 instead of the OOV2. 
+Interestingly, no condition was prepared with the OOV2 Adapter as the reporting oracle. 
+This aligns with the UMIP-189 proposal and suggests that the MOOV2 Adapter has replaced the OOV2 Adapter, although Polymarket has not disclosed this change.
 
 \begin{figure}[H] 
     \centering
@@ -517,19 +546,17 @@ even though Polymarket has not disclosed anything on this matter.
     \label{fig:clob_cft_cdf}
 \end{figure}
 
-In figure ~\ref{fig:clob_cft_cdf} we can see that around December 17th 2025 some market objects start to appear without an acceptingOrders timestamp, 
-as can also be seen in the appendix ~\ref{tab:json_tree_analysis_multiline}.
-Additionally, this is where the 3'663 conditions were prepared on the CTF with no matching off chain market object, 
-out of which virtually all use the Centralized Adapter as reporting oracle, 
-which also had a change in the rate at which new conditions were prepared with it as reporting oracle.
+Figure~\ref{fig:clob_cft_cdf} shows that around December 17, 2025, some market objects began to appear without an `acceptingOrders` timestamp, a detail also noted in Appendix~\ref{tab:json_tree_analysis_multiline}. 
+This period coincides with the 3,663 conditions that were prepared on the CTF with no matching off-chain market object. 
+Virtually all of these use the Centralized Adapter as the reporting oracle, and the rate of new conditions prepared with this adapter also changed at this time.
 
 \subsection{Centralized Adapter}
-The bytecode for the Centralized Adapter is not recognized by prominent bytecode to source indexers like Polygonscan or Etherscan.
-However, we can still use the matched market objects to analyze this adapter more in depth.
+The bytecode for the Centralized Adapter is not recognized by prominent bytecode-to-source indexers like Polygonscan or Etherscan. 
+However, we can still use the matched market objects to analyze this adapter in more detail.
 
 \begin{table}[H]
     \centering
-    \caption{Label frequency in 41'016 market objects matched with Centralized Adapter as reporting oracle}
+    \caption{Label frequency in 41,016 market objects matched with the Centralized Adapter as reporting oracle}
     \label{tab:centralized_adapter_events}
     \begin{tabular}{|l|c|}
         \hline
@@ -559,28 +586,23 @@ However, we can still use the matched market objects to analyze this adapter mor
         \hline
         Bitcoin & 10,240 (25.0\%) \\
         \hline
-        4H & 1'116 (2.7\%) \\
+        4H & 1,116 (2.7\%) \\
         \hline
     \end{tabular}
 \end{table}
 
-Every market object has a set of labels assigned by polymarket to categorize the event. 
-Table ~\ref{tab:centralized_adapter_events} shows the frequency of all labels in market objects matched with the conditions prepared with the Centralized Adapter as reporting oracle. 
-Clearly, all labels are tied to crypto asset price related events. 
-If we look up individual matched markets on polymarkets web application, 
-we find that none of them have a link to the UMA resolution status on the UMA webapplication, which for other markets exists. 
-Instead they link to a source which tracks the underlying crypto asset price, which is directly used as the ground truth for resolution.
-An example for this are the cyclical 15 minute ``Bitcoin up or down?'' markets.
-
-
+Every market object has a set of labels assigned by Polymarket to categorize the event. 
+Table~\ref{tab:centralized_adapter_events} shows the label frequency in market objects matched with conditions using the Centralized Adapter. 
+Clearly, all labels are tied to crypto-asset, price-related events. 
+When viewing these matched markets on Polymarket's web application, none of them link to the UMA resolution status page, which exists for other markets. 
+Instead, they link to a source that tracks the underlying crypto asset price, and this source is used directly as the ground truth for resolution. 
+The cyclical 15-minute ``Bitcoin up or down?'' markets are an example of this.
 
 \subsection{Resolution Source}
-Whilst the MOOV2 Adapter makes a price request atomically with the condition preparation through the initialize method, 
-a condition prepared for a Negrisk does not atomically make a price request and condition preparation atomically unless some hidden method is used for this, 
-as explained in section ~\ref{sec:nr}.
-The ConditionPreparation events and RequestPrice events have nothing that can be used to match them directly. 
-However, virtually every Ancillary data contains a market id key, which can be used to match price requests to market objects and then to ConditionPreparation events.
-Out of the 84,684 RequestPrice events, 83,743 have a matching off-chain market object and 83,652 have a matching ConditionPreparation.
+While the MOOV2 Adapter makes a price request atomically with condition preparation, a condition prepared for a Negrisk does not, as explained in Section~\ref{sec:nr}. 
+`ConditionPreparation` and `RequestPrice` events have no direct, shared identifier. 
+However, virtually every ancillary data field contains a `marketId` key, which can be used to match price requests to market objects and subsequently to `ConditionPreparation` events. 
+Out of 84,684 `RequestPrice` events, 83,743 have a matching off-chain market object, and 83,652 have a matching `ConditionPreparation` event.
 
 \begin{table}[H]
     \centering
@@ -590,41 +612,39 @@ Out of the 84,684 RequestPrice events, 83,743 have a matching off-chain market o
         \hline
         \textbf{Resolution Source (ids)} & \textbf{Matches} & \textbf{Oracle (Conditions)}\\
         \hline
-        MOOV2 & 57'502 & MOOV2 Adapter \\
+        MOOV2 & 57,502 & MOOV2 Adapter \\
         \hline
         OOV2 & 70 & MOOV2 Adapter \\
         \hline
-        OOV2 & 26'080 & Negrisk Adapter \\
+        OOV2 & 26,080 & Negrisk Adapter \\
         \hline
     \end{tabular}
 \end{table}
 
-A curious anomaly is that 70 out of the price requests made to the OOV2 matched with conditions prepared using the MOOV2 Adapter as reporting oracle, 
-and 50 out of the requests made to the OOV2 matched with the MOOV2 Adapter as reporting oracle do not share the same tranaction hash and are therefor not atomically executed using the initialize method.
+A curious anomaly is that 70 price requests made to the OOV2 matched with conditions using the MOOV2 Adapter as the reporting oracle. 
+Of these, 50 do not share the same transaction hash, indicating they were not executed atomically via the `initialize` method.
 
-The conditions prepared with the Negrisk Adapter as reporting oracle matched exclusively with price requests made to the OOV2. Out of these matches non share the same transaction hash, 
-which means they are not executed atomically, but 21,672 (83.10\%) share the same block number, 
-which demonstrates that they mostly are executed in a timely manner, but coordinated through separate transactions.
-
+The conditions prepared with the Negrisk Adapter as the reporting oracle matched exclusively with price requests made to the OOV2. 
+None of these matches share the same transaction hash, confirming they are not executed atomically. 
+However, 21,672 (83.10\%) share the same block number, which demonstrates that while the operations are coordinated through separate transactions, they are typically executed in a timely manner.
 
 \section{Exchange Registration}
 \label{sec:ctfe_c}
-For matched orders on the CLOB to be settled on the on-chain exchange, first the condition id and two token ids of the prediction market must be registered as explained in section ~\ref{sec:ctfe}. 
+For matched orders on the CLOB to be settled on the on-chain exchange, the condition ID and the two token IDs of the prediction market must first be registered, as explained in Section~\ref{sec:ctfe}. 
 
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/reg_clob.png}
-    \caption{CLOB markets and registered tokens unique condito}
+    \caption{CLOB markets and registered tokens unique condition count}
     \label{fig:reg_clob}
 \end{figure}
 
-In figure ~\ref{fig:reg_clob} we can see after some point in time, markets are consistently being created without being registered with the on chain exchange.
-This happens around the same time at which market objects start being created without acceptingOrder timestamps.
+Figure~\ref{fig:reg_clob} shows that after a certain point in time, markets are consistently being created without being registered with the on-chain exchange. 
+This trend begins around the same time that market objects start being created without `acceptingOrders` timestamps.
 
 \subsection{Unregistered Traded Outcomes}
-If we match the ConditionsPrepared events to the RegisteredToken events, 
-we find that virtually all unregistered markets were prepared using the Centralized Adapter as reporting oracle, 
-Additionally, less than half of the conditions are registered. 
+When matching the `ConditionsPrepared` events to the `RegisteredToken` events, we find that virtually all unregistered markets were prepared using the Centralized Adapter as the reporting oracle. 
+Overall, less than half of the conditions prepared using the Centralized Adapter as the reporting oracle are registered with an exchange.
 
 \begin{table}[H]
     \centering
@@ -634,111 +654,45 @@ Additionally, less than half of the conditions are registered.
         \hline
         \textbf{Oracle (Conditions)} & \textbf{Matches} & \textbf{Exchange (Conditions)}\\
         \hline
-        Centralized Adapter (48'896) & 20'425 & CTFE (83'262) \\
+        Centralized Adapter (48,896) & 20,425 & CTFE (83,262) \\
         \hline
-        MOOV2 Adapter (62'857) & 61'439 & CTFE (83'262) \\
+        MOOV2 Adapter (62,857) & 61,439 & CTFE (83,262) \\
         \hline
-        Negrisk Adapter (27'728) & 23'545 & Negrisk CTFE (24'209)\\
+        Negrisk Adapter (27,728) & 23,545 & Negrisk CTFE (24,209)\\
         \hline
     \end{tabular}
 \end{table}
 
-Strangely, there are provably markets, which are visible on the web application, listed as active in the market object and have trade events being sent out on the websocket market feed, 
-but do not have any registered token events nor orders matched or order filled events emitted from neither the CTFE nor Negrisk CTFE. 
-An example for this, are some of the 15 minute cyclical ``bitcoin up or down?'' markets.
+There is a strange anomaly: markets are visible on the Polymarket web application, listed as active in the market object, and show trading activity on the WebSocket market feed, yet they lack any corresponding `TokensRegistered`, `OrdersMatched`, or `OrderFilled` events emitted from either the CTFE or the Negrisk CTFE. 
+The cyclical 15-minute ``Bitcoin up or down?'' markets serve as an example of this behavior.
 
 \section{Resolution}
 \subsection{Disputes}
-As described in section ~\ref{sec:uma} the UMA OOV2 and MOOV2 protocol allows for price proposals to be disputed within a liveness period. 
-\begin{table}[H]
-    \centering
-    \caption{Ten Most Frequent Tags in Matched Disputes}
-    \label{tab:top10_disputes}
-    \begin{tabular}{|l|c|}
-        \hline
-        \textbf{Label} & \textbf{Appeared In (\%)} \\
-        \hline
-        Politics & 104 (32.00\%) \\
-        \hline
-        Culture & 99 (30.46\%) \\
-        \hline
-        Sports & 74 (22.77\%) \\
-        \hline
-        Games & 72 (22.15\%) \\
-        \hline
-        Hide From New & 49 (15.08\%) \\
-        \hline
-        Recurring & 45 (13.85\%) \\
-        \hline
-        Weather & 44 (13.54\%) \\
-        \hline
-        Best of 2025 & 41 (12.62\%) \\
-        \hline
-        Trump & 40 (12.31\%) \\
-        \hline
-        Geopolitics & 39 (12.00\%) \\
-        \hline
-    \end{tabular}
-\end{table}
+As described in Section~\ref{sec:uma}, the UMA OOV2 and MOOV2 protocols allow price proposals to be disputed within a liveness period. 
 
-There are a total of 74,833 matched propsals and 340 matched disputes. 
-Table ~\ref{tab:top10_disputes} shows the ten most frequent labels assigned to the markets objects matched with the disputes.
-Out of the 340 matched disputes, 145 are on the OOV2 and 195 on the MOOV2.
-This is ironic, because according to the umip-189 proposal, the MOOV2 was explicitly designed with a propososer whitelist, 
-which Polymarket manages. Yet, the MOOV2 has more disputes than the OOV2. 
-However, its important to note that the MOOV2 also has 53,818 proposals, 
-compared to the OOV2 which has 21,015 proposals.
+There is a total of 74,833 matched proposals and 340 matched disputes. 
+Table~\ref{tab:top10_disputes} shows the ten most frequent labels assigned to the market objects matched with the disputes.
+Out of the 340 matched disputes, 145 occurred on the OOV2 and 195 on the MOOV2.
+This is notable, considering that the MOOV2 was explicitly designed with a proposer whitelist managed by Polymarket under the UMIP-189 proposal. 
+Despite the whitelist, the MOOV2 has a higher raw number of disputes than the OOV2. 
+However, it is important to consider the total volume: the MOOV2 also has 53,818 proposals compared to the OOV2's 21,015.
 
-\subsection{Reported Unkown Outcome}
-The terminal value for the YES and NO shares is determined by the payout array passed from the reporting oracle to the CTF,
-which emits a ConditionResolution event, containing the condition id and the payout array.
-Out of 112'638 ConditionResolution events, 283 (0.25\%) reported an Unknown outcome, 
-46,373 (41.17\%) reported a YES outcome and 66,982 (58.58\%) reported a NO outcome.
-If the YES and NO outcomes were uniformly distributed, we would expect them to be reported equally, 
-but most negrisk events are designed to have one prediction market resolve to YES and the rest to NO.
-In fact out of the 19'541 ConditionResolution events with a Negrisk Adapter as reporting oracle, only 2,616 (13.39\%) reported a YES outcome, 
-16,925 (86.61\%) reported a NO outcome and none reported an UNKNOWN outcome. 
-All of the UNKNOWN outcomes were reported by the MOOV2 Adapter.
-\begin{table}[H]
-    \centering
-    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN}
-    \label{tab:top10_tags_1_1}
-    \begin{tabular}{|l|c|}
-        \hline
-        \textbf{Label} & \textbf{Appeared In (\%)} \\
-        \hline
-        Games & 272 (96.11\%) \\
-        \hline
-        Sports & 259 (91.52\%) \\
-        \hline
-        Esports & 102 (36.04\%) \\
-        \hline
-        Basketball & 51 (18.02\%) \\
-        \hline
-        NCAA & 42 (14.84\%) \\
-        \hline
-        UFC & 39 (13.78\%) \\
-        \hline
-        Dota 2 & 35 (12.37\%) \\
-        \hline
-        NCAA Basketball & 31 (10.95\%) \\
-        \hline
-        Rocket League & 30 (10.60\%) \\
-        \hline
-        Tennis & 29 (10.25\%) \\
-        \hline
-    \end{tabular}
-\end{table}
+\subsection{Reported Unknown Outcome}
+The terminal value for the YES and NO shares is determined by the payout array passed from the reporting oracle to the CTF, which then emits a `ConditionResolution` event containing the condition ID and the payout array.
 
-Table ~\ref{tab:top10_tags_1_1} shows what kind of labels are associated with markets reported to have an UNKNOWN outcome.
+Out of 112,638 `ConditionResolution` events, 283 (0.25\%) reported an UNKNOWN outcome, 46,373 (41.17\%) reported a YES outcome, and 66,982 (58.58\%) reported a NO outcome. 
+If the YES and NO outcomes were uniformly distributed, they would be reported equally. 
+However, most Negrisk events are designed such that one prediction market resolves to YES and the remaining ones to NO. 
+In fact, out of the 19,541 `ConditionResolution` events with a Negrisk Adapter as the reporting oracle, only 2,616 (13.39\%) reported a YES outcome, 16,925 (86.61\%) reported a NO outcome, and none reported an UNKNOWN outcome. 
+All reported UNKNOWN outcomes were generated by the MOOV2 Adapter.
 
+Table~\ref{tab:top10_tags_1_1} shows the proportion of labels associated with markets reported to have an UNKNOWN outcome.
 
 \subsection{Manual Resolutions}
-In sections ~\ref{sec:manual_resolutions} it was mentioned that the UmaCtfAdapter and Negrisk Operator have administrative methods, which can be used to manually resolve markets without UMA price requests being settled.
-All of the relevant methods emit events, including the \textit{resolveMarketManually} method in the UmaCtfAdapter and the \textit{emergencyResolveQuestion} method in the Negrisk Operator. 
-However, there no events for either of these methods was emitted in any of the UmaCtfAdapter instances or the single Negrisk Operator instance.
-This does not fully exclude the possibility of manual resolution, but if this is the case, then it must be done through a delegate call from a hidden proxy contract,
-such that the events are emitted from the proxy contract.
+Sections~\ref{sec:uca} and~\ref{sec:nr} mentioned that the UmaCtfAdapter and Negrisk Operator contracts include administrative methods that allow for manual market resolution without requiring UMA price requests to be settled. 
+All relevant administrative methods emit events, including the `resolveMarketManually` method in the UmaCtfAdapter and the `emergencyResolveQuestion` method in the Negrisk Operator. 
+However, no events for either of these manual resolution methods were emitted in any of the UmaCtfAdapter instances or the single Negrisk Operator instance during the collection period. 
+This observation does not fully exclude the possibility of manual resolution, but if it occurred, it must have been executed through a delegate call from a hidden proxy contract, which would result in the events being emitted from that proxy contract instead.
 
 \chapter{Orderbook and Trading}
 \label{chap:orderbook_trading}
@@ -1335,6 +1289,73 @@ Love is the answer.
 }
 \end{lstlisting}
 
+\chapter{Resolution Tables}
+
+\begin{table}[H]
+    \centering
+    \caption{Ten Most Frequent Tags in Matched Disputes}
+    \label{tab:top10_disputes}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Politics & 104 (32.00\%) \\
+        \hline
+        Culture & 99 (30.46\%) \\
+        \hline
+        Sports & 74 (22.77\%) \\
+        \hline
+        Games & 72 (22.15\%) \\
+        \hline
+        Hide From New & 49 (15.08\%) \\
+        \hline
+        Recurring & 45 (13.85\%) \\
+        \hline
+        Weather & 44 (13.54\%) \\
+        \hline
+        Best of 2025 & 41 (12.62\%) \\
+        \hline
+        Trump & 40 (12.31\%) \\
+        \hline
+        Geopolitics & 39 (12.00\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN}
+    \label{tab:top10_tags_1_1}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Games & 272 (96.11\%) \\
+        \hline
+        Sports & 259 (91.52\%) \\
+        \hline
+        Esports & 102 (36.04\%) \\
+        \hline
+        Basketball & 51 (18.02\%) \\
+        \hline
+        NCAA & 42 (14.84\%) \\
+        \hline
+        UFC & 39 (13.78\%) \\
+        \hline
+        Dota 2 & 35 (12.37\%) \\
+        \hline
+        NCAA Basketball & 31 (10.95\%) \\
+        \hline
+        Rocket League & 30 (10.60\%) \\
+        \hline
+        Tennis & 29 (10.25\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+
+
 \chapter{Smart Contracts}
 % --- Table 2: Contract and Events (Long Table Format) ---
 \begin{table}[H]
@@ -1346,13 +1367,13 @@ Love is the answer.
 \toprule
 \textbf{Alias} & \textbf{Deployment Address} & \textbf{Contract Table Name} \\ % <--- Changed \ to \\
 \midrule
-Base CTFExchange & \seqsplit{0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e} & CTFExchange \\ % <--- Changed \ to \\
-Negrisk CTFExchange & \seqsplit{0xC5d563A36AE78145C45a50134d48A1215220f80a} & CTFExchange  \\
+CTFE & \seqsplit{0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e} & CTFExchange \\ % <--- Changed \ to \\
+Negrisk CTFE & \seqsplit{0xC5d563A36AE78145C45a50134d48A1215220f80a} & CTFExchange  \\
 CTF & \seqsplit{0x4d97dcd97ec945f40cf65f87097ace5ea0476045} & (Gnosis) Conditional Tokens \\
 Negrisk Operator & \seqsplit{0x71523d0f655b41e805cec45b17163f528b59b820} & Negrisk Operator \\
 Negrisk Adapter & \seqsplit{0xd91e80cf2e7be2e162c6513ced06f1dd0da35296} & Negrisk Adapter \\
-Negrisk Adapter & \seqsplit{0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d} & UmaCtfAdapter \\
-Base UmaCtfAdapter & \seqsplit{0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74} & UmaCtfAdapter \\
+Negrisk UmaCtfAdapter & \seqsplit{0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d} & UmaCtfAdapter \\
+OOV2 UmaCtfAdapter & \seqsplit{0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74} & UmaCtfAdapter \\
 MOOV2 Adapter & \seqsplit{0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7} & UmaCtfAdapter \\
 MOOV2 & \seqsplit{0x2C0367a9DB231dDeBd88a94b4f6461a6e47C58B1} & (UMA) Managed Optimistic Oracle V2 \\
 Oracle Child Tunnel & \seqsplit{0xac60353a54873c446101216829a6A98cDbbC3f3D} & Oracle Child Tunnel \\

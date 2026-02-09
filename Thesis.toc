@@ -23,21 +23,21 @@
 \contentsline {section}{\numberline {3.5}Kalshi Client}{13}{section.3.5}%
 \contentsline {chapter}{\numberline {4}Smart Contracts}{14}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Conditional Tokens}{14}{section.4.1}%
-\contentsline {section}{\numberline {4.2}UMA framework}{15}{section.4.2}%
+\contentsline {section}{\numberline {4.2}UMA Framework}{15}{section.4.2}%
 \contentsline {section}{\numberline {4.3}UmaCtfAdapter}{16}{section.4.3}%
 \contentsline {section}{\numberline {4.4}CTFExchange}{16}{section.4.4}%
 \contentsline {section}{\numberline {4.5}Negrisk}{17}{section.4.5}%
 \contentsline {section}{\numberline {4.6}Polygon Collection}{17}{section.4.6}%
-\contentsline {chapter}{\numberline {5}Market Lifecycle}{18}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Market Creation}{18}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Reporting Oracles}{18}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Centralized Adapter}{19}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Resolution Source}{20}{subsection.5.1.3}%
-\contentsline {section}{\numberline {5.2}Exchange Registration}{21}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Unregistered Traded Outcomes}{22}{subsection.5.2.1}%
-\contentsline {section}{\numberline {5.3}Resolution}{22}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Disputes}{22}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Reported Unkown Outcome}{23}{subsection.5.3.2}%
+\contentsline {chapter}{\numberline {5}Market Lifecycle}{19}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Market Creation}{19}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Reporting Oracles}{19}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Centralized Adapter}{20}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Resolution Source}{21}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Exchange Registration}{22}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Unregistered Traded Outcomes}{23}{subsection.5.2.1}%
+\contentsline {section}{\numberline {5.3}Resolution}{23}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Disputes}{23}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Reported Unknown Outcome}{24}{subsection.5.3.2}%
 \contentsline {subsection}{\numberline {5.3.3}Manual Resolutions}{24}{subsection.5.3.3}%
 \contentsline {chapter}{\numberline {6}Orderbook and Trading}{25}{chapter.6}%
 \contentsline {section}{\numberline {6.1}State, Ordering and Matching}{25}{section.6.1}%
@@ -45,7 +45,8 @@
 \contentsline {subsection}{\numberline {6.2.1}Slippage Rate on Polymarket}{26}{subsection.6.2.1}%
 \contentsline {section}{\numberline {6.3}Arbitrage}{28}{section.6.3}%
 \contentsline {chapter}{\numberline {7}Discussion}{29}{chapter.7}%
-\contentsline {chapter}{Bibliography}{30}{chapter*.5}%
+\contentsline {chapter}{Bibliography}{30}{chapter*.4}%
 \contentsline {chapter}{\numberline {A}Endpoint Documented JSON responses}{A-1}{appendix.U}%
-\contentsline {chapter}{\numberline {B}Smart Contracts}{B-1}{appendix.V}%
-\contentsline {chapter}{\numberline {C}Polymarket Event Object JSON Tree Analysis}{C-1}{appendix.W}%
+\contentsline {chapter}{\numberline {B}Resolution Tables}{B-1}{appendix.V}%
+\contentsline {chapter}{\numberline {C}Smart Contracts}{C-1}{appendix.W}%
+\contentsline {chapter}{\numberline {D}Polymarket Event Object JSON Tree Analysis}{D-1}{appendix.X}%

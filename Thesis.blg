@@ -16,37 +16,37 @@ Warning--I didn't find a database entry for ""
 Done.
 You've used 19 entries,
             4024 wiz_defined-function locations,
-            916 strings with 10625 characters,
-and the built_in function-call counts, 7659 in all, are:
-= -- 647
+            916 strings with 10631 characters,
+and the built_in function-call counts, 7666 in all, are:
+= -- 648
 > -- 96
 < -- 0
 + -- 47
 - -- 23
-* -- 314
-:= -- 1484
+* -- 312
+:= -- 1480
 add.period$ -- 38
 call.type$ -- 19
-change.case$ -- 24
+change.case$ -- 25
 chr.to.int$ -- 0
 cite$ -- 19
-duplicate$ -- 616
-empty$ -- 720
+duplicate$ -- 619
+empty$ -- 721
 format.name$ -- 26
-if$ -- 1616
+if$ -- 1620
 int.to.chr$ -- 0
 int.to.str$ -- 19
-missing$ -- 142
-newline$ -- 114
+missing$ -- 143
+newline$ -- 112
 num.names$ -- 18
 pop$ -- 398
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 573
+skip$ -- 575
 stack$ -- 0
-substring$ -- 27
-swap$ -- 391
+substring$ -- 29
+swap$ -- 393
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 5
@@ -54,5 +54,5 @@ type$ -- 19
 warning$ -- 0
 while$ -- 18
 width$ -- 21
-write$ -- 222
+write$ -- 220
 (There was 1 warning)
