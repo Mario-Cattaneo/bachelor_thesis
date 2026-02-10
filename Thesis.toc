@@ -42,7 +42,7 @@
 \contentsline {chapter}{\numberline {6}Orderbook and Trading}{25}{chapter.6}%
 \contentsline {section}{\numberline {6.1}State, Ordering, and Matching}{25}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Slippage}{26}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Slippage Rate on Polymarket}{26}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.1}Power Relation between Order Size and Slippage}{26}{subsection.6.2.1}%
 \contentsline {subsection}{\numberline {6.2.2}Comparison with Decentralized AMM Slippage}{27}{subsection.6.2.2}%
 \contentsline {section}{\numberline {6.3}Arbitrage}{28}{section.6.3}%
 \contentsline {chapter}{\numberline {7}Discussion}{30}{chapter.7}%

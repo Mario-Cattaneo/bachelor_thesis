@@ -71,7 +71,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DOCUMENT METADATA
 \thesistype{Bachelor's Thesis}
-\title{Polymarkets Hybrid Exchange System and Prediction Market Arbitrage}
+\title{Polymarket's Hybrid Exchange System and Prediction Market Arbitrage}
 \author{Mario Cattaneo}
 \email{mcattane@ethz.ch}
 \institute{Distributed Computing Group \\[2pt] Computer Engineering and Networks Laboratory \\[2pt] ETH Zürich}
@@ -90,13 +90,23 @@
 \end{acknowledgements}
 
 \begin{abstract}
-Polymarket and Kalshi have emerged as leading decentralized prediction market platforms, enabling global speculation on binary outcomes while leveraging blockchain technology for settlement and smart contracts for outcome resolution. 
-This thesis analyzes Polymarket's hybrid exchange architecture combining an off-chain Central Limit Order Book (CLOB) with on-chain smart contract settlement. 
-We design and implement data collection clients for Polymarket's and Kalshi's REST and WebSocket endpoints, addressing poorly documented APIs and discovered inconsistencies. 
-Through on-chain event analysis from November 18, 2025 to January 5, 2026, we examine the market lifecycle, identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market registration patterns, and outcomes distribution (41.2\% YES, 58.6\% NO, 0.3\% UNKNOWN). 
-For orderbook trading, we measure slippage on 1.44M settlements, finding a convergent slippage rate of 0.7\% with 52.2\% zero-slippage trades, contrasting favorably with on-chain AMM models that suffer from both mechanical slippage and MEV extraction. 
-Price discrepancy analysis across Polymarket and Kalshi for 15-minute ``Bitcoin up or down?'' markets reveals lower internal arbitrage spreads on Polymarket, though this may correlate with reported wash trading activity. 
-Key findings highlight the higher implementation barrier for reliable data collection due to Polymarket's incomplete documentation, undocumented smart contract coordination, and endpoint inconsistencies, yet suggest the platform maintains effective price discovery and arbitrage mechanisms despite these obstacles.
+Polymarket and Kalshi are exchanges making prediction markets accessible globally, with unprecedented growth. Both use a Central Limit Orderbook as market mechanism, 
+but Polymarket implements event contracts, settlement, resolution, and more through Ethereum-based smart contracts.
+The operation of this hybrid system remains largely undocumented.
+We design and implement data collection clients for Polymarket's and Kalshi's REST and WebSocket endpoints, addressing poorly documented APIs and discovered inconsistencies, 
+along with an Infura 'eth\_getLogs' client for on-chain event collection.
+Using on-chain data from November 18, 2025 to January 5, 2026 and historical off-chain market objects, we examine the market lifecycle, 
+identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation and registration patterns, 
+the outcomes distribution (41.2\% YES, 58.6\% NO, 0.3\% UNKNOWN), 
+as well as the resolution events.
+For orderbook trading, we measure slippage on 1.44 million settlements, finding a convergent slippage rate of 0.7\% with 52.2\% zero-slippage trades, 
+contrasting favorably with on-chain AMM models that suffer from both mechanical slippage and MEV extraction. 
+Price discrepancy analysis across Polymarket and Kalshi for 15-minute ``Bitcoin up or down?'' markets reveals 
+lower internal arbitrage spreads on Polymarket, though this may correlate with reported wash trading activity. 
+Key findings highlight the substantial data collection barriers arising from Polymarket's incomplete documentation, 
+undocumented smart contract coordination, and endpoint inconsistencies, yet suggest the platform maintains effective price discovery 
+and arbitrage mechanisms despite these obstacles.
+
 \end{abstract}
 
 \tableofcontents
@@ -188,7 +198,7 @@ a set of mutually exclusive outcome positions into the complementary positions o
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/kalshi_quarterly_vol.png}
-    \caption{Quarterly trade volume on Kalshi. (\url{https://tokenterminal.com/explorer/projects/kalshi/metrics/trading-volume?interval=max&granularity=quarter}).}
+    \caption{Quarterly trade volume on Kalshi. (\url{https://tokenterminal.com/explorer/projects/kalshi?interval=max&granularity=quarter}).}
     \label{fig:KALSHI_QUARTERLY_TRADES}
 \end{figure}
 
@@ -755,21 +765,21 @@ We can define the slippage for a taker buying or selling $x$ base assets and get
 \end{align}
 
 
-\subsection{Slippage Rate on Polymarket}
-Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 1,443,953 settlements. 
-We have the USDC amount the taker paid or received from the fill where the taker faces the exchange, and the amount of shares and their price for every fill where the maker faces the taker.
-We can now construct a set $S$ of tuples $(x, y, t)$ for every settlement, where $x$ is the USDC amount the taker paid or received, $y$ is the slippage, and $t$ is the timestamp of the settlement.
+\subsection{Power Relation between Order Size and Slippage}
+Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 1,443,953 settlements.
+The algorithm for obtaining the price per shares $p$ and shares associated for a settlement from its `OrderFilled` events, such that slippage can be computed using definition ~\ref{eq:slip}, 
+can be found in Appendix~\ref{appendix:slippage_algorithm}.
+
+There have been many studies on the power relation between order size and slippage in traditional financial markets with an orderbook as market mechanism~\cite{}.
 
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/slip_rate.png}
-    \caption{Cumulative Taker USDC Divided by Cumulative Slippage}
+    \caption{Clustered Regression of Slippage Rate on Order Size}
     \label{fig:slip_rate}
 \end{figure}
 
 
-Figure~\ref{fig:slip_rate} shows that the cumulative slippage rate (cumulative USDC divided by cumulative slippage) for all settlements up until time $t$ appears to converge to some value. 
-If we assume that the $x$ and $y$ values in the tuples in $S$ are independent and identically distributed (i.i.d.) random variables $X$ and $Y$, then we get:
 \begin{align}
 \label{eq:slip_rate_convergence}
     & \frac{\sum_{(x, y, t) \in S} x}{\sum_{(x, y, t) \in S} y} \xrightarrow{a.s.} \frac{E[X]}{E[Y]} 
@@ -1538,6 +1548,11 @@ OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic 
 \bottomrule
 \end{tabularx}
 \end{table}
+
+
+
+
+
 
 
 \chapter{Polymarket Event Object JSON Tree Analysis}
