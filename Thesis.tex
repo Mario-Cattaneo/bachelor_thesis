@@ -28,6 +28,8 @@
 \let\newtheorem\relax
 \let\theoremstyle\relax
 \usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 % Allow line breaks in long URLs (works well with hyperref)
 \usepackage{xurl}
@@ -402,9 +404,11 @@ Although Kalshi's documentation for the trade update message is missing the \tex
 However, ordering trade events relative to orderbook events remains ambiguous, as it relies on timestamps that are only specified in seconds for trades.
 
 \section{Kalshi Client}
-Due to the sequence identifiers provided by Kalshi, there is no need to additionally request the orderbook state, as the identifiers allow for unambiguous maintenance of the orderbook state. 
-The Kalshi client therefore functions similarly to the Polymarket client, but without the need for periodic orderbook state requests.
+Due to the sequence identifiers provided by Kalshi, 
+there is no need to request the orderbook state, 
+as the identifiers allow for unambiguous maintenance of the orderbook state.
 
+This client, along with the Polymarket client, ran from January 8th 2026 until February 2nd 2026.
 
 \chapter{Smart Contracts}
 \label{chap:smart_contracts}
@@ -1550,7 +1554,73 @@ OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic 
 \end{table}
 
 
+\section{Slippage Computation Algorithm}
+\label{appendix:slippage_algorithm}
 
+Each settlement transaction emits multiple \texttt{OrderFilled} events from the CTFExchange contract. Each event contains:
+\begin{itemize}
+    \item \texttt{maker}: address of the limit order placer
+    \item \texttt{taker}: address of the order executor
+    \item \texttt{makerAssetId}: asset ID being provided by maker (0 = USDC, else outcome token ID)
+    \item \texttt{takerAssetId}: asset ID being provided by taker
+    \item \texttt{making}: quantity of makerAssetId being transferred (in wei)
+    \item \texttt{taking}: quantity of takerAssetId being transferred (in wei)
+\end{itemize}
+
+\begin{algorithm}[H]
+\caption{Computing Slippage from OrderFilled Events}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Set of \texttt{OrderFilled} events $E$ for a settlement transaction
+\State \textbf{Output:} Slippage in USDC, USDC inflow $x$, set of maker limit orders $M$
+
+\State $E_{\text{exchange}} \gets \{e \in E : e.\text{taker} = \text{EXCHANGE\_ADDRESS}\}$
+\State \textbf{assert} $|E_{\text{exchange}}| = 1$ \Comment{Exactly one taker-facing fill}
+\State $e_t \gets E_{\text{exchange}}[0]$ \Comment{The taker's fill against the exchange}
+
+\State \Comment{Determine trade direction and extract quantities}
+\If{$e_t.\text{makerAssetId} = 0$}
+    \State $\text{takerBuying} \gets \texttt{True}$ \Comment{Maker sells USDC, taker buys tokens}
+    \State $x \gets e_t.\text{making} / 10^6$ \Comment{USDC provided (maker gives USDC)}
+    \State $v_t \gets e_t.\text{taking} / 10^6$ \Comment{Tokens received by maker}
+\Else
+    \State $\text{takerBuying} \gets \texttt{False}$ \Comment{Taker sells tokens, maker buys}
+    \State $x \gets e_t.\text{taking} / 10^6$ \Comment{USDC received (taker gets USDC)}
+    \State $v_t \gets e_t.\text{making} / 10^6$ \Comment{Tokens provided by taker}
+\EndIf
+
+\State $M \gets \emptyset$ \Comment{Initialize maker limit orders set}
+\State $E_{\text{makers}} \gets E \setminus E_{\text{exchange}}$ \Comment{All non-exchange fills}
+
+\For{each $e_m \in E_{\text{makers}}$}
+    \State \Comment{Decode maker fill to extract price and volume}
+    \If{$e_m.\text{makerAssetId} = 0$}
+        \State $\text{makerBuying} \gets \texttt{True}$
+        \State $p_{\text{raw}} \gets e_m.\text{making} / e_m.\text{taking}$ \Comment{USDC per token}
+        \State $v \gets e_m.\text{taking} / 10^6$ \Comment{Token volume}
+    \Else
+        \State $\text{makerBuying} \gets \texttt{False}$
+        \State $p_{\text{raw}} \gets e_m.\text{taking} / e_m.\text{making}$ \Comment{USDC per token}
+        \State $v \gets e_m.\text{making} / 10^6$ \Comment{Token volume}
+    \EndIf
+    
+    \State \Comment{Adjust price perspective: express from taker's viewpoint}
+    \If{$\text{makerBuying} = \text{takerBuying}$}
+        \State $p \gets 1 - p_{\text{raw}}$ \Comment{Maker on same side, use complement price}
+    \Else
+        \State $p \gets p_{\text{raw}}$
+    \EndIf
+    
+    \State $M \gets M \cup \{(p, v)\}$ \Comment{Add maker order to set}
+\EndFor
+
+\State $p_{\text{market}} \gets \min\{p : (p, v) \in M\}$ \Comment{Best available price}
+\State $\text{Slippage} \gets x - p_{\text{market}} \cdot v_t$ \Comment{Apply Equation~\ref{eq:slip}}
+
+\State \Return $(\text{Slippage}, x, M)$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent The algorithm identifies the taker-facing exchange fill to determine the total USDC transacted ($x$) and trade direction. Each maker fill is decoded to extract the limit order price $p$ and volume $v$. The price orientation is adjusted such that all prices represent USDC per token from the taker's perspective. Finally, slippage is computed as the difference between the actual USDC paid and the USDC that would have been paid at the best available maker price $p_{\text{market}}$.
 
 
 
