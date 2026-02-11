@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2026.2.1)  11 FEB 2026 02:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2026.2.1)  11 FEB 2026 14:10
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1068,26 +1068,26 @@ Chapter 1.
 File: figures/poly_quarterly_trading.png Graphic file (type png)
 <use figures/poly_quarterly_trading.png>
 Package pdftex.def Info: figures/poly_quarterly_trading.png  used on input line
- 193.
+ 196.
 (pdftex.def)             Requested size: 381.4pt x 190.69763pt.
 <figures/kalshi_quarterly_vol.png, id=378, 1405.25pt x 702.625pt>
 File: figures/kalshi_quarterly_vol.png Graphic file (type png)
 <use figures/kalshi_quarterly_vol.png>
 Package pdftex.def Info: figures/kalshi_quarterly_vol.png  used on input line 2
-00.
+03.
 (pdftex.def)             Requested size: 381.4pt x 190.69763pt.
  [3
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.204 
+l.207 
        <./figures/poly_quarterly_trading.png (PNG copy)>] [4
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1.2}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.216 
+l.219 
        <./figures/kalshi_quarterly_vol.png (PNG copy)>] [5]
 Chapter 2.
 [6
@@ -1101,7 +1101,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.3.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.382 
+l.385 
       ] [12] [13]
 Chapter 4.
 [14
@@ -1111,12 +1111,12 @@ Chapter 5.
 <figures/clob_cft_cdf.png, id=530, 3694.80376pt x 1946.27126pt>
 File: figures/clob_cft_cdf.png Graphic file (type png)
 <use figures/clob_cft_cdf.png>
-Package pdftex.def Info: figures/clob_cft_cdf.png  used on input line 561.
+Package pdftex.def Info: figures/clob_cft_cdf.png  used on input line 564.
 (pdftex.def)             Requested size: 381.4pt x 200.90474pt.
 [19
 
 ]
-Overfull \hbox (5.51675pt too wide) in paragraph at lines 571--573
+Overfull \hbox (5.51675pt too wide) in paragraph at lines 574--576
 \T1/cmr/m/n/10.95 The byte-code for the Cen-tral-ized Adapter is not rec-og-niz
 ed by promi-nent bytecode-
  []
@@ -1126,39 +1126,39 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.5.1})
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.610 
+l.613 
        <./figures/clob_cft_cdf.png (PNG copy)>] [21
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.640 
+l.643 
       ]
 <figures/reg_clob.png, id=552, 3715.8825pt x 1946.27126pt>
 File: figures/reg_clob.png Graphic file (type png)
 <use figures/reg_clob.png>
-Package pdftex.def Info: figures/reg_clob.png  used on input line 654.
+Package pdftex.def Info: figures/reg_clob.png  used on input line 657.
 (pdftex.def)             Requested size: 381.4pt x 199.74652pt.
  [22
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.661 
+l.664 
       
 pdfTeX warning (ext4): destination with the same identifier (name{figure.5.2}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.661 
+l.664 
        <./figures/reg_clob.png (PNG copy)>] [23
 pdfTeX warning (ext4): destination with the same identifier (name{table.5.3}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.699 
+l.702 
       ]
-Overfull \hbox (3.32884pt too wide) in paragraph at lines 700--705
+Overfull \hbox (3.32884pt too wide) in paragraph at lines 703--708
 \T1/cmr/m/n/10.95 KNOWN out-come, 46,373 (41.17%) re-ported a YES out-come, and
  66,982 (58.58%)
  []
@@ -1167,30 +1167,35 @@ Overfull \hbox (3.32884pt too wide) in paragraph at lines 700--705
 Chapter 6.
 [25
 
-]
-<figures/slip_power.png, id=597, 4093.2925pt x 2886.785pt>
+] [26]
+<figures/slip_power.png, id=607, 4093.2925pt x 2886.785pt>
 File: figures/slip_power.png Graphic file (type png)
 <use figures/slip_power.png>
-Package pdftex.def Info: figures/slip_power.png  used on input line 779.
+Package pdftex.def Info: figures/slip_power.png  used on input line 784.
 (pdftex.def)             Requested size: 381.4pt x 268.96158pt.
- [26] [27
+
+
+LaTeX Warning: Reference `slip_clusters' on page 27 undefined on input line 791
+.
+
+[27
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.802 
+l.800 
        <./figures/slip_power.png (PNG copy)>]
-<figures/prices.png, id=621, 3296.315pt x 3000.20876pt>
+<figures/prices.png, id=622, 3296.315pt x 3000.20876pt>
 File: figures/prices.png Graphic file (type png)
 <use figures/prices.png>
-Package pdftex.def Info: figures/prices.png  used on input line 811.
+Package pdftex.def Info: figures/prices.png  used on input line 817.
 (pdftex.def)             Requested size: 381.4pt x 347.09972pt.
  [28] [29
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6.2}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.824 \chapter
+l.830 \chapter
               {Discussion} <./figures/prices.png (PNG copy)>]
 Chapter 7.
 [30
@@ -1199,7 +1204,7 @@ Chapter 7.
 
 ] [33]) [34]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 854.
+nput line 860.
  [1
 
 
@@ -1211,16 +1216,16 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.V.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1490 \chapter
+l.1496 \chapter
                {Polymarket Event Object JSON Tree Analysis}]
-Overfull \hbox (9.86864pt too wide) in paragraph at lines 2092--2092
+Overfull \hbox (9.86864pt too wide) in paragraph at lines 2098--2098
 []|\T1/cmtt/m/n/10.95 ROOT.markets.[].clobRewards.[].rewardsDailyRate| 
  []
 
 [1
 
 ] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17]
-Overfull \hbox (27.87755pt too wide) in paragraph at lines 2376--2403
+Overfull \hbox (27.87755pt too wide) in paragraph at lines 2382--2409
  [][] 
  []
 
@@ -1229,13 +1234,13 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.W.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2406 \chapter
+l.2412 \chapter
                {Miscellaneous}]
-<figures/slip_clusters.png, id=1299, 4093.2925pt x 2886.785pt>
+<figures/slip_clusters.png, id=1301, 4110.35625pt x 2900.8375pt>
 File: figures/slip_clusters.png Graphic file (type png)
 <use figures/slip_clusters.png>
-Package pdftex.def Info: figures/slip_clusters.png  used on input line 2473.
-(pdftex.def)             Requested size: 381.4pt x 268.96158pt.
+Package pdftex.def Info: figures/slip_clusters.png  used on input line 2479.
+(pdftex.def)             Requested size: 381.4pt x 269.16426pt.
  [1
 
 
@@ -1243,65 +1248,67 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.X.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2477 
+l.2483 
        
 pdfTeX warning (ext4): destination with the same identifier (name{table.X.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2477 
+l.2483 
        ]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 2493.
+put line 2492.
  [2
 pdfTeX warning (ext4): destination with the same identifier (name{figure.X.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.2544 
-        <./figures/slip_clusters.png (PNG copy)>] [3] [4] (./Thesis.aux)
+l.2541 
+        <./figures/slip_clusters.png (PNG copy)>] [3] (./Thesis.aux)
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
-(rerunfilecheck)             Checksum: A2FF989C44F12A24A8ED168CEE8EC989;10569.
+(rerunfilecheck)             Checksum: 15EC37364122D59DD7EED6EF915C8116;10574.
  ) 
 Here is how much of TeX's memory you used:
- 32313 strings out of 476091
- 647873 string characters out of 5794082
- 2256330 words of memory out of 5000000
- 51509 multiletter control sequences out of 15000+600000
- 538243 words of font info for 92 fonts, out of 8000000 for 9000
+ 32315 strings out of 476091
+ 647929 string characters out of 5794082
+ 2257330 words of memory out of 5000000
+ 51513 multiletter control sequences out of 15000+600000
+ 537902 words of font info for 91 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,12n,129p,1171b,2577s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/usr/share/texmf
-/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/s
-hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/tex
-live/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-di
-st/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf/fonts/type1
-/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfb
-x1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/shar
-e/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/
-public/cm-super/sfbx2074.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx
-2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1095.pfb></usr/share
-/texmf/fonts/type1/public/cm-super/sfcc1440.pfb></usr/share/texmf/fonts/type1/p
-ublic/cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0
-900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/
-texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf/fonts/type1/pu
-blic/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm14
-40.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsc1095.pfb></usr/share/t
-exmf/fonts/type1/public/cm-super/sfti1000.pfb></usr/share/texmf/fonts/type1/pub
-lic/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt090
-0.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/share/te
-xmf/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on Thesis.pdf (79 pages, 5474961 bytes).
+ 128i,11n,129p,1171b,2577s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/shar
+e/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/
+public/cm-super/sfbx1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx
+1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share
+/texmf/fonts/type1/public/cm-super/sfbx2074.pfb></usr/share/texmf/fonts/type1/p
+ublic/cm-super/sfbx2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1
+095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1440.pfb></usr/share/
+texmf/fonts/type1/public/cm-super/sfrm0800.pfb></usr/share/texmf/fonts/type1/pu
+blic/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm10
+00.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/t
+exmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/pub
+lic/cm-super/sfrm1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfsc109
+5.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1000.pfb></usr/share/te
+xmf/fonts/type1/public/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/publ
+ic/cm-super/sftt0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000
+.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1095.pfb>
+Output written on Thesis.pdf (78 pages, 5774418 bytes).
 PDF statistics:
- 1591 PDF objects out of 1728 (max. 8388607)
- 1418 compressed objects within 15 object streams
- 646 named destinations out of 1000 (max. 500000)
+ 1584 PDF objects out of 1728 (max. 8388607)
+ 1413 compressed objects within 15 object streams
+ 645 named destinations out of 1000 (max. 500000)
  522 words of extra memory for PDF output out of 10000 (max. 10000000)
 

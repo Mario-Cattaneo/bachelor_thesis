@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex Thesis"] 1770771385 "Thesis.aux" "Thesis.bbl" "Thesis" 1770771797 0
+["bibtex Thesis"] 1770814733 "Thesis.aux" "Thesis.bbl" "Thesis" 1770815459 0
   "./IEEEtran.bst" 1769930290 59215 20a38a23c50e1c8b0c9a0cbd42c73e52 ""
   "./references.bib" 1770771124 11110 059bef6d8222ed8b17935ea193f72b74 ""
-  "Thesis.aux" 1770771797 20809 7b81402f77292a377206047dedfdf676 "pdflatex"
+  "Thesis.aux" 1770815459 20978 a7a77f4214063570faf9b19091db9253 "pdflatex"
   (generated)
   "Thesis.bbl"
   "Thesis.blg"
   (rewritten before read)
-["pdflatex"] 1770771795 "Thesis.tex" "Thesis.pdf" "Thesis" 1770771797 0
+["pdflatex"] 1770815457 "Thesis.tex" "Thesis.pdf" "Thesis" 1770815459 0
   "/dev/null" 1770764627 0 d41d8cd98f00b204e9800998ecf8427e ""
   "/etc/texmf/web2c/texmf.cnf" 1769958617 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -37,7 +37,6 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ectt1000.tfm" 1136768653 1536 06717a2b50de47d4087ac0e6cd759455 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ectt1095.tfm" 1136768653 1536 a988bfe554c1f79514bd46d13c3c64ce ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ectt1200.tfm" 1136768653 1536 487c9b46984a816c7ed238d0674595c7 ""
-  "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex9.tfm" 1246382020 996 a18840b13b499c08ac2de96a99eda4bc ""
@@ -233,7 +232,6 @@
   "/usr/share/texlive/texmf-dist/tex/latex/xurl/xurl.sty" 1641763214 4675 e4b8c405820368c2dfb03526e16d725a ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1676468108 39561 34c98e380bf7c7201ee6a7909aff625a ""
   "/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1636152094 2971 def0b6c1f0b107b3b936def894055589 ""
-  "/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1636152094 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb" 1636152094 145408 43d44302ca7d82d487f511f83e309505 ""
   "/usr/share/texmf/fonts/type1/public/cm-super/sfbx1095.pfb" 1769960100 154600 ea54091d31de803b613ba9e80ca51709 ""
   "/usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb" 1769960100 140176 d4962f948b4cc0adf4d3dde77a128c95 ""
@@ -257,11 +255,11 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1676468108 39561 34c98e380bf7c7201ee6a7909aff625a ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1769960110 4623455 fa0568a71dd9a288d6c226ee477506c6 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1769960227 7881174 aebc36bdc00aac039e5746d83f08f80b ""
-  "Thesis.aux" 1770771797 20809 7b81402f77292a377206047dedfdf676 "pdflatex"
-  "Thesis.bbl" 1770771385 8720 6ef73433aef1fae7a78b1542beece53f "bibtex Thesis"
-  "Thesis.out" 1770771797 10569 a2ff989c44f12a24a8ed168cee8ec989 "pdflatex"
-  "Thesis.tex" 1770771793 143828 3df0435f3ee6133cdb3f2cdae6b35bb6 ""
-  "Thesis.toc" 1770771797 4786 5ae79dd6dd8828bb526b2adebb06c289 "pdflatex"
+  "Thesis.aux" 1770815459 20978 a7a77f4214063570faf9b19091db9253 "pdflatex"
+  "Thesis.bbl" 1770814733 8720 6ef73433aef1fae7a78b1542beece53f "bibtex Thesis"
+  "Thesis.out" 1770815459 10574 15ec37364122d59dd7eed6ef915c8116 "pdflatex"
+  "Thesis.tex" 1770815452 143282 d76439dc22727af49b88a57ac94a8a93 ""
+  "Thesis.toc" 1770815459 4787 ed1fadbadc9854e0d011d565635c6148 "pdflatex"
   "discothesis.cls" 1769930290 31299 43bf7d307d3f5312c5fe9dca83f7d801 ""
   "figures/clob_cft_cdf.png" 1770468879 457272 dac18006f4fbc3687fbecc87daa8af62 ""
   "figures/disco-logo-col.eps" 1769930290 235210 226076b2d5b22e6bfe9a5138a98be281 ""
@@ -270,8 +268,8 @@
   "figures/poly_quarterly_trading.png" 1770722430 48270 65170b0c1bfddebed82b3cac615c3fd8 ""
   "figures/prices.png" 1770738119 678245 f93306683c6bb425543ab09b487b6da9 ""
   "figures/reg_clob.png" 1770500329 409487 48b3f62d5788735d18400c8596d88799 ""
-  "figures/slip_clusters.png" 1770761706 1248952 be3505972507412546b3ccc3d035e766 ""
-  "figures/slip_power.png" 1770770050 1814308 d160dbf60d7de61c3e97c14e7ef3b524 ""
+  "figures/slip_clusters.png" 1770812563 1304158 79490472071262e31cea70063f981e2e ""
+  "figures/slip_power.png" 1770812764 2066643 076e65a86100c6ae0bf0e340cdf9ba8b ""
   (generated)
   "Thesis.aux"
   "Thesis.log"

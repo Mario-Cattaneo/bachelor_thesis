@@ -102,11 +102,14 @@ Using on-chain data from November 18, 2025 to January 5, 2026 and historical off
 identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation, registration, and resolution patterns, 
 and the outcome distribution (41.17\% YES, 58.58\% NO, 0.25\% UNKNOWN).
 
-Analyzing over 1.4 million settlements, we find that slippage follows $y = \alpha x^\beta$ with $\alpha = 0.660 \pm 2.417 \times 10^{-2}$ and $\beta = 2.876 \times 10^{-2} \pm 9.435 \times 10^{-3}$, 
-determined through linear regression on log-transformed data with $R^2 = 0.338$.
+Analyzing over 53 million settlements, we find that slippage follows $y = \alpha x^\beta$ with $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$ and $\beta = 2.751 \times 10^{-2} \pm 9.675 \times 10^{-3}$, 
+determined through linear regression on log-transformed data with $R^2 = 0.3360$.
 This deviates from the typical square-root law of market impact, suggesting that slippage increases more than proportionally with order size on Polymarket.
 However, Polymarket still compares favorably to the linear scaling of slippage in decentralized AMMs like Uniswap V2.
 Lastly, we use the data collected through the endpoint clients from January 8th 2026 until February 2nd 2026 to analyze price discrepancies across 1000 cycles of the 15-minute ``Bitcoin up or down?'' markets, comparing cross-market and cross-exchange discrepancies relative to the market lifecycle timeline.
+Showing that price the median discrepancy at the start of the cycle is the highest and towards the 
+end of the cycle the median remains relatively low with a strongly skewed distribution.
+
 \end{abstract}
 
 \tableofcontents
@@ -731,23 +734,24 @@ However, analyzing the orderbook state reveals that the bid share amount at any 
 The analogous relationship also holds for the YES asks and NO bids.
 
 The state of the CLOB is defined by the resting limit orders.
-A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price for an outcome share, $v \in \mathbb{R}^+$ is the quantity of shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome, and $i \in \mathbb{N}$ is the priority for selection when matching with market orders at price $p$ and side $s$. A lower $i$ indicates a higher priority. 
+A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price per share for the taker, $v \in \mathbb{R}^+$ is the quantity of shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome, and $i \in \mathbb{N}$ is the priority for selection when matching with market orders at price $p$ and side $s$. A lower $i$ indicates a higher priority. 
 This guarantees a unique ordering for both buy and sell limit orders used for matching. 
+Importantly, the price $p$ for the taker in the limit order is the one minus the price per share the maker pays or receives, if the match is a split or merge.
 Formally, for limit orders, the ordering is:
 
 \begin{align}
-\label{eq:sales_ordering}
+\label{eq:ordering}
     & ((p_1, v_1, s_1, i_1) > (p_2, v_2, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
 \end{align}
 
 \noindent Where the best price for the taker is:
 \begin{align}
-\label{eq:best_buy}
+\label{eq:best_taker_price}
     & p_{\text{market}} = \max \{p | (p, v, s, i)\}
 \end{align}
 
 
-\noindent If the quantity for a marketable order cannot be fully filled at the best market price, the taker suffers from **price slippage** if the order is executed. 
+\noindent If the quantity for a marketable order cannot be fully filled at the best market price, the taker suffers from price slippage if the order is executed. 
 If the marketable order cannot be filled by limit orders at any price, the taker order remains partially or fully unfilled. 
 Depending on the market order specification, a partially unfilled market order is either executed or canceled.
 
@@ -757,18 +761,19 @@ The CLOB is designed to allow this, with the core principle being that the taker
 We can define the slippage for a taker buying or selling $x$ base assets and getting matched with maker orders $M$ as:
 \begin{align}
 \label{eq:slip}
-    \text{Slippage}(x,M) = \left|\sum_{(p, v, s, i) \in M} p \cdot v - p_{\text{market}} \cdot x\right|
+    \text{Slippage}(x,M) = \left(\sum_{(p, v, s, i) \in M} p \cdot v\right) - p_{\text{market}} \cdot x
 \end{align}
 
-\noindent The least limit order $(p, v, s, i) = \min\{M\}$ might only be partially consumed. The set $M$ consists of all limit orders (or partial limit orders) used to fill the marketable order. The total quantity executed, $x$, is the sum of the quantities from all matched maker orders:
+\noindent The slippage can only be positive or zero by definition ~\ref{eq:best_taker_price}
+and least limit order $(p, v, s, i) = \min\{M\}$ might only be partially consumed. The set $M$ consists of all limit orders (or partial limit orders) used to fill the marketable order. The total quantity executed, $x$, is the sum of the quantities from all matched maker orders:
 \begin{align}
 \label{eq:exec_cost}
     & x = \sum_{(p, v,s, i) \in M} v
 \end{align}
 
 
-\subsection{Power Relation between Order Size and Slippage}
-Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 1,443,953 settlements.
+\subsection{Power Relation between USDC Inflow and Slippage}
+Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 53'689'552 settlements.
 The algorithm for obtaining the price per share $p$ and the number of shares associated with a settlement from its `OrderFilled` events, such that slippage can be computed using definition~\ref{eq:slip}, 
 can be found in Appendix~\ref{appendix:slippage_algorithm}.
 
@@ -782,21 +787,22 @@ There have been many studies on the power relation $y = \alpha x^\beta$ between 
 \end{figure}
 
 In the figure we can see the linear regression on $\log(y) = \beta \cdot \log(x) + \log(\alpha)$. 
-The tolerance of $10^{-4}$ USDC slippage used for regression was chosen as a result of an initial clustering analysis on the slippage of all settlements with more than 2 OrderFilled events, 
-which revealed that there were two other clusters in this space with significantly lower slippage ~\ref{fig:slip_clusters}.
+The tolerance of $10^{-4}$ USDC slippage is a result of initally discovery made from plotting all the log transformed USDC inflow and slippage in log log scale for settlements with more than two orderfill events.
+The plot in Appendix ~\ref{slip_clusters} shows this, where we can see three clearly distinguishable clusters. 
+One reason could be that Polymarket dynamically adjusts the \texttt{min\_tick\_size} for price ranges, which according to documentation usually is 0.01 but in case the prices are close to 0 or 1 can also become smaller.
+Another could be quantization and rounding errors related to how the numbers since in the \texttt{OrderFilled} events the otherwise floating point numbers are converted to integers.
+There have been reported cases of numeric discrepancies in orderexecution directly as well.
 
-The regression results in $\beta = 2.876 \times 10^{-2} \pm 9.435 \times 10^{-3}$, $\alpha = 0.660 \pm 2.417 \times 10^{-2}$, $R^2=0.338$. 
+The regression results in $\alpha = 2.571 \times 10^{-2} \pm 9.675 \times 10^{-3}$, $\beta = 0.6778 \pm 2.487 \times 10^{-2}$, $R^2=0.3360$. 
 This suggests that, as an aggregate, the settlements clearly follow a power relation, but as the $R^2$ suggests, 
-it is a poor predictor for individual settlements. Additionally, a $\beta$ of approximately $0.029$ is higher compared to the typical $0.5$ found, 
-also known as the square-root law of market impact, and suggests that slippage increases more than proportionally with order size on Polymarket.
-The coefficient $\alpha$ follows a more extreme trend, being orders of magnitude higher than what is found in traditional markets~\cite{HEWELKE2014}.
-
+it is a arguably a poor predictor for individual settlements. The $\beta$ is relatively high for a CLOB, where values around 0.5, also known as the square-root law of market impact, are commonly found in traditional markets~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
+The coefficient $\alpha$ follows a more extreme trend, being orders of magnitude higher than what is found in comparable markets~\cite{HEWELKE2014}.
 
 \subsection{Comparison with Decentralized AMM Slippage}
 Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
 In Uniswap V2, slippage follows the constant product formula $x \cdot y = k$ and scales linearly with trade size relative to liquidity, 
 whereas Polymarket exhibits lower slippage for most trades.
-Polymarket's CLOB achieves a slippage of less than $10^{-4}$ USDC for approximately 93.45\% of settlements, though exhibiting high variance. 
+Polymarket's CLOB achieves a slippage of less than $10^{-4}$ for approximately 99.9\% of settlements, though exhibiting high variance. 
 Additionally, on-chain AMMs suffer from MEV extraction via sandwich attacks and flashbots, where validators and bots front-run and back-run transactions for profit~\cite{DAIAN2019, HEIMBACH2022}. 
 Polymarket's off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction, meaning observed slippage reflects only order book consumption without adversarial extraction.
 
@@ -2479,71 +2485,58 @@ $T_1$ & $T_2$ & {Pairs ($N$)} & {$P(T_1 < T_2)$} & {$P(T_1 = T_2)$} & {$P(T_1 > 
 \section{Slippage Computation Algorithm}
 \label{appendix:slippage_algorithm}
 
-Each settlement transaction emits multiple \texttt{OrderFilled} events from the CTFExchange contract. Each event contains:
-\begin{itemize}
-    \item \texttt{maker}: address of the limit order placer
-    \item \texttt{taker}: address of the order executor
-    \item \texttt{makerAssetId}: asset ID being provided by maker (0 = USDC, else outcome token ID)
-    \item \texttt{takerAssetId}: asset ID being provided by taker
-    \item \texttt{making}: quantity of makerAssetId being transferred (in wei)
-    \item \texttt{taking}: quantity of takerAssetId being transferred (in wei)
-\end{itemize}
+The following algorithm extracts matched orders $M$ and the market price $p_{\text{market}}$ 
+from the \texttt{OrderFilled} events emitted by the CTFExchange for a single settlement.
 
 \begin{algorithm}[H]
-\caption{Computing Slippage from OrderFilled Events}
+\caption{Extract Slippage Parameters from OrderFilled Events}
+\label{alg:slippage_extraction}
 \begin{algorithmic}[1]
-\State \textbf{Input:} Set of \texttt{OrderFilled} events $E$ for a settlement transaction
-\State \textbf{Output:} Slippage in USDC, USDC inflow $x$, set of maker limit orders $M$
+\Require Set of \texttt{OrderFilled} events $E$ for a settlement
+\Ensure Matched orders $M$, market price $p_{\text{market}}$, order size $x$, USDC inflow $u$
 
-\State $E_{\text{exchange}} \gets \{e \in E : e.\text{taker} = \text{EXCHANGE\_ADDRESS}\}$
-\State \textbf{assert} $|E_{\text{exchange}}| = 1$ \Comment{Exactly one taker-facing fill}
-\State $e_t \gets E_{\text{exchange}}[0]$ \Comment{The taker's fill against the exchange}
-
-\State \Comment{Determine trade direction and extract quantities}
-\If{$e_t.\text{makerAssetId} = 0$}
-    \State $\text{takerBuying} \gets \texttt{True}$ \Comment{Maker sells USDC, taker buys tokens}
-    \State $x \gets e_t.\text{making} / 10^6$ \Comment{USDC provided (maker gives USDC)}
-    \State $v_t \gets e_t.\text{taking} / 10^6$ \Comment{Tokens received by maker}
-\Else
-    \State $\text{takerBuying} \gets \texttt{False}$ \Comment{Taker sells tokens, maker buys}
-    \State $x \gets e_t.\text{taking} / 10^6$ \Comment{USDC received (taker gets USDC)}
-    \State $v_t \gets e_t.\text{making} / 10^6$ \Comment{Tokens provided by taker}
-\EndIf
-
-\State $M \gets \emptyset$ \Comment{Initialize maker limit orders set}
-\State $E_{\text{makers}} \gets E \setminus E_{\text{exchange}}$ \Comment{All non-exchange fills}
-
-\For{each $e_m \in E_{\text{makers}}$}
-    \State \Comment{Decode maker fill to extract price and volume}
-    \If{$e_m.\text{makerAssetId} = 0$}
-        \State $\text{makerBuying} \gets \texttt{True}$
-        \State $p_{\text{raw}} \gets e_m.\text{making} / e_m.\text{taking}$ \Comment{USDC per token}
-        \State $v \gets e_m.\text{taking} / 10^6$ \Comment{Token volume}
-    \Else
-        \State $\text{makerBuying} \gets \texttt{False}$
-        \State $p_{\text{raw}} \gets e_m.\text{taking} / e_m.\text{making}$ \Comment{USDC per token}
-        \State $v \gets e_m.\text{making} / 10^6$ \Comment{Token volume}
+\Statex
+\State \textbf{Phase 1: Identify taker and extract order parameters}
+\For{each event $e \in E$}
+    \If{$e.\texttt{taker} = \texttt{EXCHANGE\_ADDRESS}$}
+        \If{$e.\texttt{makerAssetId} = 0$}
+            \State $\text{taker\_side} \gets \text{buy}$
+        \Else
+            \State $\text{taker\_side} \gets \text{sell}$
+        \EndIf
+        \State $u \gets \min(e.\texttt{making}, e.\texttt{taking})$ \Comment{USDC inflow}
+        \State $x \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Token quantity}
     \EndIf
-    
-    \State \Comment{Adjust price perspective: express from taker's viewpoint}
-    \If{$\text{makerBuying} = \text{takerBuying}$}
-        \State $p \gets 1 - p_{\text{raw}}$ \Comment{Maker on same side, use complement price}
-    \Else
-        \State $p \gets p_{\text{raw}}$
-    \EndIf
-    
-    \State $M \gets M \cup \{(p, v)\}$ \Comment{Add maker order to set}
 \EndFor
 
-\State $p_{\text{market}} \gets \min\{p : (p, v) \in M\}$ \Comment{Best available price}
-\State $\text{Slippage} \gets x - p_{\text{market}} \cdot v_t$ \Comment{Apply Equation~\ref{eq:slip}}
+\Statex
+\State \textbf{Phase 2: Process maker fills to construct matched orders}
+\State $M \gets \emptyset$
+\For{each event $e \in E$ where $e.\texttt{taker} \neq \texttt{EXCHANGE\_ADDRESS}$}
+    \If{$e.\texttt{makerAssetId} = 0$}
+        \State $\text{maker\_side} \gets \text{buy}$
+    \Else
+        \State $\text{maker\_side} \gets \text{sell}$
+    \EndIf
+    \State $\text{raw\_price} \gets \min(e.\texttt{making}, e.\texttt{taking}) \,/\, \max(e.\texttt{making}, e.\texttt{taking})$
+    \Statex
+    \If{$\text{maker\_side} = \text{taker\_side}$} \Comment{In case of split or merge match the raw price has to be inverted to for the taker}
+        \State $p \gets 1 - \text{raw\_price}$
+    \Else
+        \State $p \gets \text{raw\_price}$
+    \EndIf
+    \Statex
+    \State $v \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Share quantity}
+    \State $M \gets M \cup \{(p, v, maker\_side, 0)\}$ \Comment{The queue priority is unknown from settlement information, but also irrelevant for slippage computation}
+\EndFor
 
-\State \Return $(\text{Slippage}, x, M)$
+\Statex
+\State \textbf{Phase 3: Compute market price}
+\State $p_{\text{market}} \gets \min\{p \mid (p, v, s, i) \in M\}$
+
+\Statex
+\State \Return $M$, $p_{\text{market}}$, $x$, $u$
 \end{algorithmic}
 \end{algorithm}
 
-\noindent The algorithm identifies the taker-facing exchange fill to determine the total USDC transacted ($x$) and trade direction. Each maker fill is decoded to extract the limit order price $p$ and volume $v$. The price orientation is adjusted such that all prices represent USDC per token from the taker's perspective. Finally, slippage is computed as the difference between the actual USDC paid and the USDC that would have been paid at the best available maker price $p_{\text{market}}$.
-
-
 \end{document}
-
