@@ -93,22 +93,23 @@
 
 \begin{abstract}
 Polymarket and Kalshi are exchanges making prediction markets accessible globally, with unprecedented growth. 
-Both use a Central Limit Orderbook as market mechanism, 
+Both use a Central Limit Orderbook as a market mechanism, 
 but Polymarket implements event contracts, settlement, resolution, and more through Ethereum-based smart contracts.
 The operation of this hybrid system remains largely undocumented.
-We design and implement data collection clients for Polymarket's and Kalshi's REST and WebSocket endpoints, addressing poorly documented APIs and discovered inconsistencies, 
-along with an Infura eth\_getLogs client for on-chain event collection.
+
+The purpose of this thesis is to understand the nature of prediction markets and arbitrage opportunities as they exist on Polymarket and Kalshi, as well as break down Polymarket's hybrid exchange system 
+to fill in the missing gaps and compare it to other exchanges.
+To achieve this we design data collection clients for Polymarket's, Kalshi's endpoints and Infura's eth\_getLogs endpoint, addressing poorly documented APIs and discovered inconsistencies.
 Using on-chain data from November 18, 2025 to January 5, 2026 and historical off-chain market objects, we examine the market lifecycle, 
 identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation, registration, and resolution patterns, 
 and the outcome distribution (41.17\% YES, 58.58\% NO, 0.25\% UNKNOWN).
 
-Analyzing over 53 million settlements, we find that slippage follows $y = \alpha x^\beta$ with $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$ and $\beta = 2.751 \times 10^{-2} \pm 9.675 \times 10^{-3}$, 
+Analyzing over 43 million settlements, we find that for slippage $y$ and USDC inflow $x$ follow the relationship $y = \beta x^\alpha$, with $\beta = 2.751 \times 10^{-2} \pm 9.675 \times 10^{-3}$ and $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, 
 determined through linear regression on log-transformed data with $R^2 = 0.3360$.
 This deviates from the typical square-root law of market impact, suggesting that slippage increases more than proportionally with order size on Polymarket.
-However, Polymarket still compares favorably to the linear scaling of slippage in decentralized AMMs like Uniswap V2.
+However, it still compares favorably to the linear scaling slippage in decentralized AMMs like Uniswap V2.
 Lastly, we use the data collected through the endpoint clients from January 8th 2026 until February 2nd 2026 to analyze price discrepancies across 1000 cycles of the 15-minute ``Bitcoin up or down?'' markets, comparing cross-market and cross-exchange discrepancies relative to the market lifecycle timeline.
-Showing that price the median discrepancy at the start of the cycle is the highest and towards the 
-end of the cycle the median remains relatively low with a strongly skewed distribution.
+We find that the median discrepancy is highest at the start of the cycle and remains relatively low towards the end, with an increasingly skewed distribution.
 
 \end{abstract}
 
@@ -117,44 +118,10 @@ end of the cycle the median remains relatively low with a strongly skewed distri
 \mainmatter
 
 \chapter{Introduction}
-\section{Speculation}
-Classifying and regulating speculation on uncertain events has historically been challenging. 
-A common classification hinges on the purpose of the speculation,
-whether it serves to hedge risk and provide insurance, 
-to enable price discovery for information aggregation and forecasting, 
-or to function as entertainment akin to gambling.
-
-\subsection{Market Integrity}
-This regulatory ambiguity can undermine market integrity through two primary risks: 
-direct manipulation and exploitation.
-
-A moral hazard arises when market participants can directly influence an event's outcome. 
-Match-fixing in sports provides an illustrative example: 
-a boxer might have an economic incentive to lose deliberately if betting returns on their defeat exceed the prize for winning.
-
-A related issue is asymmetric information. 
-Not all informational advantages are malicious; 
-some are an unavoidable consequence of information diffusion. 
-However, the asymmetry becomes exploitative, 
-potentially amounting to insider trading, 
-when it arises from privileged access that allows a few actors to profit from unfairly obtained information without altering the outcome.
-
-Both risks extend to more severe scenarios, 
-from corporate managers taking positions that benefit from a project failure they can influence to insiders profiting from foreknowledge of military actions.
-
-\subsection{Modern Regulation}
-To mitigate these risks, 
-regulators can prohibit speculation on events that present particularly high moral hazard or exploitation risks. 
-For example, the U.S. Commodity Futures Trading Commission (CFTC) implements 17 C.F.R. § 40.11, 
-which states that a registered entity "shall not list for trading or accept for clearing" contracts that, 
-among other things, "involve, relate to, or reference terrorism, assassination, war, gaming, or an activity that is unlawful under any State or Federal law" 
-and permits the Commission to identify similar activities it deems contrary to the public interest~\cite{CFTC_REG_40_11}. 
-This rule was the primary battleground that Kalshi challenged in order to list specific political prediction markets~\cite{Kalshi_v_CFTC_2024}
-and is a primary reason for Polymarket's restricted access for U.S. users~\cite{CFTC_Polymarket_2022}.
-
-\section{Prediction Market Exchanges}
+In this chapter we introduce prediction markets as they exist on Polymarket and Kalshi, 
+important relations for later analysis and also general information about Polymarket and Kalshi as motivation and context for the rest of the thesis.
+\section{Prediction Markets}
 \label{sec:prediction_markets}
-Polymarket and Kalshi are two exchanges popularizing prediction markets and making them accessible globally. 
 A prediction market is derived from the outcome of a real-world event. 
 On both exchanges, a prediction market is exclusively designed for binary events with YES and NO outcomes. 
 These outcomes are represented as shares quoted in USD, or on Polymarket specifically, in USDC, 
@@ -190,7 +157,7 @@ Polymarket labels these as \textit{Negrisk} and provides a full suite of smart c
 including a distinct settlement smart contract deployment \textit{Negrisk CTFE} and an atomic swap operation for converting 
 a set of mutually exclusive outcome positions into the complementary positions of the alternative outcomes~\ref{sec:nr}.
 
-\subsection{Growth}
+\section{Growth}
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/poly_quarterly_trading.png}
@@ -207,14 +174,14 @@ a set of mutually exclusive outcome positions into the complementary positions o
 
 Figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} show the quarterly USD trading volume. For Polymarket, we can also distinguish between trading volume on the Negrisk CTFE and the OOV2 CTFE~\ref{sec:ctfe}. 
 
-\subsection{US Market}
+\section{US Market}
 The flat line in Polymarket's trading volume starts right after the CFTC action in January 2022. Kalshi operated only in the U.S. until October 2025, covering the first three quarters of 2025 and the last quarter of 2024 shown in Figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
 
 The 47th U.S. presidential election was a major event for both exchanges. Various studies have compared the forecasting ability and information efficiency of Kalshi and Polymarket for this event against other methods like New York Times polls~\cite{clinton2025prediction,wolfers2024prediction}. The volume spike in the fourth quarter of 2024 is also clearly visible. On Kalshi, markets related to politics and the election accounted for roughly 1 billion USD in volume in November alone~\cite{morningstar2024kalshi}. On Polymarket, the main market for the presidential election accumulated a total volume of 3.5 billion USDC~\cite{coindesk2024polymarket}.
 
 However, a recent study using two unsupervised network models suggests that around 18\% or less of the volume traded on Polymarket is wash trading, where users trade with themselves to inflate activity. One method reported that approximately 60\% of the December 2024 volume was washed~\cite{WashTrading}. This occurred the month after the U.S. election markets concluded and coincided with a decline of over 50\% in total trading volume~\cite{duneNovDec}.
 
-\subsection{Accessibility}
+\section{Accessibility}
 Kalshi expanded to over 140 countries in October 2025~\cite{kalshi2025expansion}, and Polymarket plans to reenter the U.S. market. On July 21, 2025, Polymarket acquired QCX LLC, a company that had registered as a Designated Contract Market (DCM) with the CFTC earlier that month~\cite{GCX_ACQUIRY}. This entity was subsequently rebranded as ``Polymarket US''~\cite{GCX_CFTC_REGISTRY}. As of December 4, 2025, Polymarket was not yet available in the U.S. Both exchanges face regulatory headwinds in many jurisdictions. Gambling authorities in several countries have banned them. This includes Switzerland, where the Swiss Gambling Supervisory Authority (GESPA) has blacklisted their DNS domains, blocking access via Swiss ISPs~\cite{GESPA_BLACKLIST}.
 
 Despite CFTC approval, Kalshi faces state-level regulatory issues in the U.S. For example, the Illinois Department of Financial and Professional Regulation (IDFPR) issued a cease-and-desist order preventing Kalshi from operating in Illinois for allegedly defying state gambling regulations. Kalshi argues that national oversight by the CFTC preempts these claims. This ongoing case demonstrates that the regulatory landscape surrounding speculation remains conflicted~\cite{kalshi2025illinois}.
@@ -725,18 +692,18 @@ A marketable order is either executed immediately against the best possible rest
 \section{State, Ordering, and Matching}
 \label{sec:CLOB_state}
 
-A trader can either buy or sell YES or NO shares, which creates four possible order types: Sell Yes, Sell No, Buy Yes, and Buy No. 
+A trader can buy or sell YES shares or buy or sell NO shares, which creates four possible order types: Sell Yes, Sell No, Buy Yes, and Buy No. 
 However, these four types represent only two core intentions: speculating on the YES outcome by buying YES shares or selling NO shares, or speculating on the NO outcome by buying NO shares or selling YES shares.
 
 Kalshi maintains a single orderbook for each prediction market, capturing order intentions through a YES and a NO side.
-Polymarket, on the other hand, documents and provides separate orderbooks for the YES and NO shares, each with bid and ask sides.
+Polymarket, on the other hand, provides separate orderbooks for the YES and NO shares, each with bid and ask sides.
 However, analyzing the orderbook state reveals that the bid share amount at any given price $p$ for the YES shares is always the same as the ask share amount for the NO shares at price $1-p$. 
 The analogous relationship also holds for the YES asks and NO bids.
 
 The state of the CLOB is defined by the resting limit orders.
 A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price per share for the taker, $v \in \mathbb{R}^+$ is the quantity of shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome, and $i \in \mathbb{N}$ is the priority for selection when matching with market orders at price $p$ and side $s$. A lower $i$ indicates a higher priority. 
 This guarantees a unique ordering for both buy and sell limit orders used for matching. 
-Importantly, the price $p$ for the taker in the limit order is the one minus the price per share the maker pays or receives, if the match is a split or merge.
+Importantly, the taker price $p$ in a limit order equals one minus the maker's price per share in split or merge matches.
 Formally, for limit orders, the ordering is:
 
 \begin{align}
@@ -744,7 +711,7 @@ Formally, for limit orders, the ordering is:
     & ((p_1, v_1, s_1, i_1) > (p_2, v_2, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
 \end{align}
 
-\noindent Where the best price for the taker is:
+\noindent The best price for the taker is:
 \begin{align}
 \label{eq:best_taker_price}
     & p_{\text{market}} = \max \{p | (p, v, s, i)\}
@@ -764,8 +731,8 @@ We can define the slippage for a taker buying or selling $x$ base assets and get
     \text{Slippage}(x,M) = \left(\sum_{(p, v, s, i) \in M} p \cdot v\right) - p_{\text{market}} \cdot x
 \end{align}
 
-\noindent The slippage can only be positive or zero by definition ~\ref{eq:best_taker_price}
-and least limit order $(p, v, s, i) = \min\{M\}$ might only be partially consumed. The set $M$ consists of all limit orders (or partial limit orders) used to fill the marketable order. The total quantity executed, $x$, is the sum of the quantities from all matched maker orders:
+\noindent The slippage can only be positive or zero by definition~\ref{eq:best_taker_price}, and the least limit order $(p, v, s, i) = \min\{M\}$ might only be partially consumed. 
+The total quantity executed, $x$, is the sum of the quantities from all matched maker orders:
 \begin{align}
 \label{eq:exec_cost}
     & x = \sum_{(p, v,s, i) \in M} v
@@ -773,11 +740,11 @@ and least limit order $(p, v, s, i) = \min\{M\}$ might only be partially consume
 
 
 \subsection{Power Relation between USDC Inflow and Slippage}
-Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 53'689'552 settlements.
-The algorithm for obtaining the price per share $p$ and the number of shares associated with a settlement from its `OrderFilled` events, such that slippage can be computed using definition~\ref{eq:slip}, 
+Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 43,970,817 settlements.
+The algorithm for obtaining the maker orders $M$, share quantity $x$ and $p_{market}$ from the `OrderFilled` events of a settlement, such that slippage can be computed using definition~\ref{eq:slip}, 
 can be found in Appendix~\ref{appendix:slippage_algorithm}.
 
-There have been many studies on the power relation $y = \alpha x^\beta$ between order size $x$ and slippage $y$ in traditional financial markets with an orderbook as market mechanism~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
+There have been many studies on the power relation $y = \beta x^\alpha$ between order size $x$ and slippage $y$ in traditional financial markets with an orderbook as market mechanism~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
 
 \begin{figure}[H] 
     \centering
@@ -786,23 +753,23 @@ There have been many studies on the power relation $y = \alpha x^\beta$ between 
     \label{fig:slip_power}
 \end{figure}
 
-In the figure we can see the linear regression on $\log(y) = \beta \cdot \log(x) + \log(\alpha)$. 
-The tolerance of $10^{-4}$ USDC slippage is a result of initally discovery made from plotting all the log transformed USDC inflow and slippage in log log scale for settlements with more than two orderfill events.
-The plot in Appendix ~\ref{slip_clusters} shows this, where we can see three clearly distinguishable clusters. 
+In the figure, we can see the linear regression on $\log(y) = \alpha \cdot \log(x) + \log(\beta)$. 
+The tolerance of $10^{-4}$ USDC slippage resulted from an initial observation when plotting all the log-transformed USDC inflow and slippage in log-log scale for settlements with more than two OrderFilled events.
+The plot in Appendix ~\ref{fig:slip_clusters} shows this, where we can see three clearly distinguishable clusters. 
 One reason could be that Polymarket dynamically adjusts the \texttt{min\_tick\_size} for price ranges, which according to documentation usually is 0.01 but in case the prices are close to 0 or 1 can also become smaller.
-Another could be quantization and rounding errors related to how the numbers since in the \texttt{OrderFilled} events the otherwise floating point numbers are converted to integers.
-There have been reported cases of numeric discrepancies in orderexecution directly as well.
+Another could be quantization and rounding errors related to how numbers are converted, since the floating-point numbers in the \texttt{OrderFilled} events are converted to integers by multiplying the USDC and share quantities by $10^{6}$.
+There have been reported cases of numeric discrepancies in order execution directly as well.
 
-The regression results in $\alpha = 2.571 \times 10^{-2} \pm 9.675 \times 10^{-3}$, $\beta = 0.6778 \pm 2.487 \times 10^{-2}$, $R^2=0.3360$. 
+The regression results in $\beta = 2.571 \times 10^{-2} \pm 9.675 \times 10^{-3}$, $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, $R^2=0.3360$. 
 This suggests that, as an aggregate, the settlements clearly follow a power relation, but as the $R^2$ suggests, 
-it is a arguably a poor predictor for individual settlements. The $\beta$ is relatively high for a CLOB, where values around 0.5, also known as the square-root law of market impact, are commonly found in traditional markets~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
-The coefficient $\alpha$ follows a more extreme trend, being orders of magnitude higher than what is found in comparable markets~\cite{HEWELKE2014}.
+it is arguably a poor predictor for individual settlements. The $\alpha$ is relatively high for a CLOB, where values around 0.5, also known as the square-root law of market impact, are commonly found in traditional markets~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
+The coefficient $\beta$ follows a more extreme trend, being orders of magnitude higher than what is found in comparable markets~\cite{HEWELKE2014}.
 
 \subsection{Comparison with Decentralized AMM Slippage}
 Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
 In Uniswap V2, slippage follows the constant product formula $x \cdot y = k$ and scales linearly with trade size relative to liquidity, 
 whereas Polymarket exhibits lower slippage for most trades.
-Polymarket's CLOB achieves a slippage of less than $10^{-4}$ for approximately 99.9\% of settlements, though exhibiting high variance. 
+Polymarket's CLOB achieves a slippage of less than $10^{-4}$ for over 98\% of settlements, though exhibiting high variance. 
 Additionally, on-chain AMMs suffer from MEV extraction via sandwich attacks and flashbots, where validators and bots front-run and back-run transactions for profit~\cite{DAIAN2019, HEIMBACH2022}. 
 Polymarket's off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction, meaning observed slippage reflects only order book consumption without adversarial extraction.
 
@@ -842,7 +809,7 @@ Comparing the market internal price discrepancy between Polymarket and Kalshi fo
 However, this efficiency may be partially attributed to wash trading activity, as a recent study suggests approximately 18\% or potentially up to 60\% of December 2024 volume on Polymarket involved wash trades.
 
 \section{Slippage and Market Design}
-Polymarket's CLOB achieves 93.45\% of settlements incurring minimal slippage below $10^{-4}$ USDC. While the measured power relation exhibits higher impact coefficients than traditional markets, the off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction inherent to decentralized AMMs, meaning observed slippage reflects only mechanical order book consumption. However, high variance in the slippage-to-volume ratio indicates that large orders face unpredictable price impact from order book depth constraints.
+Polymarket's CLOB achieves over 98\% of settlements incurring minimal slippage below $10^{-4}$ USDC. While the measured power relation exhibits worse impact coefficients than traditional markets, the off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction inherent to decentralized AMMs, meaning observed slippage reflects only mechanical order book consumption. However, high variance in the slippage-to-volume ratio indicates that large orders face unpredictable price impact from order book depth constraints.
 
 \section{Unregistered Markets and Emerging Infrastructure}
 A notable finding is the emergence of unregistered prediction markets on Polymarket around December 2025, primarily using the Centralized Adapter as the reporting oracle. 
@@ -2485,7 +2452,7 @@ $T_1$ & $T_2$ & {Pairs ($N$)} & {$P(T_1 < T_2)$} & {$P(T_1 = T_2)$} & {$P(T_1 > 
 \section{Slippage Computation Algorithm}
 \label{appendix:slippage_algorithm}
 
-The following algorithm extracts matched orders $M$ and the market price $p_{\text{market}}$ 
+The following algorithm extracts matched orders $M$, share quantity $x$, and market price $p_{\text{market}}$ 
 from the \texttt{OrderFilled} events emitted by the CTFExchange for a single settlement.
 
 \begin{algorithm}[H]
@@ -2493,7 +2460,6 @@ from the \texttt{OrderFilled} events emitted by the CTFExchange for a single set
 \label{alg:slippage_extraction}
 \begin{algorithmic}[1]
 \Require Set of \texttt{OrderFilled} events $E$ for a settlement
-\Ensure Matched orders $M$, market price $p_{\text{market}}$, order size $x$, USDC inflow $u$
 
 \Statex
 \State \textbf{Phase 1: Identify taker and extract order parameters}
@@ -2527,15 +2493,17 @@ from the \texttt{OrderFilled} events emitted by the CTFExchange for a single set
     \EndIf
     \Statex
     \State $v \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Share quantity}
+    \State $v \gets v \cdot 10^{-6}$ \Comment{Convert to correct units}
     \State $M \gets M \cup \{(p, v, maker\_side, 0)\}$ \Comment{The queue priority is unknown from settlement information, but also irrelevant for slippage computation}
 \EndFor
 
 \Statex
-\State \textbf{Phase 3: Compute market price}
+\State \textbf{Phase 3: Compute market price and USDC inflow in correct units}
 \State $p_{\text{market}} \gets \min\{p \mid (p, v, s, i) \in M\}$
+\State $x \gets x \cdot 10^{-6}$ \Comment{Convert to correct units}
 
 \Statex
-\State \Return $M$, $p_{\text{market}}$, $x$, $u$
+\State \Return $M$, $p_{\text{market}}$, $x$
 \end{algorithmic}
 \end{algorithm}
 
