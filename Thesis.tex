@@ -92,23 +92,23 @@
 \end{acknowledgements}
 
 \begin{abstract}
-Polymarket and Kalshi are exchanges making prediction markets accessible globally, with unprecedented growth. 
+Polymarket and Kalshi are exchanges making prediction markets accessible globally, with significant growth in trading volume and popularity. 
 Both use a Central Limit Orderbook as a market mechanism, 
 but Polymarket implements event contracts, settlement, resolution, and more through Ethereum-based smart contracts.
 The operation of this hybrid system remains largely undocumented.
 
 The purpose of this thesis is to understand the nature of prediction markets and arbitrage opportunities as they exist on Polymarket and Kalshi, as well as break down Polymarket's hybrid exchange system 
 to fill in the missing gaps and compare it to other exchanges.
-To achieve this we design data collection clients for Polymarket's, Kalshi's endpoints and Infura's eth\_getLogs endpoint, addressing poorly documented APIs and discovered inconsistencies.
+To achieve this, we design data collection clients for the endpoints of Polymarket, Kalshi, and Infura's eth\_getLogs service, addressing poorly documented APIs and discovered inconsistencies.
 Using on-chain data from November 18, 2025 to January 5, 2026 and historical off-chain market objects, we examine the market lifecycle, 
 identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation, registration, and resolution patterns, 
 and the outcome distribution (41.17\% YES, 58.58\% NO, 0.25\% UNKNOWN).
 
-Analyzing over 43 million settlements, we find that for slippage $y$ and USDC inflow $x$ follow the relationship $y = \beta x^\alpha$, with $\beta = 2.751 \times 10^{-2} \pm 9.675 \times 10^{-3}$ and $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, 
+Analyzing over 43 million settlements, we find that slippage $y$ and taker USDC amount $x$ follow the relationship $y = \beta x^\alpha$, with $\beta = 2.751 \times 10^{-2} \pm 9.675 \times 10^{-3}$ and $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, 
 determined through linear regression on log-transformed data with $R^2 = 0.3360$.
-This deviates from the typical square-root law of market impact, suggesting that slippage increases more than proportionally with order size on Polymarket.
+This deviates from the typical square-root law of market impact, suggesting that slippage increases superlinearly with order size on Polymarket.
 However, it still compares favorably to the linear scaling slippage in decentralized AMMs like Uniswap V2.
-Lastly, we use the data collected through the endpoint clients from January 8th 2026 until February 2nd 2026 to analyze price discrepancies across 1000 cycles of the 15-minute ``Bitcoin up or down?'' markets, comparing cross-market and cross-exchange discrepancies relative to the market lifecycle timeline.
+Lastly, we use the data collected through the endpoint clients from January 8 to February 2, 2026 to analyze price discrepancies across 1000 cycles of the 15-minute ``Bitcoin up or down?'' markets, comparing cross-market and cross-exchange discrepancies relative to the market lifecycle timeline.
 We find that the median discrepancy is highest at the start of the cycle and remains relatively low towards the end, with an increasingly skewed distribution.
 
 \end{abstract}
@@ -650,8 +650,8 @@ Overall, less than half of the conditions prepared using the Centralized Adapter
     \end{tabular}
 \end{table}
 
-There is a strange anomaly: markets are visible on the Polymarket web application, listed as active in the market object, and show trading activity on the WebSocket market feed, yet they lack any corresponding `TokensRegistered`, `OrdersMatched`, or `OrderFilled` events emitted from either the CTFE or the Negrisk CTFE. 
-The cyclical 15-minute ``Bitcoin up or down?'' markets serve as an example of this behavior.
+Some of these markets are visible on the Polymarket web application, listed as active in the market object, and show trading activity on the WebSocket market feed, yet they lack any corresponding `TokensRegistered`, `OrdersMatched`, or `OrderFilled` events emitted from either the CTFE or the Negrisk CTFE. 
+The cyclical 15-minute ``Bitcoin up or down?'' markets serve as an example of this behavior, which demonstrates that Polymarket is silently becoming more centralized.
 
 \section{Resolution}
 \subsection{Disputes}
@@ -703,15 +703,15 @@ The analogous relationship also holds for the YES asks and NO bids.
 The state of the CLOB is defined by the resting limit orders.
 A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price per share for the taker, $v \in \mathbb{R}^+$ is the quantity of shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome, and $i \in \mathbb{N}$ is the priority for selection when matching with market orders at price $p$ and side $s$. A lower $i$ indicates a higher priority. 
 This guarantees a unique ordering for both buy and sell limit orders used for matching. 
-Importantly, the taker price $p$ in a limit order equals one minus the maker's price per share in split or merge matches.
-Formally, for limit orders, the ordering is:
+The taker price $p$ is only the same the matched maker price if their complementary. Otherwise, in the case that the match is a merge or split, 
+the taker price $p$ equals one minus the maker price. In any case, the order for limit orders by taker price and time priority is:
 
 \begin{align}
 \label{eq:ordering}
     & ((p_1, v_1, s_1, i_1) > (p_2, v_2, s_2, i_2)) \iff p_1 < p_2 \lor (p_1 = p_2 \land i_1 < i_2)
 \end{align}
 
-\noindent The best price for the taker is:
+\noindent The best price for the taker obviously is the lowest, which by ordering ~\ref{eq:ordering} is the price of the greatest limit order:
 \begin{align}
 \label{eq:best_taker_price}
     & p_{\text{market}} = \max \{p | (p, v, s, i)\}
@@ -739,10 +739,9 @@ The total quantity executed, $x$, is the sum of the quantities from all matched 
 \end{align}
 
 
-\subsection{Power Relation between USDC Inflow and Slippage}
-Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 43,970,817 settlements.
-The algorithm for obtaining the maker orders $M$, share quantity $x$ and $p_{market}$ from the `OrderFilled` events of a settlement, such that slippage can be computed using definition~\ref{eq:slip}, 
-can be found in Appendix~\ref{appendix:slippage_algorithm}.
+\subsection{Power Relation between USDC Taker Amount and Slippage}
+We can match the OrderFilled events emitted by the CTFExchange by their transaction hash, to obtain 43,970,817 settlements.
+Then we can use the OrderFilled events to obtain the maker orders $M$, share quantity $x$ and $p_{market}$ for a given settlement using algorithm ~\ref{appendix:slippage_algorithm}, such that slippage can be computed using definition~\ref{eq:slip}.
 
 There have been many studies on the power relation $y = \beta x^\alpha$ between order size $x$ and slippage $y$ in traditional financial markets with an orderbook as market mechanism~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
 
@@ -754,16 +753,21 @@ There have been many studies on the power relation $y = \beta x^\alpha$ between 
 \end{figure}
 
 In the figure, we can see the linear regression on $\log(y) = \alpha \cdot \log(x) + \log(\beta)$. 
-The tolerance of $10^{-4}$ USDC slippage resulted from an initial observation when plotting all the log-transformed USDC inflow and slippage in log-log scale for settlements with more than two OrderFilled events.
+The tolerance of $10^{-4}$ USDC slippage resulted from an initial observation when plotting all the log-transformed USDC taker amounts and slippage for settlements with more than two OrderFilled events.
 The plot in Appendix ~\ref{fig:slip_clusters} shows this, where we can see three clearly distinguishable clusters. 
-One reason could be that Polymarket dynamically adjusts the \texttt{min\_tick\_size} for price ranges, which according to documentation usually is 0.01 but in case the prices are close to 0 or 1 can also become smaller.
-Another could be quantization and rounding errors related to how numbers are converted, since the floating-point numbers in the \texttt{OrderFilled} events are converted to integers by multiplying the USDC and share quantities by $10^{6}$.
-There have been reported cases of numeric discrepancies in order execution directly as well.
+One reason could be that Polymarket dynamically adjusts the smallest price per share possible, which according to documentation usually is 0.01 but in case the prices are close to 0 or 1 can also become smaller.
+Another could be quantization and rounding errors related to how numbers are converted, 
+since the prices and share quantities are in floating-point numbers on the API,
+but stored as integers on chain by multiplying the USDC amounts and share quantities by $10^{6}$.
+There have been complaints about numeric discrepancies in order execution directly as well.
 
 The regression results in $\beta = 2.571 \times 10^{-2} \pm 9.675 \times 10^{-3}$, $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, $R^2=0.3360$. 
-This suggests that, as an aggregate, the settlements clearly follow a power relation, but as the $R^2$ suggests, 
-it is arguably a poor predictor for individual settlements. The $\alpha$ is relatively high for a CLOB, where values around 0.5, also known as the square-root law of market impact, are commonly found in traditional markets~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
-The coefficient $\beta$ follows a more extreme trend, being orders of magnitude higher than what is found in comparable markets~\cite{HEWELKE2014}.
+This suggests that, as an aggregate, the settlements clearly follow a power-law relation, but as the $R^2$ suggests, 
+it is arguably a poor predictor for individual settlements.
+The $\alpha$ is relatively high for a CLOB, where values around 0.5 are expected, also known as the square-root law of market impact~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
+The coefficient $\beta$ follows an even more extreme trend, being orders of magnitude higher than what is found in comparable markets~\cite{HEWELKE2014}.
+However, it is important to consider that less than 2\% of settlements have a slippage above $10^{-4}$ USDC, which would suggest that a slippage occurring is a rare event, 
+but if it does occur its expected to be greater than what is observed in comparable markets.
 
 \subsection{Comparison with Decentralized AMM Slippage}
 Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
@@ -2470,8 +2474,7 @@ from the \texttt{OrderFilled} events emitted by the CTFExchange for a single set
         \Else
             \State $\text{taker\_side} \gets \text{sell}$
         \EndIf
-        \State $u \gets \min(e.\texttt{making}, e.\texttt{taking})$ \Comment{USDC inflow}
-        \State $x \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Token quantity}
+        \State $x \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Share quantity, simply is the max between USDC amount and share amount}
     \EndIf
 \EndFor
 
@@ -2494,7 +2497,7 @@ from the \texttt{OrderFilled} events emitted by the CTFExchange for a single set
     \Statex
     \State $v \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Share quantity}
     \State $v \gets v \cdot 10^{-6}$ \Comment{Convert to correct units}
-    \State $M \gets M \cup \{(p, v, maker\_side, 0)\}$ \Comment{The queue priority is unknown from settlement information, but also irrelevant for slippage computation}
+    \State $M \gets M \cup \{(p, v, NAN, 0)\}$ \Comment{The queue priority and side are irrelevant for slippage computation}
 \EndFor
 
 \Statex
