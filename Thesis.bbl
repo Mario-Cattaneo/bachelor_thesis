@@ -167,6 +167,31 @@ Polymarket, ``Polymarket order placement,'' February 2026. [Online]. Available:
   \url{https://docs.polymarket.com/developers/CLOB/orders/create-order}
 \BIBentrySTDinterwordspacing
 
+\bibitem{ALMGREN2001}
+R.~Almgren and N.~Chriss, ``Optimal execution of portfolio transactions,''
+  \emph{Journal of Risk}, vol.~3, no.~2, pp. 5--39, 2001.
+
+\bibitem{TOTH2011}
+\BIBentryALTinterwordspacing
+B.~T\'oth, Z.~Patart, and J.~D. Farmer, ``The short-term dynamics of the price
+  impact,'' \emph{arXiv preprint arXiv:1112.4555}, 2011. [Online]. Available:
+  \url{https://arxiv.org/abs/1112.4555}
+\BIBentrySTDinterwordspacing
+
+\bibitem{FARMER2012}
+\BIBentryALTinterwordspacing
+J.~D. Farmer, B.~Tóth, and R.~Seager, ``Hacienda: market impact and power
+  laws,'' \emph{SSRN Electronic Journal}, 2012. [Online]. Available:
+  \url{https://ssrn.com/abstract=2090352}
+\BIBentrySTDinterwordspacing
+
+\bibitem{HEWELKE2014}
+\BIBentryALTinterwordspacing
+A.~Hewelke-Fischl, B.~T\'oth, and J.~D. Farmer, ``On the market impact and
+  limit order book dynamics,'' \emph{arXiv preprint arXiv:1402.2348}, 2014.
+  [Online]. Available: \url{https://arxiv.org/abs/1402.2348}
+\BIBentrySTDinterwordspacing
+
 \bibitem{DAIAN2019}
 P.~Daian, S.~Goldfeder, T.~Kell, Y.~Li, X.~Zhao, I.~Bentov, L.~Breidenbach, and
   A.~Juels, ``Flash boys 2.0: Frontrunning, transaction reordering, and

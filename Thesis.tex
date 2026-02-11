@@ -772,10 +772,10 @@ We can define the slippage for a taker buying or selling $x$ base assets and get
 
 \subsection{Power Relation between Order Size and Slippage}
 Using the `OrderFilled` events emitted by the CTFExchange, we can measure the slippage for all 1,443,953 settlements.
-The algorithm for obtaining the price per shares $p$ and shares associated for a settlement from its `OrderFilled` events, such that slippage can be computed using definition ~\ref{eq:slip}, 
+The algorithm for obtaining the price per share $p$ and the number of shares associated with a settlement from its `OrderFilled` events, such that slippage can be computed using definition~\ref{eq:slip}, 
 can be found in Appendix~\ref{appendix:slippage_algorithm}.
 
-There have been many studies on the power relation $y = \alpha x^\beta$ between order size $x$ and slippage $y$ in traditional financial markets with an orderbook as market mechanism~\cite{}.
+There have been many studies on the power relation $y = \alpha x^\beta$ between order size $x$ and slippage $y$ in traditional financial markets with an orderbook as market mechanism~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
 
 \begin{figure}[H] 
     \centering
@@ -784,22 +784,22 @@ There have been many studies on the power relation $y = \alpha x^\beta$ between 
     \label{fig:slip_power}
 \end{figure}
 
-In figure we can see the linear regression on $log(y) = \beta \cdot log(x) + log(\alpha)$. 
-The tolerance of $10^{-4}$ USDC slippage used for regression was chosen as a result of an initial clustering analysis on the slippage of all settlements with more than 2 orderfilled events, 
+In the figure we can see the linear regression on $\log(y) = \beta \cdot \log(x) + \log(\alpha)$. 
+The tolerance of $10^{-4}$ USDC slippage used for regression was chosen as a result of an initial clustering analysis on the slippage of all settlements with more than 2 OrderFilled events, 
 which revealed that there were two other clusters in this space with significantly lower slippage ~\ref{fig:slip_clusters}.
 
-The regression results in $\beta = 2.876e-2 \pm 9.435e-3$, $\alpha = 0.660 \pm 2.417e-2$, $R^2=0.338$. 
-This suggsests that as an aggregate the settlements clearly follow a power relation but the as the R-squared suggests, 
-it is a poor predictor for indivual settlements. Additionally, a $\beta$ of 0.632 is higher compared to the typical 0.5 found, 
+The regression results in $\beta = 2.876 \times 10^{-2} \pm 9.435 \times 10^{-3}$, $\alpha = 0.660 \pm 2.417 \times 10^{-2}$, $R^2=0.338$. 
+This suggests that, as an aggregate, the settlements clearly follow a power relation, but as the $R^2$ suggests, 
+it is a poor predictor for individual settlements. Additionally, a $\beta$ of approximately $0.029$ is higher compared to the typical $0.5$ found, 
 also known as the square-root law of market impact, and suggests that slippage increases more than proportionally with order size on Polymarket.
-The coefficient $\alpha$ follows a more extreme trend, being orders of magnitude higher than what is found in other studies~\cite{}.
+The coefficient $\alpha$ follows a more extreme trend, being orders of magnitude higher than what is found in traditional markets~\cite{HEWELKE2014}.
 
 
 \subsection{Comparison with Decentralized AMM Slippage}
 Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
 In Uniswap V2, slippage follows the constant product formula $x \cdot y = k$ and scales linearly with trade size relative to liquidity, 
-compared to Polymarket's sublinear scaling.
-Polymarket's CLOB achieves zero slippage for $k\%$ of settlements, though exhibiting high variance. 
+whereas Polymarket exhibits lower slippage for most trades.
+Polymarket's CLOB achieves a slippage of less than $10^{-4}$ USDC for approximately 93.45\% of settlements, though exhibiting high variance. 
 Additionally, on-chain AMMs suffer from MEV extraction via sandwich attacks and flashbots, where validators and bots front-run and back-run transactions for profit~\cite{DAIAN2019, HEIMBACH2022}. 
 Polymarket's off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction, meaning observed slippage reflects only order book consumption without adversarial extraction.
 
@@ -839,12 +839,7 @@ Comparing the market internal price discrepancy between Polymarket and Kalshi fo
 However, this efficiency may be partially attributed to wash trading activity, as a recent study suggests approximately 18\% or potentially up to 60\% of December 2024 volume on Polymarket involved wash trades.
 
 \section{Slippage and Market Design}
-The measured slippage rate of 0.7\% on Polymarket represents a favorable outcome compared to decentralized AMMs, where slippage is determined by the constant product formula $x \cdot y = k$ and scales unavoidably with trade size.
-The finding that 52.2\% of settlements incur zero slippage demonstrates a key advantage of the CLOB model: trades can execute at resting prices without consuming deeper liquidity. 
-However, the high variance ($\text{std}(X/Y) = 0.129$) in the slippage-to-volume ratio indicates that large orders face unpredictable price impact from order book depth constraints.
-
-The off-chain CLOB architecture also avoids the protocol-level MEV extraction inherent to on-chain AMMs, where flashbots and sandwich attacks introduce additional adversarial slippage beyond mechanical price impact. 
-This represents a structural advantage of Polymarket's hybrid model, though application-layer front-running risks remain.
+Polymarket's CLOB achieves 93.45\% of settlements incurring minimal slippage below $10^{-4}$ USDC. While the measured power relation exhibits higher impact coefficients than traditional markets, the off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction inherent to decentralized AMMs, meaning observed slippage reflects only mechanical order book consumption. However, high variance in the slippage-to-volume ratio indicates that large orders face unpredictable price impact from order book depth constraints.
 
 \section{Unregistered Markets and Emerging Infrastructure}
 A notable finding is the emergence of unregistered prediction markets on Polymarket around December 2025, primarily using the Centralized Adapter as the reporting oracle. 
