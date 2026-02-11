@@ -52,8 +52,7 @@
 \contentsline {section}{\numberline {7.4}Unregistered Markets and Emerging Infrastructure}{31}{section.7.4}%
 \contentsline {chapter}{Bibliography}{32}{chapter*.4}%
 \contentsline {chapter}{\numberline {A}Endpoint Documented JSON responses}{A-1}{appendix.U}%
-\contentsline {chapter}{\numberline {B}Resolution Tables}{B-1}{appendix.V}%
-\contentsline {chapter}{\numberline {C}Smart Contracts}{C-1}{appendix.W}%
-\contentsline {chapter}{\numberline {D}Polymarket Event Object JSON Tree Analysis}{D-1}{appendix.X}%
-\contentsline {chapter}{\numberline {E}Miscellaneous}{E-1}{appendix.Y}%
-\contentsline {section}{\numberline {E.1}Slippage Computation Algorithm}{E-1}{section.Y.1}%
+\contentsline {chapter}{\numberline {B}Smart Contracts}{B-1}{appendix.V}%
+\contentsline {chapter}{\numberline {C}Polymarket Event Object JSON Tree Analysis}{C-1}{appendix.W}%
+\contentsline {chapter}{\numberline {D}Miscellaneous}{D-1}{appendix.X}%
+\contentsline {section}{\numberline {D.1}Slippage Computation Algorithm}{D-2}{section.X.1}%

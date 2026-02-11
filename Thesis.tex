@@ -103,7 +103,7 @@ identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, an
 the outcomes distribution (41.2\% YES, 58.6\% NO, 0.3\% UNKNOWN).
 
 Analyzing over 1.4 million settlements, we find that for slippage $x$ and USDC inflow $y$ we get $y = \alpha x^\beta$ for $\alpha=$, $\beta=$, 
-through linear regression on log-transformed data space with $R^2=$.
+through linear regression on log-transformed data space with $R^2=0.338$.
 This deviates from the typical suqare-root law of market impact, 
 suggesting that slippage increases more than proportionally with order size on Polymarket, 
 but still favorably compared to the linear scaling of slippage in decentralized AMMs like Uniswap V2.
@@ -788,7 +788,7 @@ In figure we can see the linear regression on $log(y) = \beta \cdot log(x) + log
 The tolerance of $10^{-4}$ USDC slippage used for regression was chosen as a result of an initial clustering analysis on the slippage of all settlements with more than 2 orderfilled events, 
 which revealed that there were two other clusters in this space with significantly lower slippage ~\ref{fig:slip_clusters}.
 
-The regression results in $\beta = 0.632 \pm 0.0004$, $\alpha = 0.3 \pm 0.2$, $R^2 = 0.36$. 
+The regression results in $\beta = 2.876e-2 \pm 9.435e-3$, $\alpha = 0.660 \pm 2.417e-2$, $R^2=0.338$. 
 This suggsests that as an aggregate the settlements clearly follow a power relation but the as the R-squared suggests, 
 it is a poor predictor for indivual settlements. Additionally, a $\beta$ of 0.632 is higher compared to the typical 0.5 found, 
 also known as the square-root law of market impact, and suggests that slippage increases more than proportionally with order size on Polymarket.
@@ -1331,70 +1331,6 @@ This suggests Polymarket is experimenting with markets that may not require on-c
   ]
 }
 \end{lstlisting}
-
-\chapter{Resolution Tables}
-
-\begin{table}[H]
-    \centering
-    \caption{Ten Most Frequent Tags in Matched Disputes}
-    \label{tab:top10_disputes}
-    \begin{tabular}{|l|c|}
-        \hline
-        \textbf{Label} & \textbf{Appeared In (\%)} \\
-        \hline
-        Politics & 104 (32.00\%) \\
-        \hline
-        Culture & 99 (30.46\%) \\
-        \hline
-        Sports & 74 (22.77\%) \\
-        \hline
-        Games & 72 (22.15\%) \\
-        \hline
-        Hide From New & 49 (15.08\%) \\
-        \hline
-        Recurring & 45 (13.85\%) \\
-        \hline
-        Weather & 44 (13.54\%) \\
-        \hline
-        Best of 2025 & 41 (12.62\%) \\
-        \hline
-        Trump & 40 (12.31\%) \\
-        \hline
-        Geopolitics & 39 (12.00\%) \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN}
-    \label{tab:top10_tags_1_1}
-    \begin{tabular}{|l|c|}
-        \hline
-        \textbf{Label} & \textbf{Appeared In (\%)} \\
-        \hline
-        Games & 272 (96.11\%) \\
-        \hline
-        Sports & 259 (91.52\%) \\
-        \hline
-        Esports & 102 (36.04\%) \\
-        \hline
-        Basketball & 51 (18.02\%) \\
-        \hline
-        NCAA & 42 (14.84\%) \\
-        \hline
-        UFC & 39 (13.78\%) \\
-        \hline
-        Dota 2 & 35 (12.37\%) \\
-        \hline
-        NCAA Basketball & 31 (10.95\%) \\
-        \hline
-        Rocket League & 30 (10.60\%) \\
-        \hline
-        Tennis & 29 (10.25\%) \\
-        \hline
-    \end{tabular}
-\end{table}
 
 \chapter{Smart Contracts}
 % --- Table 2: Contract and Events (Long Table Format) ---
@@ -2476,6 +2412,69 @@ $T_1$ & $T_2$ & {Pairs ($N$)} & {$P(T_1 < T_2)$} & {$P(T_1 = T_2)$} & {$P(T_1 > 
 
 
 \chapter{Miscellaneous}
+
+\begin{table}[H]
+    \centering
+    \caption{Ten Most Frequent Tags in Matched Disputes}
+    \label{tab:top10_disputes}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Politics & 104 (32.00\%) \\
+        \hline
+        Culture & 99 (30.46\%) \\
+        \hline
+        Sports & 74 (22.77\%) \\
+        \hline
+        Games & 72 (22.15\%) \\
+        \hline
+        Hide From New & 49 (15.08\%) \\
+        \hline
+        Recurring & 45 (13.85\%) \\
+        \hline
+        Weather & 44 (13.54\%) \\
+        \hline
+        Best of 2025 & 41 (12.62\%) \\
+        \hline
+        Trump & 40 (12.31\%) \\
+        \hline
+        Geopolitics & 39 (12.00\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Ten Most Frequent Tags For Markets resolved to UNKOWN}
+    \label{tab:top10_tags_1_1}
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Label} & \textbf{Appeared In (\%)} \\
+        \hline
+        Games & 272 (96.11\%) \\
+        \hline
+        Sports & 259 (91.52\%) \\
+        \hline
+        Esports & 102 (36.04\%) \\
+        \hline
+        Basketball & 51 (18.02\%) \\
+        \hline
+        NCAA & 42 (14.84\%) \\
+        \hline
+        UFC & 39 (13.78\%) \\
+        \hline
+        Dota 2 & 35 (12.37\%) \\
+        \hline
+        NCAA Basketball & 31 (10.95\%) \\
+        \hline
+        Rocket League & 30 (10.60\%) \\
+        \hline
+        Tennis & 29 (10.25\%) \\
+        \hline
+    \end{tabular}
+\end{table}
+
 
 \begin{figure}[H] 
     \centering
