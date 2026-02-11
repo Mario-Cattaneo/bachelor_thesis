@@ -92,23 +92,24 @@
 \end{acknowledgements}
 
 \begin{abstract}
-Polymarket and Kalshi are exchanges making prediction markets accessible globally, with unprecedented growth. Both use a Central Limit Orderbook as market mechanism, 
+Polymarket and Kalshi are exchanges making prediction markets accessible globally, with unprecedented growth. 
+Both use a Central Limit Orderbook as market mechanism, 
 but Polymarket implements event contracts, settlement, resolution, and more through Ethereum-based smart contracts.
 The operation of this hybrid system remains largely undocumented.
 We design and implement data collection clients for Polymarket's and Kalshi's REST and WebSocket endpoints, addressing poorly documented APIs and discovered inconsistencies, 
 along with an Infura 'eth\_getLogs' client for on-chain event collection.
 Using on-chain data from November 18, 2025 to January 5, 2026 and historical off-chain market objects, we examine the market lifecycle, 
-identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation and registration patterns, 
-the outcomes distribution (41.2\% YES, 58.6\% NO, 0.3\% UNKNOWN), 
-as well as the resolution events.
-For orderbook trading, we measure slippage on 1.44 million settlements, finding a convergent slippage rate of 0.7\% with 52.2\% zero-slippage trades, 
-contrasting favorably with on-chain AMM models that suffer from both mechanical slippage and MEV extraction. 
-Price discrepancy analysis across Polymarket and Kalshi for 15-minute ``Bitcoin up or down?'' markets reveals 
-lower internal arbitrage spreads on Polymarket, though this may correlate with reported wash trading activity. 
-Key findings highlight the substantial data collection barriers arising from Polymarket's incomplete documentation, 
-undocumented smart contract coordination, and endpoint inconsistencies, yet suggest the platform maintains effective price discovery 
-and arbitrage mechanisms despite these obstacles.
+identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation,registration and resolution patterns, 
+the outcomes distribution (41.2\% YES, 58.6\% NO, 0.3\% UNKNOWN).
 
+Analyzing over 1.4 million settlements, we find that for slippage $x$ and USDC inflow $y$ we get $y = \alpha x^\beta$ for $\alpha=$, $\beta=$, 
+through linear regression on log-transformed data space with $R^2=$.
+This deviates from the typical suqare-root law of market impact, 
+suggesting that slippage increases more than proportionally with order size on Polymarket, 
+but still favorably compared to the linear scaling of slippage in decentralized AMMs like Uniswap V2.
+Lastly, we analyze price discrepancies for 1000 cycles of the 15-minute ``Bitcoin up or down?'' markets.
+Which shows how cross-market and even cross-exchange price discrepancies compare, 
+also relative to the time relative to the market lifecycle.
 \end{abstract}
 
 \tableofcontents
@@ -774,29 +775,31 @@ Using the `OrderFilled` events emitted by the CTFExchange, we can measure the sl
 The algorithm for obtaining the price per shares $p$ and shares associated for a settlement from its `OrderFilled` events, such that slippage can be computed using definition ~\ref{eq:slip}, 
 can be found in Appendix~\ref{appendix:slippage_algorithm}.
 
-There have been many studies on the power relation between order size and slippage in traditional financial markets with an orderbook as market mechanism~\cite{}.
+There have been many studies on the power relation $y = \alpha x^\beta$ between order size $x$ and slippage $y$ in traditional financial markets with an orderbook as market mechanism~\cite{}.
 
 \begin{figure}[H] 
     \centering
-    \includegraphics[width=1\columnwidth]{figures/slip_rate.png}
-    \caption{Clustered Regression of Slippage Rate on Order Size}
-    \label{fig:slip_rate}
+    \includegraphics[width=1\columnwidth]{figures/slip_power.png}
+    \caption{Linear Regression on Log Slippage and Log USDC Inflow, with slippage starting at $10^{-4}$ USDC}
+    \label{fig:slip_power}
 \end{figure}
 
+In figure we can see the linear regression on $log(y) = \beta \cdot log(x) + log(\alpha)$. 
+The tolerance of $10^{-4}$ USDC slippage used for regression was chosen as a result of an initial clustering analysis on the slippage of all settlements with more than 2 orderfilled events, 
+which revealed that there were two other clusters in this space with significantly lower slippage ~\ref{fig:slip_clusters}.
 
-\begin{align}
-\label{eq:slip_rate_convergence}
-    & \frac{\sum_{(x, y, t) \in S} x}{\sum_{(x, y, t) \in S} y} \xrightarrow{a.s.} \frac{E[X]}{E[Y]} 
-\end{align}
+The regression results in $\beta = 0.632 \pm 0.0004$, $\alpha = 0.3 \pm 0.2$, $R^2 = 0.36$. 
+This suggsests that as an aggregate the settlements clearly follow a power relation but the as the R-squared suggests, 
+it is a poor predictor for indivual settlements. Additionally, a $\beta$ of 0.632 is higher compared to the typical 0.5 found, 
+also known as the square-root law of market impact, and suggests that slippage increases more than proportionally with order size on Polymarket.
+The coefficient $\alpha$ follows a more extreme trend, being orders of magnitude higher than what is found in other studies~\cite{}.
 
-With $E[X] = 356.435$ and $E[Y] = 2.491$ computed from $S$, we get a slippage rate of $0.007$, which matches the suggestion in Figure~\ref{fig:slip_rate}.
-However, this ratio is a poor predictor for individual settlements, as $\text{std}(X/Y) = 0.129$ and $X/Y \in [0,1]$. 
-In fact, $52.176\%$ of settlements have a slippage of $0$, with some being in the top $1\%$ of taker amounts.
 
 \subsection{Comparison with Decentralized AMM Slippage}
 Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
-In Uniswap V2, slippage follows the constant product formula $x \cdot y = k$ and scales with trade size relative to liquidity, making price impact unavoidable. 
-Polymarket's CLOB achieves zero slippage for $52.176\%$ of settlements at the best bid-ask prices, though exhibiting high variance ($\text{std}(X/Y) = 0.129$) for larger orders. 
+In Uniswap V2, slippage follows the constant product formula $x \cdot y = k$ and scales linearly with trade size relative to liquidity, 
+compared to Polymarket's sublinear scaling.
+Polymarket's CLOB achieves zero slippage for $k\%$ of settlements, though exhibiting high variance. 
 Additionally, on-chain AMMs suffer from MEV extraction via sandwich attacks and flashbots, where validators and bots front-run and back-run transactions for profit~\cite{DAIAN2019, HEIMBACH2022}. 
 Polymarket's off-chain CLOB with on-chain settlement avoids protocol-level MEV extraction, meaning observed slippage reflects only order book consumption without adversarial extraction.
 
@@ -1552,75 +1555,6 @@ OOV2 & \seqsplit{0xeE3Afe347D5C74317041E2618C49534dAf887c24} & (UMA) Optimistic 
 \bottomrule
 \end{tabularx}
 \end{table}
-
-
-\section{Slippage Computation Algorithm}
-\label{appendix:slippage_algorithm}
-
-Each settlement transaction emits multiple \texttt{OrderFilled} events from the CTFExchange contract. Each event contains:
-\begin{itemize}
-    \item \texttt{maker}: address of the limit order placer
-    \item \texttt{taker}: address of the order executor
-    \item \texttt{makerAssetId}: asset ID being provided by maker (0 = USDC, else outcome token ID)
-    \item \texttt{takerAssetId}: asset ID being provided by taker
-    \item \texttt{making}: quantity of makerAssetId being transferred (in wei)
-    \item \texttt{taking}: quantity of takerAssetId being transferred (in wei)
-\end{itemize}
-
-\begin{algorithm}[H]
-\caption{Computing Slippage from OrderFilled Events}
-\begin{algorithmic}[1]
-\State \textbf{Input:} Set of \texttt{OrderFilled} events $E$ for a settlement transaction
-\State \textbf{Output:} Slippage in USDC, USDC inflow $x$, set of maker limit orders $M$
-
-\State $E_{\text{exchange}} \gets \{e \in E : e.\text{taker} = \text{EXCHANGE\_ADDRESS}\}$
-\State \textbf{assert} $|E_{\text{exchange}}| = 1$ \Comment{Exactly one taker-facing fill}
-\State $e_t \gets E_{\text{exchange}}[0]$ \Comment{The taker's fill against the exchange}
-
-\State \Comment{Determine trade direction and extract quantities}
-\If{$e_t.\text{makerAssetId} = 0$}
-    \State $\text{takerBuying} \gets \texttt{True}$ \Comment{Maker sells USDC, taker buys tokens}
-    \State $x \gets e_t.\text{making} / 10^6$ \Comment{USDC provided (maker gives USDC)}
-    \State $v_t \gets e_t.\text{taking} / 10^6$ \Comment{Tokens received by maker}
-\Else
-    \State $\text{takerBuying} \gets \texttt{False}$ \Comment{Taker sells tokens, maker buys}
-    \State $x \gets e_t.\text{taking} / 10^6$ \Comment{USDC received (taker gets USDC)}
-    \State $v_t \gets e_t.\text{making} / 10^6$ \Comment{Tokens provided by taker}
-\EndIf
-
-\State $M \gets \emptyset$ \Comment{Initialize maker limit orders set}
-\State $E_{\text{makers}} \gets E \setminus E_{\text{exchange}}$ \Comment{All non-exchange fills}
-
-\For{each $e_m \in E_{\text{makers}}$}
-    \State \Comment{Decode maker fill to extract price and volume}
-    \If{$e_m.\text{makerAssetId} = 0$}
-        \State $\text{makerBuying} \gets \texttt{True}$
-        \State $p_{\text{raw}} \gets e_m.\text{making} / e_m.\text{taking}$ \Comment{USDC per token}
-        \State $v \gets e_m.\text{taking} / 10^6$ \Comment{Token volume}
-    \Else
-        \State $\text{makerBuying} \gets \texttt{False}$
-        \State $p_{\text{raw}} \gets e_m.\text{taking} / e_m.\text{making}$ \Comment{USDC per token}
-        \State $v \gets e_m.\text{making} / 10^6$ \Comment{Token volume}
-    \EndIf
-    
-    \State \Comment{Adjust price perspective: express from taker's viewpoint}
-    \If{$\text{makerBuying} = \text{takerBuying}$}
-        \State $p \gets 1 - p_{\text{raw}}$ \Comment{Maker on same side, use complement price}
-    \Else
-        \State $p \gets p_{\text{raw}}$
-    \EndIf
-    
-    \State $M \gets M \cup \{(p, v)\}$ \Comment{Add maker order to set}
-\EndFor
-
-\State $p_{\text{market}} \gets \min\{p : (p, v) \in M\}$ \Comment{Best available price}
-\State $\text{Slippage} \gets x - p_{\text{market}} \cdot v_t$ \Comment{Apply Equation~\ref{eq:slip}}
-
-\State \Return $(\text{Slippage}, x, M)$
-\end{algorithmic}
-\end{algorithm}
-
-\noindent The algorithm identifies the taker-facing exchange fill to determine the total USDC transacted ($x$) and trade direction. Each maker fill is decoded to extract the limit order price $p$ and volume $v$. The price orientation is adjusted such that all prices represent USDC per token from the taker's perspective. Finally, slippage is computed as the difference between the actual USDC paid and the USDC that would have been paid at the best available maker price $p_{\text{market}}$.
 
 
 
@@ -2541,5 +2475,84 @@ $T_1$ & $T_2$ & {Pairs ($N$)} & {$P(T_1 < T_2)$} & {$P(T_1 = T_2)$} & {$P(T_1 > 
 \end{table}
 
 
+\chapter{Miscellaneous}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1\columnwidth]{figures/slip_clusters.png}
+    \caption{Slippage to USDC inflow Clusters in Log Log Space}
+    \label{fig:slip_clusters}
+\end{figure}
+
+
+\section{Slippage Computation Algorithm}
+\label{appendix:slippage_algorithm}
+
+Each settlement transaction emits multiple \texttt{OrderFilled} events from the CTFExchange contract. Each event contains:
+\begin{itemize}
+    \item \texttt{maker}: address of the limit order placer
+    \item \texttt{taker}: address of the order executor
+    \item \texttt{makerAssetId}: asset ID being provided by maker (0 = USDC, else outcome token ID)
+    \item \texttt{takerAssetId}: asset ID being provided by taker
+    \item \texttt{making}: quantity of makerAssetId being transferred (in wei)
+    \item \texttt{taking}: quantity of takerAssetId being transferred (in wei)
+\end{itemize}
+
+\begin{algorithm}[H]
+\caption{Computing Slippage from OrderFilled Events}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Set of \texttt{OrderFilled} events $E$ for a settlement transaction
+\State \textbf{Output:} Slippage in USDC, USDC inflow $x$, set of maker limit orders $M$
+
+\State $E_{\text{exchange}} \gets \{e \in E : e.\text{taker} = \text{EXCHANGE\_ADDRESS}\}$
+\State \textbf{assert} $|E_{\text{exchange}}| = 1$ \Comment{Exactly one taker-facing fill}
+\State $e_t \gets E_{\text{exchange}}[0]$ \Comment{The taker's fill against the exchange}
+
+\State \Comment{Determine trade direction and extract quantities}
+\If{$e_t.\text{makerAssetId} = 0$}
+    \State $\text{takerBuying} \gets \texttt{True}$ \Comment{Maker sells USDC, taker buys tokens}
+    \State $x \gets e_t.\text{making} / 10^6$ \Comment{USDC provided (maker gives USDC)}
+    \State $v_t \gets e_t.\text{taking} / 10^6$ \Comment{Tokens received by maker}
+\Else
+    \State $\text{takerBuying} \gets \texttt{False}$ \Comment{Taker sells tokens, maker buys}
+    \State $x \gets e_t.\text{taking} / 10^6$ \Comment{USDC received (taker gets USDC)}
+    \State $v_t \gets e_t.\text{making} / 10^6$ \Comment{Tokens provided by taker}
+\EndIf
+
+\State $M \gets \emptyset$ \Comment{Initialize maker limit orders set}
+\State $E_{\text{makers}} \gets E \setminus E_{\text{exchange}}$ \Comment{All non-exchange fills}
+
+\For{each $e_m \in E_{\text{makers}}$}
+    \State \Comment{Decode maker fill to extract price and volume}
+    \If{$e_m.\text{makerAssetId} = 0$}
+        \State $\text{makerBuying} \gets \texttt{True}$
+        \State $p_{\text{raw}} \gets e_m.\text{making} / e_m.\text{taking}$ \Comment{USDC per token}
+        \State $v \gets e_m.\text{taking} / 10^6$ \Comment{Token volume}
+    \Else
+        \State $\text{makerBuying} \gets \texttt{False}$
+        \State $p_{\text{raw}} \gets e_m.\text{taking} / e_m.\text{making}$ \Comment{USDC per token}
+        \State $v \gets e_m.\text{making} / 10^6$ \Comment{Token volume}
+    \EndIf
+    
+    \State \Comment{Adjust price perspective: express from taker's viewpoint}
+    \If{$\text{makerBuying} = \text{takerBuying}$}
+        \State $p \gets 1 - p_{\text{raw}}$ \Comment{Maker on same side, use complement price}
+    \Else
+        \State $p \gets p_{\text{raw}}$
+    \EndIf
+    
+    \State $M \gets M \cup \{(p, v)\}$ \Comment{Add maker order to set}
+\EndFor
+
+\State $p_{\text{market}} \gets \min\{p : (p, v) \in M\}$ \Comment{Best available price}
+\State $\text{Slippage} \gets x - p_{\text{market}} \cdot v_t$ \Comment{Apply Equation~\ref{eq:slip}}
+
+\State \Return $(\text{Slippage}, x, M)$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent The algorithm identifies the taker-facing exchange fill to determine the total USDC transacted ($x$) and trade direction. Each maker fill is decoded to extract the limit order price $p$ and volume $v$. The price orientation is adjusted such that all prices represent USDC per token from the taker's perspective. Finally, slippage is computed as the difference between the actual USDC paid and the USDC that would have been paid at the best available maker price $p_{\text{market}}$.
+
 
 \end{document}
+
