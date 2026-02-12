@@ -102,11 +102,18 @@ to fill in the missing gaps and compare it to other exchanges.
 To achieve this, we design data collection clients for the endpoints of Polymarket, Kalshi, and Infura's eth\_getLogs service, addressing poorly documented APIs and discovered inconsistencies.
 Using on-chain data from November 18, 2025 to January 5, 2026 and historical off-chain market objects, we examine the market lifecycle, 
 identifying three distinct reporting oracles (MOOV2 Adapter, Negrisk Adapter, and Centralized Adapter), market creation, registration, and resolution patterns, 
-and the outcome distribution (41.17\% YES, 58.58\% NO, 0.25\% UNKNOWN).
+and the outcome distribution (41.17\% YES, 58.58\% NO, 0.25\% UNKNOWN). 
+The proprietary undisclosed Centralized Adapter is strictly used for crypto price-related markets, 
+which are resolved centrally using a price feed like CoinGecko. 
+Additionally, we find that since mid-December 2025, 
+markets are being created that are not registered on the on-chain Exchange contract, 
+making it impossible for them to settle on-chain. 
+Virtually all of these markets are associated with the Centralized Adapter, and some are actively traded.
+This highlights how Polymarket is increasingly becoming centralized.
 
-Analyzing over 43 million settlements, we find that slippage $y$ and taker USDC amount $x$ follow the relationship $y = \beta x^\alpha$, with $\beta = 2.751 \times 10^{-2} \pm 9.675 \times 10^{-3}$ and $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, 
+Analyzing over 43 million settlements, we find that slippage $y$ and taker's USDC amount $x$ follow the relationship $y = \beta x^\alpha$, with $\beta = 2.751 \cdot 10^{-2} \pm 9.675 \cdot 10^{-3}$ and $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, 
 determined through linear regression on log-transformed data with $R^2 = 0.3360$.
-This deviates from the typical square-root law of market impact, suggesting that slippage increases superlinearly with order size on Polymarket.
+This deviates from the typical square-root law of market impact.
 However, it still compares favorably to the linear scaling slippage in decentralized AMMs like Uniswap V2.
 Lastly, we use the data collected through the endpoint clients from January 8 to February 2, 2026 to analyze price discrepancies across 1000 cycles of the 15-minute ``Bitcoin up or down?'' markets, comparing cross-market and cross-exchange discrepancies relative to the market lifecycle timeline.
 We find that the median discrepancy is highest at the start of the cycle and remains relatively low towards the end, with an increasingly skewed distribution.
@@ -175,7 +182,7 @@ a set of mutually exclusive outcome positions into the complementary positions o
 Figures~\ref{fig:POLY_QUARTERLY_TRADES} and~\ref{fig:KALSHI_QUARTERLY_TRADES} show the quarterly USD trading volume. For Polymarket, we can also distinguish between trading volume on the Negrisk CTFE and the OOV2 CTFE~\ref{sec:ctfe}. 
 
 \section{US Market}
-The flat line in Polymarket's trading volume starts right after the CFTC action in January 2022. Kalshi operated only in the U.S. until October 2025, covering the first three quarters of 2025 and the last quarter of 2024 shown in Figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
+The flat line in Polymarket's trading volume starts right after the CFTC action in January 2022~\cite{CFTC_Polymarket_2022}. Kalshi operated only in the U.S. until October 2025, covering the first three quarters of 2025 and the last quarter of 2024 shown in Figure~\ref{fig:KALSHI_QUARTERLY_TRADES}.
 
 The 47th U.S. presidential election was a major event for both exchanges. Various studies have compared the forecasting ability and information efficiency of Kalshi and Polymarket for this event against other methods like New York Times polls~\cite{clinton2025prediction,wolfers2024prediction}. The volume spike in the fourth quarter of 2024 is also clearly visible. On Kalshi, markets related to politics and the election accounted for roughly 1 billion USD in volume in November alone~\cite{morningstar2024kalshi}. On Polymarket, the main market for the presidential election accumulated a total volume of 3.5 billion USDC~\cite{coindesk2024polymarket}.
 
@@ -184,7 +191,8 @@ However, a recent study using two unsupervised network models suggests that arou
 \section{Accessibility}
 Kalshi expanded to over 140 countries in October 2025~\cite{kalshi2025expansion}, and Polymarket plans to reenter the U.S. market. On July 21, 2025, Polymarket acquired QCX LLC, a company that had registered as a Designated Contract Market (DCM) with the CFTC earlier that month~\cite{GCX_ACQUIRY}. This entity was subsequently rebranded as ``Polymarket US''~\cite{GCX_CFTC_REGISTRY}. As of December 4, 2025, Polymarket was not yet available in the U.S. Both exchanges face regulatory headwinds in many jurisdictions. Gambling authorities in several countries have banned them. This includes Switzerland, where the Swiss Gambling Supervisory Authority (GESPA) has blacklisted their DNS domains, blocking access via Swiss ISPs~\cite{GESPA_BLACKLIST}.
 
-Despite CFTC approval, Kalshi faces state-level regulatory issues in the U.S. For example, the Illinois Department of Financial and Professional Regulation (IDFPR) issued a cease-and-desist order preventing Kalshi from operating in Illinois for allegedly defying state gambling regulations. Kalshi argues that national oversight by the CFTC preempts these claims. This ongoing case demonstrates that the regulatory landscape surrounding speculation remains conflicted~\cite{kalshi2025illinois}.
+Despite CFTC approval, Kalshi faces state-level regulatory issues in the U.S. For example, the Illinois Department of Financial and Professional Regulation (IDFPR) issued a cease-and-desist order preventing Kalshi from operating in Illinois for allegedly defying state gambling regulations. 
+Kalshi argues that national oversight by the CFTC preempts these claims. This ongoing case demonstrates the conflicting regulatory landscape surrounding speculation~\cite{kalshi2025illinois}.
 
 Polymarket remains accessible by design, even where banned, because it does not require Know-Your-Customer (KYC) identification on its main platform. Even if KYC were enforced, users could still interact with the underlying smart contracts directly. The ERC-1155 tokens representing YES or NO shares are defined by the Gnosis Conditional Tokens contract. These can be obtained via \textit{splitPosition}, swapped for USDC via \textit{mergePosition}, and redeemed after resolution using \textit{redeemPosition} for the value reported by Polymarket.
 
@@ -503,7 +511,9 @@ However, testing showed that the actual rate limit between consecutive requests 
 The round-trip time (RTT) for a single eth\_getLogs request can exceed 30s, making it suitable for concurrent requests. 
 Additionally, there is a limit of 10,000 events per request. 
 Requests are specified using a block range. To manage this constraint, we use block density estimation with a margin of 500 blocks to target approximately 9,500 events per request. 
-This seems to be effective as for most events the block density does not seem to have strong variance. 
+This seems to be effective as for most events the block density does not seem to have strong variance.
+If the response is that we exceeded the 10'000 events limit, then the block density is doubled, 
+or equivalently the requested block range is halved.
 But the margin can be increased if some events have a greater block density variance. 
 As a sanity check, the number of events returned was compared against those found in Dune Analytics over the same block range.
 For consistency, the block range from 79,172,086 (inclusive) to 81,225,971 (inclusive), spanning November 18, 2025 07:00:03 UTC to January 5, 2026 00:00:01 UTC, was used for all analytics in Chapters~\ref{chap:market_lifecycle} and~\ref{chap:orderbook_trading}. 
@@ -635,17 +645,17 @@ Overall, less than half of the conditions prepared using the Centralized Adapter
 
 \begin{table}[H]
     \centering
-    \caption{Matched conditions of 134,424 Conditions Prepared and 215,152 TokensRegistered over Nov 18 - Jan 08}
+    \caption{Matched TokenRegistered ConditionsPrepared Events by Reporting Oracle and Exchange}
     \label{tab:oracle_regs}
     \begin{tabular}{|l|c|c|}
         \hline
         \textbf{Oracle (Conditions)} & \textbf{Matches} & \textbf{Exchange (Conditions)}\\
         \hline
-        Centralized Adapter (48,896) & 20,425 & CTFE (83,262) \\
+        Centralized Adapter (43,743) & 24,377 & CTFE (76,632) \\
         \hline
-        MOOV2 Adapter (62,857) & 61,439 & CTFE (83,262) \\
+        MOOV2 Adapter (57,572) & 57,266 & CTFE (76,632) \\
         \hline
-        Negrisk Adapter (27,728) & 23,545 & Negrisk CTFE (24,209)\\
+        Negrisk Adapter (26,473) & 26,278 & Negrisk CTFE (26,302)\\
         \hline
     \end{tabular}
 \end{table}
@@ -703,7 +713,7 @@ The analogous relationship also holds for the YES asks and NO bids.
 The state of the CLOB is defined by the resting limit orders.
 A limit order can be defined as a tuple $(p, v, s, i)$, where $p \in \mathbb{R}^+$ is the price per share for the taker, $v \in \mathbb{R}^+$ is the quantity of shares, $s \in \{\text{YES}, \text{NO}\}$ is the outcome, and $i \in \mathbb{N}$ is the priority for selection when matching with market orders at price $p$ and side $s$. A lower $i$ indicates a higher priority. 
 This guarantees a unique ordering for both buy and sell limit orders used for matching. 
-The taker price $p$ is only the same the matched maker price if their complementary. Otherwise, in the case that the match is a merge or split, 
+The taker price $p$ is only the same as the matched maker price if they are complementary. Otherwise, in the case that the match is a merge or split, 
 the taker price $p$ equals one minus the maker price. In any case, the order for limit orders by taker price and time priority is:
 
 \begin{align}
@@ -739,7 +749,7 @@ The total quantity executed, $x$, is the sum of the quantities from all matched 
 \end{align}
 
 
-\subsection{Power Relation between USDC Taker Amount and Slippage}
+\subsection{Power Relation between Taker's USDC Amount and Slippage}
 We can match the OrderFilled events emitted by the CTFExchange by their transaction hash, to obtain 43,970,817 settlements.
 Then we can use the OrderFilled events to obtain the maker orders $M$, share quantity $x$ and $p_{market}$ for a given settlement using algorithm ~\ref{appendix:slippage_algorithm}, such that slippage can be computed using definition~\ref{eq:slip}.
 
@@ -748,26 +758,25 @@ There have been many studies on the power relation $y = \beta x^\alpha$ between 
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/slip_power.png}
-    \caption{Linear Regression on Log Slippage and Log USDC Inflow, with slippage starting at $10^{-4}$ USDC}
+    \caption{Linear Regression on Log Slippage and Log Taker's USDC Amount, with slippage starting at $10^{-4}$ USDC}
     \label{fig:slip_power}
 \end{figure}
 
 In the figure, we can see the linear regression on $\log(y) = \alpha \cdot \log(x) + \log(\beta)$. 
-The tolerance of $10^{-4}$ USDC slippage resulted from an initial observation when plotting all the log-transformed USDC taker amounts and slippage for settlements with more than two OrderFilled events.
+The tolerance of $10^{-4}$ USDC slippage resulted from an initial observation when plotting all the log-transformed taker's USDC amounts and slippage for settlements with more than two OrderFilled events.
 The plot in Appendix ~\ref{fig:slip_clusters} shows this, where we can see three clearly distinguishable clusters. 
-One reason could be that Polymarket dynamically adjusts the smallest price per share possible, which according to documentation usually is 0.01 but in case the prices are close to 0 or 1 can also become smaller.
+One reason could be that Polymarket dynamically adjusts the smallest price per share possible, which according to documentation usually is 0.01 but can become smaller when prices are close to 0 or 1.
 Another could be quantization and rounding errors related to how numbers are converted, 
 since the prices and share quantities are in floating-point numbers on the API,
 but stored as integers on chain by multiplying the USDC amounts and share quantities by $10^{6}$.
-There have been complaints about numeric discrepancies in order execution directly as well.
 
-The regression results in $\beta = 2.571 \times 10^{-2} \pm 9.675 \times 10^{-3}$, $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, $R^2=0.3360$. 
+The regression results in $\beta = 2.571 \cdot 10^{-2} \pm 9.675 \cdot 10^{-3}$, $\alpha = 0.6778 \pm 2.487 \times 10^{-2}$, $R^2=0.3360$. 
 This suggests that, as an aggregate, the settlements clearly follow a power-law relation, but as the $R^2$ suggests, 
 it is arguably a poor predictor for individual settlements.
 The $\alpha$ is relatively high for a CLOB, where values around 0.5 are expected, also known as the square-root law of market impact~\cite{ALMGREN2001, TOTH2011, FARMER2012}.
 The coefficient $\beta$ follows an even more extreme trend, being orders of magnitude higher than what is found in comparable markets~\cite{HEWELKE2014}.
-However, it is important to consider that less than 2\% of settlements have a slippage above $10^{-4}$ USDC, which would suggest that a slippage occurring is a rare event, 
-but if it does occur its expected to be greater than what is observed in comparable markets.
+However, it is important to consider that less than 2\% of settlements have a slippage above $10^{-4}$ USDC, which suggests that slippage above this threshold is a rare occurrence; 
+when it does occur, it is expected to be greater than what is observed in comparable markets.
 
 \subsection{Comparison with Decentralized AMM Slippage}
 Polymarket's CLOB differs from decentralized AMMs like Uniswap V2 in slippage behavior. 
@@ -2448,7 +2457,7 @@ $T_1$ & $T_2$ & {Pairs ($N$)} & {$P(T_1 < T_2)$} & {$P(T_1 = T_2)$} & {$P(T_1 > 
 \begin{figure}[H] 
     \centering
     \includegraphics[width=1\columnwidth]{figures/slip_clusters.png}
-    \caption{Slippage to USDC inflow Clusters in Log Log Space}
+    \caption{Slippage and Taker's USDC amount Clusters in Log Log Space}
     \label{fig:slip_clusters}
 \end{figure}
 
@@ -2474,7 +2483,7 @@ from the \texttt{OrderFilled} events emitted by the CTFExchange for a single set
         \Else
             \State $\text{taker\_side} \gets \text{sell}$
         \EndIf
-        \State $x \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Share quantity, simply is the max between USDC amount and share amount}
+        \State $x \gets \max(e.\texttt{making}, e.\texttt{taking})$ \Comment{Taker Share quantity}
     \EndIf
 \EndFor
 
@@ -2501,7 +2510,7 @@ from the \texttt{OrderFilled} events emitted by the CTFExchange for a single set
 \EndFor
 
 \Statex
-\State \textbf{Phase 3: Compute market price and USDC inflow in correct units}
+\State \textbf{Phase 3: Compute market price and Taker's share amount in correct units}
 \State $p_{\text{market}} \gets \min\{p \mid (p, v, s, i) \in M\}$
 \State $x \gets x \cdot 10^{-6}$ \Comment{Convert to correct units}
 

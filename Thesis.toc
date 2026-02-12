@@ -39,7 +39,7 @@
 \contentsline {chapter}{\numberline {6}Orderbook and Trading}{24}{chapter.6}%
 \contentsline {section}{\numberline {6.1}State, Ordering, and Matching}{24}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Slippage}{25}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Power Relation between USDC Taker Amount and Slippage}{25}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.1}Power Relation between Taker's USDC Amount and Slippage}{25}{subsection.6.2.1}%
 \contentsline {subsection}{\numberline {6.2.2}Comparison with Decentralized AMM Slippage}{27}{subsection.6.2.2}%
 \contentsline {section}{\numberline {6.3}Arbitrage}{27}{section.6.3}%
 \contentsline {chapter}{\numberline {7}Discussion}{29}{chapter.7}%
